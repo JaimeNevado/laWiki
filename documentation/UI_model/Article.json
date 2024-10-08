@@ -1,0 +1,32 @@
+[
+	{
+		"id": "0",
+		"AttachedFiles": "No attached files",
+		"Author": "John Doe",
+		"Date": "October 8, 2024",
+		"Google Maps": "https://maps.google.com/?q=Statue+of+Liberty",
+		"Images": "https://example.com/image1.jpg",
+		"Name": "Statue of Liberty",
+		"Text": "The Statue of Liberty is a famous monument located in New York City, symbolizing freedom and democracy."
+	},
+	{
+		"id": "1",
+		"AttachedFiles": "No attached files",
+		"Author": "Jane Smith",
+		"Date": "October 5, 2024",
+		"Google Maps": "https://maps.google.com/?q=Eiffel+Tower",
+		"Images": "https://example.com/image2.jpg",
+		"Name": "Eiffel Tower",
+		"Text": "The Eiffel Tower is a wrought-iron lattice tower in Paris, France, and one of the most recognizable structures in the world."
+	},
+	{
+		"id": "2",
+		"AttachedFiles": "No attached files",
+		"Author": "Alex Johnson",
+		"Date": "October 3, 2024",
+		"Google Maps": "https://maps.google.com/?q=Great+Wall+of+China",
+		"Images": "https://example.com/image3.jpg",
+		"Name": "Great Wall of China",
+		"Text": "The Great Wall of China is an ancient series of walls and fortifications, stretching across northern China."
+	}
+]
