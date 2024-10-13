@@ -1,0 +1,3 @@
+-pip install -r requirements.txt //para instalar todos los requisitos
+-Install Mongo for windows -> https://www.mongodb.com/try/download/community choose msi
+-Add mongodb to the path variable C:\Program Files\MongoDB\Server\8.0\bin It can change, depends on its location on your computer 
