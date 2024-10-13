@@ -1,0 +1,35 @@
+[
+	{
+		"id": "0",
+		"Description": "Wikipedia is a free encyclopedia, collaboratively edited by volunteers worldwide. Its articles cover a wide range of topics.",
+		"Name": "Wikipedia",
+		"Author": "Jimmy Wales, Larry Sanger",
+		"Date": "January 15, 2001",
+		"Editors": "Millions of volunteer editors",
+		"Keywords": "Encyclopedia, Knowledge, Collaboration, Free",
+		"Logo": "https://upload.wikimedia.org/wikipedia/commons/8/80/Wikipedia-logo-v2.svg",
+		"Tags": "Encyclopedia, Free, Collaboration, Knowledge"
+	},
+	{
+		"id": "1",
+		"Description": "Jimmy Wales is the co-founder of Wikipedia and an advocate for free knowledge.",
+		"Name": "Jimmy Wales",
+		"Author": "0",
+		"Date": "August 7, 1966",
+		"Editors": "0",
+		"Keywords": "Wikipedia, Founder, Free Knowledge",
+		"Logo": "0",
+		"Tags": "Founder, Wikipedia, Knowledge"
+	},
+	{
+		"id": "2",
+		"Description": "Larry Sanger is the co-founder of Wikipedia and a philosopher of education.",
+		"Name": "Larry Sanger",
+		"Author": "0",
+		"Date": "July 16, 1968",
+		"Editors": "0",
+		"Keywords": "Wikipedia, Philosophy, Education, Founder",
+		"Logo": "0",
+		"Tags": "Founder, Education, Philosophy"
+	}
+]

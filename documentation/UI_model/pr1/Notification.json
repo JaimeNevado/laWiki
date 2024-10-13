@@ -1,0 +1,20 @@
+[
+	{
+		"id": "0",
+		"content": "Your article 'Statue of Liberty' has been approved for publishing.",
+		"date": "October 8, 2024",
+		"username": "JohnDoe"
+	},
+	{
+		"id": "1",
+		"content": "You received a new comment on your article 'Eiffel Tower'.",
+		"date": "October 7, 2024",
+		"username": "JaneSmith"
+	},
+	{
+		"id": "2",
+		"content": "Your profile has been updated successfully.",
+		"date": "October 6, 2024",
+		"username": "AlexJohnson"
+	}
+]
