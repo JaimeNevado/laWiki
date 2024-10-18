@@ -1,0 +1,14 @@
+services:
+  wikis:
+    build:
+      dockerfile: Dockerfile_wiki
+    ports:
+      - "8000:80"
+
+ # articles:
+ #   build:
+ #     context: ./article
+ #     dockerfile: Dockerfile
+ #   ports:
+ #     - "8001:80"
+
