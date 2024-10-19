@@ -1,2 +1,12 @@
 # Mac Junk
 .DS_Store
+
+
+# Environment Variables
+.env
+
+# Log Files
+*.log
+
+# Python
+__pycache__/

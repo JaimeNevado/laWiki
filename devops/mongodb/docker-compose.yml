@@ -1,17 +1,18 @@
-version: '3.8'
 services:
   mongo:
     image: mongo:8.0
-    container_name: la_wiki_mongo_db
+    container_name: la_wiki_mongodb
     ports:
       - "27017:27017"  # Expose MongoDB on port 27017
     environment:
+      MONGO_INITDB_ROOT_USERNAME: wiki_administrator  # Admin username
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}  # Admin password
       MONGO_INITDB_DATABASE: la_wiki_db  # Initial database name
     volumes:
-      - :la_wiki_mongodb_data:/data/db  # Mount the volume for persistent data
+      - la_wiki_mongodb_data:/data/db  # Mount the volume for persistent data
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro  # Initialize script to seed data
 
 volumes:
-  mongo_data:
+  la_wiki_mongodb_data:
     driver: local  # Local volume for MongoDB data
 
