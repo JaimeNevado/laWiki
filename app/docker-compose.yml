@@ -3,12 +3,12 @@ services:
     build:
       dockerfile: Dockerfile_wiki
     ports:
-      - "8000:80"
+      - "13000:80"
 
-  articles:
-    build:
+#  articles:
+#    build:
 #      context: ./article
-      dockerfile: Dockerfile_wikis
-    ports:
-      - "8001:80"
+#      dockerfile: Dockerfile_wikis
+#    ports:
+#      - "8001:80"
 

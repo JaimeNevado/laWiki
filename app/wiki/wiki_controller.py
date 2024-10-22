@@ -6,7 +6,7 @@ from bson import ObjectId
 # from fastapi.middleware.cors import CORSMiddleware  # CORS, permitir origenes como swagger.io
 from typing import Union, List                            # typing, anotacionesiones de tipos
 # from pydantic import BaseModel, Field                      # pydantic, comprobaciones de tipos en runtime; tipos complejos
-from Wiki import Wiki
+from wiki import Wiki
 
 # Helper function to convert MongoDB documents to JSON-serializable format
 def serialize_document(doc):
