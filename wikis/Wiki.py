@@ -43,10 +43,25 @@ def get_wikis():
 
 #Elimina uno de las wikis
 @api.delete(path + "wikis/{item_id}")
-async def delete(item_id: str):
+def delete(item_id: str):
     if not ObjectId.is_valid(item_id):
         raise HTTPException(status_code=400, detail="Invalid item ID")
     
-    delete_result =  wiki_collection.delete_one({"_id" : ObjectId(item_id)})
+    wiki_collection.delete_one({"_id" : ObjectId(item_id)})
 
     return {"message": "Item deleted successfully"}
+
+@api.put(path + "wikis/{item_id}")
+def update(item_id: str, wiki: Wiki):
+    if not ObjectId.is_valid(item_id):
+        raise HTTPException(status_code=400, detail="Invalid item ID")
+    
+    wiki_updated = wiki_collection.find_one_and_update(
+        {"_id" : ObjectId(item_id)},
+        {"$set" : wiki.dict().items()},
+        return_document = True
+    )
+
+    if wiki_updated is None :
+        raise HTTPException(status_code=404,detail="Wiki not found")
+    return wiki_updated
