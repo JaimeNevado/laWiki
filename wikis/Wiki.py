@@ -1,3 +1,5 @@
+from http.client import HTTPException
+import json
 from pydantic import BaseModel
 from typing import Union
 from fastapi import FastAPI, Response
@@ -31,9 +33,20 @@ def create(wiki: Wiki):
 @api.get(path + "wikis")
 def get_wikis():
     # Obtener todos los documentos de la colección
-    documentos = list(wiki_collection.find())
+    documentos =  list(wiki_collection.find())
+    for documento in documentos:
+        documento["_id"] = str(documento["_id"])
+    json_documentos = json.dumps(documentos)
 
-
-    
     # Devolver los documentos como una lista JSON
     return documentos
+
+#Elimina uno de las wikis
+@api.delete(path + "wikis/{item_id}")
+async def delete(item_id: str):
+    if not ObjectId.is_valid(item_id):
+        raise HTTPException(status_code=400, detail="Invalid item ID")
+    
+    delete_result =  wiki_collection.delete_one({"_id" : ObjectId(item_id)})
+
+    return {"message": "Item deleted successfully"}

@@ -8,5 +8,5 @@ uri = "mongodb+srv://wikiAdmin:_P5JP53hT8@cluster0.w2vxl.mongodb.net/?retryWrite
 client = MongoClient(uri)
 
 # Crear o conectar a la base de datos 'miBaseDeDatos'
-db = client['laWIki']
+db = client['laWiki']
 
