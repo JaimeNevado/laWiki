@@ -5,10 +5,10 @@ services:
     ports:
       - "8000:80"
 
- # articles:
- #   build:
- #     context: ./article
- #     dockerfile: Dockerfile
- #   ports:
- #     - "8001:80"
+  articles:
+    build:
+#      context: ./article
+      dockerfile: Dockerfile_wikis
+    ports:
+      - "8001:80"
 
