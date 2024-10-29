@@ -1,0 +1,5 @@
+uvicorn
+fastApi
+pydantic
+pymongo
+motor
