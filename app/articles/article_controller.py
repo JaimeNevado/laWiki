@@ -1,3 +1,8 @@
+# I followed best practices from the slides
+# plural names
+# plural_name_collection
+# post messages: object name + was created successfully
+# delete messages: object name + was deleted successfully
 from fastapi import FastAPI
 from database_connection import MongoDBAtlas
 from articles import Article
@@ -7,29 +12,31 @@ from bson import ObjectId
 
 db = MongoDBAtlas()
 db.connect()
-collection_name = db.get_collection("Articles")
+articles_collection = db.get_collection("Articles")
 
 router = FastAPI()
 
+path = "/api/v1/"
 # GET Request Method
-@router.get("/")
+@router.get(path + "articles")
 async def get_articles():
-    articles = list_serial(collection_name.find())
+    articles = list_serial(articles_collection.find())
     return articles
 
 # POST Request Method
-@router.post("/")
+@router.post(path + "articles")
 async def post_article(article: Article):
-    collection_name.insert_one(dict(article))
+    articles_collection.insert_one(dict(article))
+    return {"message": "Article was created successfully"}
 
 # PUT Request Method
-@router.put("/{id}")
-async def put_article(id: str, article: Article):
-    collection_name.find_one_and_update({"_id" : ObjectId(id)}, {"$set" : dict(article)})
-
+@router.put(path + "articles/{id}")
+async def update(id: str, article: Article):
+    articles_collection.find_one_and_update({"_id" : ObjectId(id)}, {"$set" : dict(article)})
+    return {"message": "Article was  updated successfully"}
 
 # Delete Request Method
-@router.delete("/{id}")
-async def delete_article(id: str):
-    collection_name.find_one_and_delete({"_id" : ObjectId(id)})
-    
+@router.delete(path + "articles/{id}")
+async def delete(id: str):
+    articles_collection.find_one_and_delete({"_id" : ObjectId(id)})
+    return {"message": "Article was deleted successfully"}

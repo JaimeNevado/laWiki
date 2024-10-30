@@ -1,13 +1,15 @@
 from http.client import HTTPException
 from database_connection import MongoDBAtlas 
-from fastapi import FastAPI, Response               # FastAPI
+from fastapi import FastAPI, Response               
 from fastapi.encoders import jsonable_encoder
 from bson import ObjectId 
-# from fastapi.middleware.cors import CORSMiddleware  # CORS, permitir origenes como swagger.io
-from typing import Union, List                            # typing, anotacionesiones de tipos
-# from pydantic import BaseModel, Field                      # pydantic, comprobaciones de tipos en runtime; tipos complejos
+from typing import Union, List                          
 from wiki import Wiki
-
+import requests
+import sys
+import os
+sys.path.append(os.path.abspath('../articles'))
+from articles import Article
 # Helper function to convert MongoDB documents to JSON-serializable format
 def serialize_document(doc):
     return {
@@ -18,48 +20,51 @@ def serialize_document(doc):
 # Initializing database
 db = MongoDBAtlas()
 db.connect()
-collection = db.get_collection("Wikis")
+wikis_collections = db.get_collection("Wikis")
 
 api = FastAPI()
 
 path = "/api/v1/"
 
+#sirve tanto para wikis como para wiki
 @api.get(path + "wikis")                            
 def get_wikis(author: Union[str, None] = None, order_type: int = 1):
     query = None
     if author is not None:
-        query = {"author" : author}                                 
-    wikis = collection.find(query).sort("name",order_type)
+        query = {"author" : author}                          
+    wikis = wikis_collections.find(query).sort("name",order_type)
     serialized_wikis = [serialize_document(wiki) for wiki in wikis]
     return serialized_wikis
 
+
+
 @api.post(path + "wikis")
 def create_wiki(wiki: Wiki, status_code=201):
-    encoded_wiki = jsonable_encoder(wiki)
-    collection.insert_one(encoded_wiki)
-    return wiki
-
-@api.delete(path + "wikis/{item_id}")
-async def delete(item_id: str):
-    if not ObjectId.is_valid(item_id):
-        raise HTTPException(status_code=400, detail="Invalid item ID")
-    
-    delete_result =  collection.delete_one({"_id" : ObjectId(item_id)})
-
-    return {"message": "Item deleted successfully"}
+    wikis_collections.insert_one(dict(wiki))
+    return {"message": "Wiki was created successfully"}
 
 @api.put(path + "wikis/{item_id}")
 def update(item_id: str, wiki: Wiki):
-    if not ObjectId.is_valid(item_id):
-        raise HTTPException(status_code=400, detail="Invalid item ID")
-    #wikiSet = {k: v for k, v in wiki.dict().items()}
-    wiki_updated = collection.find_one_and_update(
-        {"_id" : ObjectId(item_id)},
-        {"$set" : wiki.dict()},
-        return_document = True
-    )
+    wiki_updated = wikis_collections.find_one_and_update( {"_id" : ObjectId(item_id)},{"$set" : dict(wiki)})
+    return {"message": "Wiki was updated successfully"}
 
-    if wiki_updated is None :
-        raise HTTPException(status_code=404,detail="Wiki not found")
-    return serialize_document(wiki_updated)
+@api.delete(path + "wikis/{item_id}")
+def delete(item_id: str):
+   wikis_collections.delete_one({"_id" : ObjectId(item_id)})
+   return {"message": "Wiki was deleted successfully"}
+
+@api.post("/wikis/{wiki_id}/articles/")
+async def create_article_for_wiki(wiki_id: str, article: Article):
+    # Add the wiki_id to the article request data
+    article_data = dict(article)
+    article_data["id"] = wiki_id
+
+    # Send a POST request to the articles microservice to create the article
+    response = requests.post("http://localhost:8000" + path + "articles", json=article_data)
     
+    
+    return response.json()
+
+
+
+
