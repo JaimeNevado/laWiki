@@ -3,12 +3,20 @@ services:
     build:
       dockerfile: Dockerfile_wiki
     ports:
-      - "13000:80"
-
+      - "7000:8000"
+    depends_on:
+      - articles
+#    networks:
+#      - app-network
   articles:
     build:
       # context: ./article
       dockerfile: Dockerfile_article
     ports:
-      - "13001:80"
+      - "8000:80"
+#   networks:
+#     app-network
 
+#networks:
+#  app-network:
+#    driver: bridge

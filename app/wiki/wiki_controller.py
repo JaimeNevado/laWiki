@@ -1,7 +1,5 @@
 from http.client import HTTPException
 from database_connection import MongoDBAtlas 
-from fastapi import FastAPI, Response               
-from fastapi.encoders import jsonable_encoder
 from bson import ObjectId 
 from typing import Union, List                          
 from wiki import Wiki
@@ -10,6 +8,7 @@ import sys
 import os
 sys.path.append(os.path.abspath('../articles'))
 from articles import Article
+from fastapi import FastAPI
 # Helper function to convert MongoDB documents to JSON-serializable format
 def serialize_document(doc):
     return {
