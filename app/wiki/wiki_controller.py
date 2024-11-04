@@ -4,17 +4,23 @@ from bson import ObjectId
 from typing import Union, List                          
 from wiki import Wiki
 import requests
+from httpx import AsyncClient;
 import sys
 import os
 sys.path.append(os.path.abspath('../articles'))
 from articles import Article
 from fastapi import FastAPI
+
 # Helper function to convert MongoDB documents to JSON-serializable format
 def serialize_document(doc):
     return {
         **doc,
         "_id": str(doc["_id"]) if "_id" in doc else None,  # Convert ObjectId to string
     }
+
+ARTICLE_URL = "http://127.0.0.1:13001"
+ARTICLE_URL_DOCKER = "http://articles-1"
+
 
 # Initializing database
 db = MongoDBAtlas()
@@ -54,16 +60,17 @@ def delete(item_id: str):
 
 @api.post("/wikis/{wiki_id}/articles/")
 async def create_article_for_wiki(wiki_id: str, article: Article):
-    # Add the wiki_id to the article request data
-    article_data = dict(article)
-    article_data["id"] = wiki_id
+    # Using an asynchronous HTTP client to call the article microservice
+    client = AsyncClient()
+    try:
+        article_data = dict(article)
+        article_data["id"] = wiki_id
 
-    # Send a POST request to the articles microservice to create the article
-    response = requests.post("http://localhost:8000" + path + "articles", json=article_data)
-    
-    
-    return response.json()
+        # Send a POST request to the articles microservice to create the article
+        response = await client.post(ARTICLE_URL_DOCKER + path + "articles", json=article_data)
+        response.raise_for_status()  # Raise an error for HTTP errors
 
-
-
-
+        # Assuming the article service returns a JSON list of articles
+        return response.json()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error retrieving articles: {str(e)}")
