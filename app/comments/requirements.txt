@@ -1,0 +1,7 @@
+uvicorn
+fastApi
+pydantic
+pymongo
+motor
+httpx
+

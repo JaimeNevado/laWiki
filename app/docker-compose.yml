@@ -17,6 +17,15 @@ services:
     networks:
       - la_wiki
 
+  comments:
+    container_name: comments-1
+    build:
+      dockerfile: Dockerfile_comment
+    ports:
+      - "13002:80"
+    networks:
+      - la_wiki
+
 networks:
   la_wiki:
     driver: bridge
