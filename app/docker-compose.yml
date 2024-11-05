@@ -1,14 +1,23 @@
 services:
   wikis:
+    container_name: wikis-1
     build:
       dockerfile: Dockerfile_wiki
     ports:
       - "13000:80"
+    networks: 
+      - la_wiki
 
   articles:
+    container_name: articles-1
     build:
       # context: ./article
       dockerfile: Dockerfile_article
     ports:
       - "13001:80"
+    networks:
+      - la_wiki
 
+networks:
+  la_wiki:
+    driver: bridge
