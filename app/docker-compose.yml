@@ -11,7 +11,6 @@ services:
   articles:
     container_name: articles-1
     build:
-      # context: ./article
       dockerfile: Dockerfile_article
     ports:
       - "13001:80"

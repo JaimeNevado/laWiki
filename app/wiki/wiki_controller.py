@@ -3,7 +3,6 @@ from database_connection import MongoDBAtlas
 from bson import ObjectId 
 from typing import Union, List                          
 from wiki import Wiki
-import requests
 from httpx import AsyncClient;
 import sys
 import os
