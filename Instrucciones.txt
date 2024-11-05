@@ -4,3 +4,5 @@ Hemos desarrollado un script Docker que despliega la aplicación en dos contened
 Para desplegar la aplicación, solo necesitas acceder al directorio /app y ejecutar el comando docker compose up -d. Luego, puedes abrir un navegador web y acceder a la documentación de cada contenedor en las siguientes direcciones:
 wikis-1: localhost:13000/docs
 articles-1: localhost:13001/docs
+
+No hemos incluido una especificación OpenAPI personalizada ni un conjunto de pruebas en Postman, ya que, al utilizar FastAPI en nuestros microservicios, la documentación OpenAPI se genera automáticamente. Esto permite que cada microservicio exponga su propia interfaz de documentación interactiva, accesible desde /docs en su respectivo puerto, sin necesidad de configuraciones adicionales.
