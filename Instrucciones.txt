@@ -1,0 +1,6 @@
+Instrucciones
+
+Hemos desarrollado un script Docker que despliega la aplicación en dos contenedores: wikis-1 y articles-1, asignados a los puertos 13000 y 13001, respectivamente. Para la comunicación interna entre los contenedores, hemos configurado una red Docker de tipo bridge llamada la_wiki.
+Para desplegar la aplicación, solo necesitas acceder al directorio /app y ejecutar el comando docker compose up -d. Luego, puedes abrir un navegador web y acceder a la documentación de cada contenedor en las siguientes direcciones:
+wikis-1: localhost:13000/docs
+articles-1: localhost:13001/docs
