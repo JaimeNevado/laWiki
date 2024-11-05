@@ -1,22 +1,23 @@
 services:
   wikis:
+    container_name: wikis-1
     build:
       dockerfile: Dockerfile_wiki
     ports:
-      - "7000:8000"
-    depends_on:
-      - articles
-#    networks:
-#      - app-network
+      - "13000:80"
+    networks: 
+      - la_wiki
+
   articles:
+    container_name: articles-1
     build:
       # context: ./article
       dockerfile: Dockerfile_article
     ports:
-      - "8000:80"
-#   networks:
-#     app-network
+      - "13001:80"
+    networks:
+      - la_wiki
 
-#networks:
-#  app-network:
-#    driver: bridge
+networks:
+  la_wiki:
+    driver: bridge
