@@ -4,11 +4,17 @@
 # post messages: object name + was created successfully
 # delete messages: object name + was deleted successfully
 from fastapi import FastAPI
-from database_connection import MongoDBAtlas
+
 from articles import Article
 from schemas import list_serial
 from bson import ObjectId
 from typing import Union, List  
+import sys
+import os
+sys.path.append(os.path.abspath("../"))
+from database_connection import MongoDBAtlas 
+
+
 
 # Helper function to convert MongoDB documents to JSON-serializable format
 def serialize_document(doc):
@@ -31,9 +37,9 @@ path = "/api/v1/"
 # GET Request Method
 @router.get(path + "articles")
 async def get_articles_by_wikiID(wikiID: Union[str, None] = None, order_type: int = 1):
-    query = {"wikiID": wikiID}
+    query = None
     if wikiID is not None:
-        query["wikiID"] = wikiID
+        query = {"wikiID": wikiID}
     articles = articles_collection.find(query).sort("wikiID", order_type)
     serialized_articles = [serialize_document(article) for article in articles]
     return serialized_articles

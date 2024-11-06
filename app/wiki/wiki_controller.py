@@ -4,11 +4,16 @@ from bson import ObjectId
 from typing import Union, List                          
 from wiki import Wiki
 from httpx import AsyncClient;
+
+from fastapi import FastAPI
+
+
 import sys
 import os
+sys.path.append(os.path.abspath("../"))
+from database_connection import MongoDBAtlas 
 sys.path.append(os.path.abspath('../articles'))
 from articles import Article
-from fastapi import FastAPI
 
 # Helper function to convert MongoDB documents to JSON-serializable format
 def serialize_document(doc):
@@ -65,8 +70,9 @@ async def create_article_for_wiki(wiki_id: str, article: Article):
     article_data["id"] = wiki_id
 
     # Send a POST request to the articles microservice to create the article
-    response = await client.post(ARTICLE_URL_DOCKER + path + "articles", json=article_data)
+    response = await client.post(ARTICLE_URL+ path + "articles", json=article_data)
     response.raise_for_status()  # Raise an error for HTTP errors
 
     # Assuming the article service returns a JSON list of articles
     return response.json()
+
