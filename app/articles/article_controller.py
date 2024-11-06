@@ -8,7 +8,8 @@ from fastapi import FastAPI
 from articles import Article
 from schemas import list_serial
 from bson import ObjectId
-from typing import Union, List  
+from typing import Union
+from httpx import AsyncClient
 import sys
 import os
 sys.path.append(os.path.abspath("../"))
@@ -23,8 +24,8 @@ def serialize_document(doc):
         "_id": str(doc["_id"]) if "_id" in doc else None,  # Convert ObjectId to string
     }
 
-ARTICLE_URL = "http://127.0.0.1:13001"
-ARTICLE_URL_DOCKER = "http://articles-1"
+COMMENTS_URL = "http://127.0.0.1:13002"
+COMMENTS_URL_DOCKER = "http://comments-1"
 
 
 db = MongoDBAtlas()
@@ -62,3 +63,18 @@ async def delete(id: str):
     articles_collection.find_one_and_delete({"_id" : ObjectId(id)})
     return {"message": "Article was deleted successfully"}
 
+# Show commets that belongs to this article
+@router.get(path + "articles/{article_id}/comments")
+async def get_comments_of_given_article(article_id: str, date_order: int = 1):
+    # Using an asynchronous HTTP client to call the article microservice
+    client = AsyncClient()
+
+    params ="?article_id={}&date_order={}".format(article_id, date_order)
+    # params = "?article_id={article_id}&date_order={date_order}"
+    # Send a POST request to the articles microservice to create the article
+    response = await client.get(COMMENTS_URL_DOCKER + path + "comments" + params)
+    response.raise_for_status()  # Raise an error for HTTP errors
+
+    # Assuming the article service returns a JSON list of articles
+    return response.json()
+    # return {"params": params}

@@ -3,7 +3,7 @@ from database_connection import MongoDBAtlas
 from bson import ObjectId 
 from typing import Union, List                          
 from wiki import Wiki
-from httpx import AsyncClient;
+from httpx import AsyncClient
 
 from fastapi import FastAPI
 
