@@ -1,12 +1,8 @@
-# from http.client import HTTPException
 from bson import ObjectId 
 from typing import Union
 from comments import Comment
-# from httpx import AsyncClient;
 import sys
 import os
-sys.path.append(os.path.abspath('../articles'))
-# from articles import Article
 sys.path.append(os.path.abspath("../"))
 from database_connection import MongoDBAtlas 
 from fastapi import FastAPI

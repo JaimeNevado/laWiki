@@ -1,6 +1,5 @@
-from http.client import HTTPException
 from bson import ObjectId 
-from typing import Union, List                          
+from typing import Union
 from wiki import Wiki
 from httpx import AsyncClient
 
@@ -66,10 +65,10 @@ async def create_article_for_wiki(wiki_id: str, article: Article):
     # Using an asynchronous HTTP client to call the article microservice
     client = AsyncClient()
     article_data = dict(article)
-    article_data["id"] = wiki_id
+    article_data["wikiID"] = wiki_id
 
     # Send a POST request to the articles microservice to create the article
-    response = await client.post(ARTICLE_URL+ path + "articles", json=article_data)
+    response = await client.post(ARTICLE_URL_DOCKER + path + "articles", json=article_data)
     response.raise_for_status()  # Raise an error for HTTP errors
 
     # Assuming the article service returns a JSON list of articles
@@ -78,7 +77,7 @@ async def create_article_for_wiki(wiki_id: str, article: Article):
 @api.get(path + "wikis/{wiki_id}/articles")
 async def get_articles_for_wiki(wiki_id: str):
     client = AsyncClient()
-    url = f"{ARTICLE_URL}{path}articles"
+    url = f"{ARTICLE_URL_DOCKER}{path}articles"
     params ="?wikiID={}".format(wiki_id)
     response = await client.get(url + params)
     return  response.json()

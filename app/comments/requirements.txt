@@ -3,5 +3,4 @@ fastApi
 pydantic
 pymongo
 motor
-httpx
 

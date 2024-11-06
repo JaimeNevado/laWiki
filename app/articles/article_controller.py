@@ -6,7 +6,6 @@
 from fastapi import FastAPI
 
 from articles import Article
-from schemas import list_serial
 from bson import ObjectId
 from typing import Union
 from httpx import AsyncClient
