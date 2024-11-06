@@ -1,7 +1,7 @@
 # from http.client import HTTPException
 from bson import ObjectId 
 from typing import Union
-from comment import Comment
+from comments import Comment
 # from httpx import AsyncClient;
 import sys
 import os
