@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Union
 
+
 class Wiki(BaseModel):
     name: Union[str, None] = None
     description: Union[str, None] = None

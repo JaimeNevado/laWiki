@@ -2,6 +2,8 @@ from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
 uri = "mongodb+srv://wikiAdmin:_P5JP53hT8@cluster0.w2vxl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+
+
 # Create a new client and connect to the server
 # client = MongoClient(uri, server_api=ServerApi('1'))
 # Send a ping to confirm a successful connection
@@ -17,13 +19,13 @@ class MongoDBAtlas:
         self.database_name = "laWiki"
         self.client = None
         self.database = None
-    
+
     def connect(self):
         """
         Establish a connection to the MongoDB Atlas database.
         """
         try:
-            self.client = MongoClient(self.connection_string, server_api=ServerApi('1'))
+            self.client = MongoClient(self.connection_string, server_api=ServerApi("1"))
             self.database = self.client[self.database_name]
             print(f"Connected to the database: {self.database_name}")
         except Exception as e:
@@ -39,9 +41,11 @@ class MongoDBAtlas:
         if self.database is not None:
             return self.database[collection_name]
         else:
-            print("Database connection is not established. Please call the connect() method first.")
+            print(
+                "Database connection is not established. Please call the connect() method first."
+            )
             return None
-        
+
     def close_connection(self):
         """
         Close the connection to the MongoDB Atlas database.

@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Union
 
+
 class Comment(BaseModel):
     date: str
     title: str
