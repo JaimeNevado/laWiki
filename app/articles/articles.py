@@ -10,5 +10,6 @@ class Article(BaseModel):
     images : Union[str, None] = None
     googleMaps : Union[str, None] = None
     date : Union[str, None] = None
+    wikiID : Union[str, None] = None
 
 

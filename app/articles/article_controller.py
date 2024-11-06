@@ -8,6 +8,17 @@ from database_connection import MongoDBAtlas
 from articles import Article
 from schemas import list_serial
 from bson import ObjectId
+from typing import Union, List  
+
+# Helper function to convert MongoDB documents to JSON-serializable format
+def serialize_document(doc):
+    return {
+        **doc,
+        "_id": str(doc["_id"]) if "_id" in doc else None,  # Convert ObjectId to string
+    }
+
+ARTICLE_URL = "http://127.0.0.1:13001"
+ARTICLE_URL_DOCKER = "http://articles-1"
 
 
 db = MongoDBAtlas()
@@ -19,9 +30,13 @@ router = FastAPI()
 path = "/api/v1/"
 # GET Request Method
 @router.get(path + "articles")
-async def get_articles():
-    articles = list_serial(articles_collection.find())
-    return articles
+async def get_articles_by_wikiID(wikiID: Union[str, None] = None, order_type: int = 1):
+    query = {"wikiID": wikiID}
+    if wikiID is not None:
+        query["wikiID"] = wikiID
+    articles = articles_collection.find(query).sort("wikiID", order_type)
+    serialized_articles = [serialize_document(article) for article in articles]
+    return serialized_articles
 
 # POST Request Method
 @router.post(path + "articles")
@@ -40,3 +55,4 @@ async def update(id: str, article: Article):
 async def delete(id: str):
     articles_collection.find_one_and_delete({"_id" : ObjectId(id)})
     return {"message": "Article was deleted successfully"}
+
