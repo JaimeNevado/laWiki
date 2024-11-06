@@ -1,5 +1,4 @@
 from http.client import HTTPException
-from database_connection import MongoDBAtlas 
 from bson import ObjectId 
 from typing import Union, List                          
 from wiki import Wiki
@@ -62,7 +61,7 @@ def delete(item_id: str):
    wikis_collections.delete_one({"_id" : ObjectId(item_id)})
    return {"message": "Wiki was deleted successfully"}
 
-@api.post("/wikis/{wiki_id}/articles/")
+@api.post(path + "wikis/{wiki_id}/articles/")
 async def create_article_for_wiki(wiki_id: str, article: Article):
     # Using an asynchronous HTTP client to call the article microservice
     client = AsyncClient()
@@ -76,3 +75,10 @@ async def create_article_for_wiki(wiki_id: str, article: Article):
     # Assuming the article service returns a JSON list of articles
     return response.json()
 
+@api.get(path + "wikis/{wiki_id}/articles")
+async def get_articles_for_wiki(wiki_id: str):
+    client = AsyncClient()
+    url = f"{ARTICLE_URL}{path}articles"
+    params ="?wikiID={}".format(wiki_id)
+    response = await client.get(url + params)
+    return  response.json()
