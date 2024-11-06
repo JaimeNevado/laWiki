@@ -7,4 +7,4 @@ class Wiki(BaseModel):
     author: Union[str, None] = None
     # bg_image: Union[str, None] = None
     # logo: Union[str, None] = None
-    # localization: Union[str, None] = None
+    # location: Union[str, None] = None
