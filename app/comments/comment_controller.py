@@ -1,5 +1,6 @@
 from bson import ObjectId
 from typing import Union
+from httpx import AsyncClient
 from comments import Comment
 import sys
 import os
@@ -15,6 +16,10 @@ def serialize_document(doc):
         **doc,
         "_id": str(doc["_id"]) if "_id" in doc else None,  # Convert ObjectId to string
     }
+
+
+ARTICLE_URL = "http://127.0.0.1:13001"
+ARTICLE_URL_DOCKER = "http://articles-1"
 
 
 # Initializing database
@@ -63,6 +68,14 @@ def get_comments(
     return serialized_comments
 
 
+# get comment by id
+@api.get(path + "commments/{comment_id}")
+async def get_comment_by_id(comment_id: str):
+    comment = comment_collection.find_one({"_id": ObjectId(comment_id)})
+    serialized_comment = serialize_document(comment)
+    return serialized_comment
+
+
 # add new comment
 @api.post(path + "comments")
 def create_comment(comment: Comment, status_code=201):
@@ -92,3 +105,32 @@ def get_comments_of_given_article(article_id: str, order_type: int = 1):
     comments = comment_collection.find(query).sort("date", order_type)
     serialized_comments = [serialize_document(comment) for comment in comments]
     return serialized_comments
+
+
+# Get Article that is associated with given comment
+@api.get(path + "comments/{comment_id}/article")
+async def get_article_of_the_comment(comment_id: str):
+    comment = await get_comment_by_id(comment_id)
+    article_id = dict(comment).get("article_id")
+
+    client = AsyncClient()
+
+    response = await client.get(ARTICLE_URL_DOCKER + path + "articles/" + article_id)
+    response.raise_for_status()  # Raise an error for HTTP errors
+
+    return response.json()
+
+
+# Get Wiki that is associated with given comment
+@api.get(path + "comments/{comment_id}/wiki")
+async def get_wiki_of_the_comment(comment_id: str):
+    article = await get_article_of_the_comment(comment_id)
+    article_id = dict(article).get("_id")
+
+    client = AsyncClient()
+    response = await client.get(
+        ARTICLE_URL_DOCKER + path + "articles/" + article_id + "/wiki"
+    )
+    response.raise_for_status()
+
+    return response.json()

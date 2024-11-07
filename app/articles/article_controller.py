@@ -29,7 +29,8 @@ def serialize_document(doc):
 
 COMMENTS_URL = "http://127.0.0.1:13002"
 COMMENTS_URL_DOCKER = "http://comments-1"
-
+WIKI_URL = "http://127.0.0.1:13000"
+WIKI_URL_DOCKER = "http://wikis-1"
 
 db = MongoDBAtlas()
 db.connect()
@@ -49,6 +50,14 @@ async def get_articles_by_wikiID(wikiID: Union[str, None] = None, order_type: in
     articles = articles_collection.find(query).sort("wikiID", order_type)
     serialized_articles = [serialize_document(article) for article in articles]
     return serialized_articles
+
+
+# Get 1 article by id
+@router.get(path + "articles/{article_id}")
+async def get_article_by_id(article_id: str):
+    article = articles_collection.find_one({"_id": ObjectId(article_id)})
+    serialized_article = serialize_document(article)  # No error control so far
+    return serialized_article
 
 
 # POST Request Method
@@ -87,6 +96,7 @@ async def get_comments_of_given_article(article_id: str, date_order: int = 1):
     return response.json()
 
 
+# Create a comment for the article
 @router.post(path + "articles/{article_id}/comments")
 async def create_comment_for_given_article(article_id: str, comment: Comment):
     # Using an asynchronous HTTP client to call the article microservice
@@ -101,4 +111,17 @@ async def create_comment_for_given_article(article_id: str, comment: Comment):
     response.raise_for_status()  # Raise an error for HTTP errors
 
     # Assuming the article service returns a JSON list of articles
+    return response.json()
+
+
+# Get wiki of the given article
+@router.get(path + "articles/{article_id}/wiki")
+async def get_wiki_of_the_article(article_id: str):
+    client = AsyncClient()
+    article = await get_article_by_id(article_id)
+    wiki_id = dict(article).get("wikiID")
+
+    response = await client.get(WIKI_URL_DOCKER + path + "wikis/" + wiki_id)
+    response.raise_for_status()
+
     return response.json()
