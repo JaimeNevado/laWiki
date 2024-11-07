@@ -2,7 +2,8 @@ services:
   wikis:
     container_name: wikis-1
     build:
-      dockerfile: Dockerfile_wiki
+      context: ./
+      dockerfile: wiki/Dockerfile
     ports:
       - "13000:80"
     networks: 
@@ -11,7 +12,8 @@ services:
   articles:
     container_name: articles-1
     build:
-      dockerfile: Dockerfile_article
+      context: ./
+      dockerfile: articles/Dockerfile
     ports:
       - "13001:80"
     networks:
@@ -20,7 +22,8 @@ services:
   comments:
     container_name: comments-1
     build:
-      dockerfile: Dockerfile_comment
+      context: ./
+      dockerfile: comments/Dockerfile
     ports:
       - "13002:80"
     networks:
