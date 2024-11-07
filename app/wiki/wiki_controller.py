@@ -49,6 +49,13 @@ def get_wikis(author: Union[str, None] = None, order_type: int = 1):
     return serialized_wikis
 
 
+@api.get(path + "wikis/{wiki_id}")
+async def get_wiki_by_id(wiki_id: str):
+    wiki = wikis_collections.find_one({"_id": ObjectId(wiki_id)})
+    serialized_wiki = serialize_document(wiki)
+    return serialized_wiki
+
+
 @api.post(path + "wikis")
 def create_wiki(wiki: Wiki, status_code=201):
     wikis_collections.insert_one(dict(wiki))
