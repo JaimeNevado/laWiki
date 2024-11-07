@@ -49,6 +49,7 @@ def get_wikis(author: Union[str, None] = None, order_type: int = 1):
     return serialized_wikis
 
 
+# Get wkki by ID
 @api.get(path + "wikis/{wiki_id}")
 async def get_wiki_by_id(wiki_id: str):
     wiki = wikis_collections.find_one({"_id": ObjectId(wiki_id)})
@@ -56,12 +57,14 @@ async def get_wiki_by_id(wiki_id: str):
     return serialized_wiki
 
 
+# Create new Wiki
 @api.post(path + "wikis")
 def create_wiki(wiki: Wiki, status_code=201):
     wikis_collections.insert_one(dict(wiki))
     return {"message": "Wiki was created successfully"}
 
 
+# Edit wiki
 @api.put(path + "wikis/{item_id}")
 def update(item_id: str, wiki: Wiki):
     wiki_updated = wikis_collections.find_one_and_update(
@@ -70,12 +73,14 @@ def update(item_id: str, wiki: Wiki):
     return {"message": "Wiki was updated successfully"}
 
 
+# Removes wiki from database
 @api.delete(path + "wikis/{item_id}")
 def delete(item_id: str):
     wikis_collections.delete_one({"_id": ObjectId(item_id)})
     return {"message": "Wiki was deleted successfully"}
 
 
+# Create new article for the given wiki
 @api.post(path + "wikis/{wiki_id}/articles/")
 async def create_article_for_wiki(wiki_id: str, article: Article):
     # Using an asynchronous HTTP client to call the article microservice
@@ -93,6 +98,7 @@ async def create_article_for_wiki(wiki_id: str, article: Article):
     return response.json()
 
 
+# Get articles of the wiki
 @api.get(path + "wikis/{wiki_id}/articles")
 async def get_articles_for_wiki(wiki_id: str):
     client = AsyncClient()
