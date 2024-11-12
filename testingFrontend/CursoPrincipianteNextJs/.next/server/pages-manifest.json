@@ -2,6 +2,8 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
+  "/nav": "pages/nav.js",
+  "/article": "pages/article.js",
   "/comment": "pages/comment.js",
-  "/article": "pages/article.js"
+  "/wiki": "pages/wiki.js"
 }

@@ -10,7 +10,10 @@
     "static/development/_buildManifest.js",
     "static/development/_ssgManifest.js"
   ],
-  "rootMainFiles": [],
+  "rootMainFiles": [
+    "static/chunks/webpack.js",
+    "static/chunks/main-app.js"
+  ],
   "rootMainFilesTree": {},
   "pages": {
     "/_app": [
@@ -32,6 +35,16 @@
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/comment.js"
+    ],
+    "/nav": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/nav.js"
+    ],
+    "/wiki": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/wiki.js"
     ]
   },
   "ampFirstPages": []
