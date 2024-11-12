@@ -1,0 +1,14 @@
+--Instalar
+npm install react@latest react-dom@latest next@latest
+--Solo hay codigo jsx no .HTML
+
+--------------Server and client
+by moving rendering and data fetching to the server, you can reduce the amount of code sent to the client
+---React Server Component Payload (RSC): 
+-The rendered result of Server Components.
+-Placeholders (or holes) for where Client Components should be rendered and references to their JavaScript files.
+
+-Next.js uses Server Components by default
+
+-useState en el cliente: 
+useState depende del ciclo de vida del cliente: useState es parte de los hooks de React, y estos están pensados para ejecutarse en el navegador, en el cliente. Estos hooks funcionan junto al ciclo de vida de los componentes de React, que incluye fases como la de montaje (mounting), actualización (updating) y desmontaje (unmounting). Estas fases ocurren en el cliente, donde React maneja la interacción y reactividad del estado.
