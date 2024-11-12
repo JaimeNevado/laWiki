@@ -1,4 +1,9 @@
 import LikeButton from './like-button';
+import Nav from './nav';
+import Footer from './footer';
+
+// remove this leater just for test
+import Comment from './comment';
 
 function Header({ title }) {
   return <h1>{title ? title : 'Default title'}</h1>;
@@ -10,12 +15,14 @@ export default function HomePage() {
   return (
     <div>
       <Header title="Develop. Preview. Ship." />
+      <Nav/>
       <ul>
         {names.map((name) => (
           <li key={name}>{name}</li>
         ))}
       </ul>
       <LikeButton/>
+      <Footer/>
     </div>
   );
 }
