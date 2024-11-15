@@ -1,3 +1,4 @@
+from fastapi import FastAPI
 from bson import ObjectId
 from typing import Union
 from httpx import AsyncClient
@@ -7,15 +8,7 @@ import os
 
 sys.path.append(os.path.abspath("../"))
 from database_connection import MongoDBAtlas
-from fastapi import FastAPI
-
-
-# Helper function to convert MongoDB documents to JSON-serializable format
-def serialize_document(doc):
-    return {
-        **doc,
-        "_id": str(doc["_id"]) if "_id" in doc else None,  # Convert ObjectId to string
-    }
+from serializer import serialize_document
 
 
 ARTICLE_URL = "http://127.0.0.1:13001"
@@ -25,7 +18,7 @@ ARTICLE_URL_DOCKER = "http://articles-1"
 # Initializing database
 db = MongoDBAtlas()
 db.connect()
-comment_collection = db.get_collection("Comments")
+collection = db.get_collection("Comments")
 
 api = FastAPI()
 
@@ -63,7 +56,7 @@ def get_comments(
     if len(sort_order) == 0:
         sort_order["date"] = 1
 
-    comments = comment_collection.find(query).sort(sort_order)
+    comments = collection.find(query).sort(sort_order)
     serialized_comments = [serialize_document(comment) for comment in comments]
     return serialized_comments
 
@@ -71,7 +64,7 @@ def get_comments(
 # get comment by id
 @api.get(path + "commments/{comment_id}")
 async def get_comment_by_id(comment_id: str):
-    comment = comment_collection.find_one({"_id": ObjectId(comment_id)})
+    comment = collection.find_one({"_id": ObjectId(comment_id)})
     serialized_comment = serialize_document(comment)
     return serialized_comment
 
@@ -79,20 +72,20 @@ async def get_comment_by_id(comment_id: str):
 # add new comment
 @api.post(path + "comments")
 def create_comment(comment: Comment, status_code=201):
-    comment_collection.insert_one(dict(comment))
+    collection.insert_one(dict(comment))
     return {"message": "Comment was created successfully"}
 
 
 @api.delete(path + "comments/{comment_id}")
 def delete(comment_id: str):
-    comment_collection.delete_one({"_id": ObjectId(comment_id)})
+    collection.delete_one({"_id": ObjectId(comment_id)})
     return {"message": "Comment was deleted successfully"}
 
 
 # Edit comment
 @api.put(path + "comments/{comment_id}")
 def update(comment_id: str, comment: Comment):
-    comment_updated = comment_collection.find_one_and_update(
+    comment_updated = collection.find_one_and_update(
         {"_id": ObjectId(comment_id)}, {"$set": dict(comment)}
     )
     return {"message": "Comment was updated successfully"}
@@ -102,7 +95,7 @@ def update(comment_id: str, comment: Comment):
 @api.get(path + "{article_id}/comments/")
 def get_comments_of_given_article(article_id: str, order_type: int = 1):
     query = {"article_id": article_id}
-    comments = comment_collection.find(query).sort("date", order_type)
+    comments = collection.find(query).sort("date", order_type)
     serialized_comments = [serialize_document(comment) for comment in comments]
     return serialized_comments
 

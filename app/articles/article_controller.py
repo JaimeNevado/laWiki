@@ -14,17 +14,10 @@ import os
 
 sys.path.append(os.path.abspath("../"))
 from database_connection import MongoDBAtlas
+from serializer import serialize_document
 
 sys.path.append(os.path.abspath("../comments"))
 from comments import Comment
-
-
-# Helper function to convert MongoDB documents to JSON-serializable format
-def serialize_document(doc):
-    return {
-        **doc,
-        "_id": str(doc["_id"]) if "_id" in doc else None,  # Convert ObjectId to string
-    }
 
 
 COMMENTS_URL = "http://127.0.0.1:13002"
@@ -34,7 +27,7 @@ WIKI_URL_DOCKER = "http://wikis-1"
 
 db = MongoDBAtlas()
 db.connect()
-articles_collection = db.get_collection("Articles")
+collection = db.get_collection("Articles")
 
 router = FastAPI()
 
@@ -47,7 +40,7 @@ async def get_articles_by_wikiID(wikiID: Union[str, None] = None, order_type: in
     query = None
     if wikiID is not None:
         query = {"wikiID": wikiID}
-    articles = articles_collection.find(query).sort("wikiID", order_type)
+    articles = collection.find(query).sort("wikiID", order_type)
     serialized_articles = [serialize_document(article) for article in articles]
     return serialized_articles
 
@@ -55,7 +48,7 @@ async def get_articles_by_wikiID(wikiID: Union[str, None] = None, order_type: in
 # Get 1 article by id
 @router.get(path + "articles/{article_id}")
 async def get_article_by_id(article_id: str):
-    article = articles_collection.find_one({"_id": ObjectId(article_id)})
+    article = collection.find_one({"_id": ObjectId(article_id)})
     serialized_article = serialize_document(article)  # No error control so far
     return serialized_article
 
@@ -63,23 +56,21 @@ async def get_article_by_id(article_id: str):
 # POST Request Method
 @router.post(path + "articles")
 async def post_article(article: Article):
-    articles_collection.insert_one(dict(article))
+    collection.insert_one(dict(article))
     return {"message": "Article was created successfully"}
 
 
 # PUT Request Method
 @router.put(path + "articles/{id}")
 async def update(id: str, article: Article):
-    articles_collection.find_one_and_update(
-        {"_id": ObjectId(id)}, {"$set": dict(article)}
-    )
+    collection.find_one_and_update({"_id": ObjectId(id)}, {"$set": dict(article)})
     return {"message": "Article was  updated successfully"}
 
 
 # Delete Request Method
 @router.delete(path + "articles/{id}")
 async def delete(id: str):
-    articles_collection.find_one_and_delete({"_id": ObjectId(id)})
+    collection.find_one_and_delete({"_id": ObjectId(id)})
     return {"message": "Article was deleted successfully"}
 
 

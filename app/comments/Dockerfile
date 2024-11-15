@@ -1,11 +1,11 @@
 FROM python:3.12-slim
 
 WORKDIR /app
-COPY ./database_connection.py /app
 COPY ./comments/requirements.txt /app
-
 RUN pip install --no-cache-dir -r requirements.txt
 
+COPY ./database_connection.py /app
+COPY ./serializer.py /app
 COPY ./comments/* /app
 
 EXPOSE 80

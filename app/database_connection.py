@@ -1,7 +1,9 @@
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
+import os
+from dotenv import load_dotenv
 
-uri = "mongodb+srv://wikiAdmin:_P5JP53hT8@cluster0.w2vxl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+# uri = "mongodb+srv://wikiAdmin:_P5JP53hT8@cluster0.w2vxl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
 
 # Create a new client and connect to the server
@@ -15,8 +17,16 @@ class MongoDBAtlas:
         :param connection_string: The MongoDB Atlas connection string.
         :param database_name: The name of the database to connect to.
         """
+        load_dotenv()
+        database_name = os.getenv("DATABASE_NAME")
+        database_url = os.getenv("DATABASE_URL")
+        database_user = os.getenv("MONGO_INITDB_ROOT_USERNAME")
+        database_pass = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
+
+        uri = f"mongodb+srv://{database_user}:{database_pass}@{database_url}"
+
         self.connection_string = uri
-        self.database_name = "laWiki"
+        self.database_name = database_name
         self.client = None
         self.database = None
 

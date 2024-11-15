@@ -4,6 +4,8 @@ services:
     build:
       context: ./
       dockerfile: wiki/Dockerfile
+    env_file:
+      - .env
     ports:
       - "13000:80"
     networks: 
@@ -14,6 +16,8 @@ services:
     build:
       context: ./
       dockerfile: articles/Dockerfile
+    env_file:
+      - .env
     ports:
       - "13001:80"
     networks:
@@ -24,6 +28,8 @@ services:
     build:
       context: ./
       dockerfile: comments/Dockerfile
+    env_file:
+      - .env
     ports:
       - "13002:80"
     networks:

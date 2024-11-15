@@ -1,14 +1,14 @@
 FROM python:3.12-slim
 
+WORKDIR /app
+COPY ./wiki/requirements.txt /app
+RUN pip install --no-cache-dir -r requirements.txt
+
 RUN mkdir /articles
 COPY ./articles/articles.py /articles
 
-WORKDIR /app
 COPY ./database_connection.py /app
-COPY ./wiki/requirements.txt /app
-
-RUN pip install --no-cache-dir -r requirements.txt
-
+COPY ./serializer.py /app
 COPY ./wiki/* /app
 
 EXPOSE 80
