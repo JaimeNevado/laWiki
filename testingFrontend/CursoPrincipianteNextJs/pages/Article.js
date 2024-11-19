@@ -1,11 +1,11 @@
 export const articleMetadata = {
-    name: null,
+    name: "wiki name",
     text: null,
     attachedFiles: null,
-    author: null,
+    author: "illya",
     images: null,
     googleMaps: null,
-    date: null,
+    date: "20 de noviembre de 2024",
     wikiID: null,
   }
   
