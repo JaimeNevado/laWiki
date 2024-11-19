@@ -2,14 +2,15 @@ import  Link from 'next/link';
 import { useRouter } from 'next/navigation'
 
 export default function Nav() {
-  const router = useRouter();
+  // const router = useRouter();
 
-  const irAOtraVista = () => {
-    router.push('/otra-vista');  // Navega a la vista especificada
-  };
+  // const irAOtraVista = () => {
+  //   router.push('/otra-vista');  // Navega a la vista especificada
+  // };
     return (
       <nav>
         <ul>
+          <li><Link href="/">Home</Link></li>
           <li><Link href="/wiki">Wiki</Link></li>
           <li><Link href="/my-articles">My Articles</Link></li>
 

@@ -1,10 +1,10 @@
-import LikeButton from './like-button';
-import Nav from './nav';
-import Footer from './footer';
+import LikeButton from '../components/like-button';
+import Nav from '../components/nav';
+import Footer from '../components/footer';
 
 
 // remove this leater just for test
-import Comment from './comment';
+import Comment from '../components/comment';
 
 function Header({ title }) {
   return <h1>{title ? title : 'Default title'}</h1>;
@@ -16,7 +16,7 @@ export default function HomePage() {
   return (
     <div>
       <Header title="Develop. Preview. Ship." />
-      <Nav/>
+      {/* <Nav/> */}
       <ul>
         {names.map((name) => (
           <li key={name}>{name}</li>
