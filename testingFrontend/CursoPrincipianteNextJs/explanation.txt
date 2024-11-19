@@ -1,5 +1,5 @@
 --Instalar
-npm install react@latest react-dom@latest next@latest
+npm install react@latest react-dom@latest next@latest bootstrap
 --Solo hay codigo jsx no .HTML
 
 --------------Server and client

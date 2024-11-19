@@ -1,54 +1,47 @@
-import  Link from 'next/link';
-import { useRouter } from 'next/navigation'
+import Link from 'next/link';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+function Nav() {
 
-export default function Nav() {
-  // const router = useRouter();
-
-  // const irAOtraVista = () => {
-  //   router.push('/otra-vista');  // Navega a la vista especificada
-  // };
-    return (
-      <nav class="navbar navbar-expand-lg bg-body-tertiary">
-      <div class="container-fluid">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
+  return (
+    <nav className="navbar navbar-expand-lg bg-body-tertiary">
+      <div className="container-fluid">
+        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span className="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="#">Home</a>
+        <div className="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+            <li className="nav-item">
+              <Link className="nav-link active" aria-current="page" href="/">Home</Link>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/wiki">Wiki</a>
+            <li className="nav-item">
+              <Link className="nav-link" href="/wiki">Wiki</Link>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/my-articles">My Articles</a>
+            <li className="nav-item">
+              <Link className="nav-link" href="/my-articles">My Articles</Link>
             </li>
-            <li class="nav-item">
-            <a class="nav-link" href="/article">Article</a>
+            <li className="nav-item">
+              <Link className="nav-link" href="/article">Article</Link>
             </li>
-            <li class="nav-item">
-            <a class="nav-link" href="/my-wikis">My Wikis</a>
+            <li className="nav-item">
+              <Link className="nav-link" href="/my-wikis">My Wikis</Link>
             </li>
-            <li class="nav-item">
-            <a class="nav-link" href="/profile">My Profile</a>
+            <li className="nav-item">
+              <Link className="nav-link" href="/profile">My Profile</Link>
             </li>
-            <li class="nav-item">
-            <a class="nav-link" href="/search">Search Bar</a>
-          </li>
-          <li class="nav-item">
-          <a class="nav-link" href="/comment">Comment</a>
-        </li>
+            <li className="nav-item">
+              <Link className="nav-link" href="/comment">Comment</Link>
+            </li>
           </ul>
-          <form class="d-flex" role="search">
-            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
-            <button class="btn btn-outline-success" type="submit">Search</button>
+          <form className="d-flex" role="search">
+            <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
+            <button className="btn btn-outline-success" type="submit">Search</button>
           </form>
         </div>
       </div>
-      </nav>
-      );
-  }
+    </nav>
+  );
+}
 
+
+export default Nav;
