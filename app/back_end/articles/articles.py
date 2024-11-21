@@ -25,6 +25,7 @@ class Image(BaseModel):
 
 class Article(BaseModel):
     name: Union[str, None] = None
+    short_text: Union[str, None] = None
     text: Union[str, None] = None
     attachedFiles: Union[str, None] = None
     author: Union[str, None] = None
@@ -39,7 +40,8 @@ class Article(BaseModel):
             "examples": [
                 {
                     "name": "Katana",
-                    "text": "Katana is a Japanese Sword used my samurai",
+                    "text": "A katana is a Japanese sword characterized by a curved, single-edged blade with a circular or squared guard and long grip to accommodate two hands. Developed later than the tachi, it was used by samurai in feudal Japan and worn with the edge facing upward",
+                    "short_text": "Katana is a Japanese Sword used by samurai",
                     "attachedFiles": "https://example.url",
                     "author": "illya",
                     "images": [

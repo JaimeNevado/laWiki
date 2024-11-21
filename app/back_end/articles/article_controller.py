@@ -45,6 +45,31 @@ async def get_articles_by_wikiID(wikiID: Union[str, None] = None, order_type: in
     return serialized_articles
 
 
+# GET Request Method
+@router.get(path + "articles/preview")
+async def get_articles_by_wikiID(
+    wikiID: Union[str, None] = None, num_of_article: int = 10
+):
+    query = []
+    if wikiID is not None:
+        query.append({"$match": {"wikiID": wikiID}})
+    query.append({"$sample": {"size": num_of_article}})
+    query.append(
+        {
+            "$project": {
+                "_id": 1,
+                "name": 1,
+                "author": 1,
+                "images": {"$arrayElemAt": ["$images", 0]},
+                "short_text": 1,
+            }
+        }
+    )
+    articles = collection.aggregate(query)
+    serialized_articles = [serialize_document(article) for article in articles]
+    return serialized_articles
+
+
 # Get 1 article by id
 @router.get(path + "articles/{article_id}")
 async def get_article_by_id(article_id: str):

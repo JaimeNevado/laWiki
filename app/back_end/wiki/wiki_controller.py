@@ -97,3 +97,13 @@ async def get_articles_for_wiki(wiki_id: str):
     params = "?wikiID={}".format(wiki_id)
     response = await client.get(url + params)
     return response.json()
+
+
+# Get articles of the wiki
+@api.get(path + "wikis/{wiki_id}/previewArticles")
+async def get_articles_for_wiki(wiki_id: str, num_of_article: int = 10):
+    client = AsyncClient()
+    url = f"{ARTICLE_URL_DOCKER}{path}articles/preview"
+    params = "?wikiID={}&num_of_article={}".format(wiki_id, num_of_article)
+    response = await client.get(url + params)
+    return response.json()

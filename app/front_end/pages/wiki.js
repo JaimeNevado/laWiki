@@ -1,15 +1,54 @@
-export const wikiMetadata = {
-    name: "Nombre de la wiki",
-    description:"Descripción de la wiki",
-    author: "Nombre del autor",
+import React, { useEffect, useState } from 'react';
+// import ArticleLayout from '../components/article';
+import ArticlePreview from '../components/article_preview';
+
+
+
+const Wiki = (wiki) => {
+  wiki = wiki.wiki;
+  let wikiID
+  if (!wiki) {
+    wikiID = '6717e076740a32803fb26f21'; // temporarely send a hardcoded wikiID
+  } else {
+    wikiID = wiki.wikiID;
   }
-  
-export default function HomePage() {
-    return (
-        <div>
-            <h1>{wikiMetadata.name}</h1>
-            <p>{wikiMetadata.description}</p>
-            <p>{wikiMetadata.author}</p>
-        </div>
-    );
-  }
+
+  const articlesEndpoint = "http://127.0.0.1:13000/api/v1/wikis/" + wikiID + "/previewArticles";
+  const [articles, setArticles] = useState([]);
+
+  useEffect(() => {
+    // Fetching data from the endpoint
+    const fetchArticles = async () => {
+      try {
+        const response = await fetch(articlesEndpoint);
+        if (!response.ok) {
+          throw new Error(`Error fetching articles: ${response.statusText}`);
+        }
+        const data = await response.json(); // Assuming the response is JSON
+        setArticles(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchArticles();
+  }, []); // Empty dependency array ensures the effect runs only once
+
+  return (
+    <div>
+      <div className="card-group d-flex justify-content-evenly">
+        {articles.length > 0 ? (
+          articles.map((preview, index) => (
+            <div key={index}>
+              <ArticlePreview preview={preview} />
+            </div>
+          ))
+        ) : (
+          <p>Loading articles...</p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Wiki;

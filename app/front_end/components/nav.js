@@ -21,7 +21,7 @@ function Nav() {
               <Link className="nav-link" href="/my-articles">My Articles</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" href="/article">Article</Link>
+              <Link className="nav-link" href="/article_page">Article</Link>
             </li>
             <li className="nav-item">
               <Link className="nav-link" href="/my-wikis">My Wikis</Link>
