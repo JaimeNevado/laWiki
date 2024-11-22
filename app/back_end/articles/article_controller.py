@@ -4,12 +4,13 @@ from articles import Article
 from bson import ObjectId
 from typing import Union
 from httpx import AsyncClient
+from datetime import datetime
 import sys
 import os
 
 sys.path.append(os.path.abspath("../"))
 from database_connection import MongoDBAtlas
-from serializer import serialize_document
+from la_wiki_utils import serialize_document, isostr_to_date
 
 sys.path.append(os.path.abspath("../comments"))
 from comments import Comment
@@ -81,13 +82,16 @@ async def get_articles_by_wikiID(
 async def get_article_by_id(article_id: str):
     article = collection.find_one({"_id": ObjectId(article_id)})
     serialized_article = serialize_document(article)  # No error control so far
-    return serialized_article
+    aritcle_date_parsed = isostr_to_date(serialized_article)
+    return aritcle_date_parsed
 
 
 # POST Request Method
 @router.post(path + "articles")
 async def post_article(article: Article):
-    collection.insert_one(dict(article))
+    article_dict = article.dict()
+    article_dict["date"] = datetime.isoformat(datetime.now())
+    collection.insert_one(article_dict)
     return {"message": "Article was created successfully"}
 
 

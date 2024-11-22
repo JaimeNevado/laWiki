@@ -8,7 +8,7 @@ RUN mkdir /articles
 COPY ./articles/articles.py /articles
 
 COPY ./database_connection.py /app
-COPY ./serializer.py /app
+COPY ./la_wiki_utils.py /app
 COPY ./wiki/* /app
 
 EXPOSE 80

@@ -9,7 +9,7 @@ import os
 
 sys.path.append(os.path.abspath("../"))
 from database_connection import MongoDBAtlas
-from serializer import serialize_document
+from la_wiki_utils import serialize_document
 
 
 ARTICLE_URL = "http://127.0.0.1:13001"

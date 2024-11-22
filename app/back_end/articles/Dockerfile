@@ -8,7 +8,7 @@ RUN mkdir /comments
 COPY ./comments/comments.py /comments
 
 COPY ./database_connection.py /app
-COPY ./serializer.py /app
+COPY ./la_wiki_utils.py /app
 COPY ./articles/* /app
 
 EXPOSE 80

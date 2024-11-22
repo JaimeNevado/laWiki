@@ -5,7 +5,7 @@ COPY ./comments/requirements.txt /app
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY ./database_connection.py /app
-COPY ./serializer.py /app
+COPY ./la_wiki_utils.py /app
 COPY ./comments/* /app
 
 EXPOSE 80
