@@ -3,6 +3,7 @@ from bson import ObjectId
 from typing import Union
 from httpx import AsyncClient
 from wiki import Wiki
+from fastapi.middleware.cors import CORSMiddleware
 
 import sys
 import os
@@ -25,6 +26,17 @@ db.connect()
 collection = db.get_collection("Wikis")
 
 api = FastAPI()
+
+origins = [
+    "http://127.0.0.1:3000",
+]
+api.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 path = "/api/v1/"
 
