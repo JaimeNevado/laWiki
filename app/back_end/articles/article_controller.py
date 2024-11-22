@@ -1,10 +1,5 @@
-# I followed best practices from the slides
-# plural names
-# plural_name_collection
-# post messages: object name + was created successfully
-# delete messages: object name + was deleted successfully
 from fastapi import FastAPI
-
+from fastapi.middleware.cors import CORSMiddleware
 from articles import Article
 from bson import ObjectId
 from typing import Union
@@ -30,6 +25,17 @@ db.connect()
 collection = db.get_collection("Articles")
 
 router = FastAPI()
+
+origins = [
+    "http://127.0.0.1:3000",
+]
+router.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 path = "/api/v1/"
 
