@@ -1,8 +1,27 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    images: {
-      domains: ['raw.githubusercontent.com'], // Add your trusted domains here
-    },
-  };
-  
-  module.exports = nextConfig;
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'raw.githubusercontent.com',
+        port: '',
+        pathname: '/**',
+        search: '',
+      },
+      // add your link following this pattern
+      // {
+      //   protocol: 'https',
+      //   hostname: '<your_hostmane.your_domain>',
+      //   port: '',
+      //   pathname: '/**',
+      //   search: '',
+      // }
+    ]
+  }
+  // images: {
+  //   domains: [], // Add your trusted domains here
+  // },
+};
+
+module.exports = nextConfig;

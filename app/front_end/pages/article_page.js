@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import ArticleLayout from "../components/article"; // Assuming the Article component is in components/article.js
+import Article from "../components/article"; // Assuming the Article component is in components/article.js
 
 export default function ArticlePage() {
     const router = useRouter();
@@ -21,5 +21,5 @@ export default function ArticlePage() {
     if (!article) return <div>Loading...</div>;
 
     // Pass the article data to the Article component
-    return <ArticleLayout article={article} />;
+    return <Article article={article} />;
 }
