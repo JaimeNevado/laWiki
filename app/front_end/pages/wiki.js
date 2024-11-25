@@ -1,54 +1,26 @@
-import React, { useEffect, useState } from 'react';
-// import ArticleLayout from '../components/article';
-import ArticlePreview from '../components/article_preview';
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import Wiki from "../components/wiki"; // Assuming the Article component is in components/article.js
 
+function WikiPage() {
+    const router = useRouter();
+    const { wikiID } = router.query; // Extract the article ID from the query string
+    const [wiki, setWiki] = useState(null);
 
-
-const Wiki = (wiki) => {
-  wiki = wiki.wiki;
-  let wikiID
-  if (!wiki) {
-    wikiID = '6717e076740a32803fb26f21'; // temporarely send a hardcoded wikiID
-  } else {
-    wikiID = wiki.wikiID;
-  }
-
-  const articlesEndpoint = "http://127.0.0.1:13000/api/v1/wikis/" + wikiID + "/previewArticles";
-  const [articles, setArticles] = useState([]);
-
-  useEffect(() => {
-    // Fetching data from the endpoint
-    const fetchArticles = async () => {
-      try {
-        const response = await fetch(articlesEndpoint);
-        if (!response.ok) {
-          throw new Error(`Error fetching articles: ${response.statusText}`);
+    useEffect(() => {
+        // Fetch the article only when the id is available
+        if (wikiID) {
+            fetch(`http://127.0.0.1:13000/api/v1/wikis/${wikiID}`)
+                .then((response) => response.json())
+                .then((data) => setWiki(data))
+                .catch((error) => console.error("Error fetching article:", error));
         }
-        const data = await response.json(); // Assuming the response is JSON
-        setArticles(data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
+    }, [wikiID]);
 
-    fetchArticles();
-  }, []); // Empty dependency array ensures the effect runs only once
+    // Display a loading state while fetching
+    if (!wiki) return <div>Loading...</div>;
 
-  return (
-    <div>
-      <div className="card-group d-flex justify-content-evenly">
-        {articles.length > 0 ? (
-          articles.map((preview, index) => (
-            <div key={index}>
-              <ArticlePreview preview={preview} />
-            </div>
-          ))
-        ) : (
-          <p>Loading articles...</p>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default Wiki;
+    // Pass the article data to the Article component
+    return <Wiki wiki={wiki} />;
+}
+export default WikiPage   
