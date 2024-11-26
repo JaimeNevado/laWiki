@@ -5,8 +5,10 @@ function MyApp({ Component, pageProps }) {
   return (
     
     <Layout>
-      <link rel="icon" href="/static/V.ico" type="image/x-icon" />
-      <Component {...pageProps} />
+      
+      <Component {...pageProps} 
+      
+      />
       
     </Layout>
   );
