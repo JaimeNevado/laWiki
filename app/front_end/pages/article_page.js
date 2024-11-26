@@ -1,14 +1,17 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Article from "../components/article"; // Assuming the Article component is in components/article.js
+import ArticleLayout from "../components/article"; // Asumiendo que ArticleLayout muestra el artículo
+import NewArticleForm from "../components/NewArticleForm";
+import styles from "../css/ArticlePage.module.css"; // Importar los estilos
 
 export default function ArticlePage() {
     const router = useRouter();
-    const { id } = router.query; // Extract the article ID from the query string
+    const { id } = router.query; // Extraer el ID del artículo desde la URL
     const [article, setArticle] = useState(null);
 
     useEffect(() => {
-        // Fetch the article only when the id is available
+        // Obtener el artículo solo cuando hay un ID disponible
         if (id) {
             fetch(`http://127.0.0.1:13001/api/v1/articles/${id}`)
                 .then((response) => response.json())
@@ -17,9 +20,25 @@ export default function ArticlePage() {
         }
     }, [id]);
 
-    // Display a loading state while fetching
-    if (!article) return <div>Loading...</div>;
+    return (
+        <div className={styles.container}>
+            <h1 className={styles.title}>Article Management</h1>
 
-    // Pass the article data to the Article component
-    return <Article article={article} />;
+            {id ? (
+                // Mostrar el artículo si se está accediendo a uno específico
+                article ? (
+                    <div className={styles.articleContent["article-content"]}>
+                        <Article article={article} />
+                    </div>
+                ) : (
+                    <div>Loading...</div>
+                )
+            ) : (
+                // Mostrar el formulario si no hay un ID en la URL
+                <div className={styles.button["new-article-form"]}>
+                    <NewArticleForm />
+                </div>
+            )}
+        </div>
+    );
 }
