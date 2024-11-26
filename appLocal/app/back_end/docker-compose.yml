@@ -1,0 +1,40 @@
+services:
+  wikis:
+    container_name: wikis-1
+    build:
+      context: ./
+      dockerfile: wiki/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "13000:80"
+    networks: 
+      - la_wiki
+
+  articles:
+    container_name: articles-1
+    build:
+      context: ./
+      dockerfile: articles/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "13001:80"
+    networks:
+      - la_wiki
+
+  comments:
+    container_name: comments-1
+    build:
+      context: ./
+      dockerfile: comments/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "13002:80"
+    networks:
+      - la_wiki
+
+networks:
+  la_wiki:
+    driver: bridge
