@@ -15,3 +15,10 @@ useState depende del ciclo de vida del cliente: useState es parte de los hooks d
 
 --Correr el programa
 npm run dev 
+--Instalar requirements
+pip install -r requirements.txt
+--Correr artículos
+uvicorn wiki_controller:api --reload  --port 13000 
+--Correr wiki
+uvicorn wiki_controller:api --reload  --port 13000 
+
