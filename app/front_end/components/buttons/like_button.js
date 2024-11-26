@@ -1,6 +1,6 @@
 // 'use client';
 import { useState } from 'react';
-import styles from '../css/Button.module.css';
+import styles from '../../css/Button.module.css';
 
 export default function LikeButton() {
     const [likes, setLikes] = useState(0);

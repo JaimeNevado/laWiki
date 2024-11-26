@@ -63,8 +63,13 @@ async def get_wiki_by_id(wiki_id: str):
 # Create new Wiki
 @api.post(path + "wikis")
 def create_wiki(wiki: Wiki, status_code=201):
-    collection.insert_one(dict(wiki))
-    return {"message": "Wiki was created successfully"}
+    wiki_dict = wiki.dict()
+    result = collection.insert_one(wiki_dict)
+
+    response_msg = {}
+    response_msg["msg"] = "Wiki was created successfully"
+    response_msg["inserted_id"] = f"{result.inserted_id}"
+    return response_msg
 
 
 # Edit wiki

@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import Article from "../components/article"; // Assuming the Article component is in components/article.js
 import ArticleLayout from "../components/article"; // Asumiendo que ArticleLayout muestra el artículo
 import NewArticleForm from "../components/NewArticleForm";
 import styles from "../css/ArticlePage.module.css"; // Importar los estilos
@@ -27,7 +28,7 @@ export default function ArticlePage() {
                 // Mostrar el artículo si se está accediendo a uno específico
                 article ? (
                     <div className={styles.articleContent["article-content"]}>
-                        <ArticleLayout article={article} />
+                        <Article article={article} />
                     </div>
                 ) : (
                     <div>Loading...</div>
