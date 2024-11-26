@@ -28,7 +28,7 @@ collection = db.get_collection("Articles")
 router = FastAPI()
 
 origins = [
-    "http://127.0.0.1:3000",
+    "http://localhost:3000",
 ]
 router.add_middleware(
     CORSMiddleware,

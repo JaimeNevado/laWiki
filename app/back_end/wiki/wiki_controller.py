@@ -28,7 +28,7 @@ collection = db.get_collection("Wikis")
 api = FastAPI()
 
 origins = [
-    "http://127.0.0.1:3000",
+    "http://localhost:3000",
 ]
 api.add_middleware(
     CORSMiddleware,
