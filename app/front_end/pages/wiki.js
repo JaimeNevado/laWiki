@@ -16,11 +16,12 @@ function WikiPage() {
                 .catch((error) => console.error("Error fetching article:", error));
         }
     }, [wikiID]);
-
+    
     // Display a loading state while fetching
     if (!wiki) return <div>Loading...</div>;
 
     // Pass the article data to the Article component
     return <Wiki wiki={wiki} />;
 }
-export default WikiPage   
+
+export default WikiPage

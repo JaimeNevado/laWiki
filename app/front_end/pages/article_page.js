@@ -22,7 +22,6 @@ export default function ArticlePage() {
 
     return (
         <div className={styles.container}>
-            <h1 className={styles.title}>Article Management</h1>
 
             {id ? (
                 // Mostrar el artículo si se está accediendo a uno específico

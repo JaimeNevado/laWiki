@@ -3,47 +3,47 @@ import React, { useEffect, useState } from 'react';
 import ArticlePreview from './article_preview';
 import Image from 'next/image';
 
-function WikiSkeleton(wiki){
+function WikiSkeleton(wiki) {
   wiki = wiki.wiki;
   return (
     <div className="container mt-4">
-    {/* Article Header */}
-    <div className="row">
-      <div className="col-12">
-        <h1 className="text-center">{wiki.name}</h1>
-      </div>
-    </div>
-
-    {/* Author */}
-    <div className="row">
-      <div className="col-12 text-end">
-        <p>
-        by: <strong>{wiki.author}</strong><br />
-        </p>
-      </div>
-    </div>
-
-    {/* Main Content */}
-    <div className="row">
-      {/* Images Section */}
-      <div className="col-md-4">
-        <div className="mb-3">
-          <Image
-            src={wiki.logo}
-            className="img-fluid"
-            width={100}
-            height={200}
-            alt="..."
-          />
+      {/* Article Header */}
+      <div className="row">
+        <div className="col-12">
+          <h1 className="text-center">{wiki.name}</h1>
         </div>
       </div>
 
-      {/* Text Section */}
-      <div className="col-md-8">
-        {wiki.description}
+      {/* Author */}
+      <div className="row">
+        <div className="col-12 text-end">
+          <p>
+            by: <strong>{wiki.author}</strong><br />
+          </p>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="row">
+        {/* Images Section */}
+        <div className="col-md-4">
+          <div className="mb-3">
+            <Image
+              src={wiki.logo}
+              className="img-fluid"
+              width={100}
+              height={200}
+              alt="..."
+            />
+          </div>
+        </div>
+
+        {/* Text Section */}
+        <div className="col-md-8">
+          {wiki.description}
+        </div>
       </div>
     </div>
-  </div>
   );
 }
 
@@ -81,7 +81,14 @@ const Wiki = (wiki) => {
 
   return (
     <div>
-      <Image src={wiki.background_img} fill={true} />
+      <Image
+        src={wiki.background_img}
+        // fill={true}
+        className="img-fluid"
+        width={100}
+        height={200}
+        alt="..."
+      />
       <div>
         <WikiSkeleton wiki={wiki} />
       </div>
