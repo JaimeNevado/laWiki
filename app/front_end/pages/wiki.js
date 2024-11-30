@@ -16,12 +16,26 @@ function WikiPage() {
                 .catch((error) => console.error("Error fetching article:", error));
         }
     }, [wikiID]);
-    
+
     // Display a loading state while fetching
     if (!wiki) return <div>Loading...</div>;
 
     // Pass the article data to the Article component
-    return <Wiki wiki={wiki} />;
+    return (
+        <>
+            <div style={{
+                backgroundImage: `url(${wiki.bg_image})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                height: '100vh', // Adjust as needed
+                width: '100vw',
+                position: "absolute",
+                zIndex: "-1"
+            }}>
+            </div>
+            <Wiki wiki={wiki} />
+        </>
+    );
 }
 
 export default WikiPage

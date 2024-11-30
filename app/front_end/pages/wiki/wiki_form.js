@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 
+import "../../css/wiki_form.css"
+import "../../css/page_content.css"
+
 function useUploadImage() {
   const [isUploading, setIsUploading] = useState(false);
 
@@ -116,52 +119,63 @@ function WikiForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <div className="page-content">
       <div>
-        <label htmlFor="name">Name:</label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          value={formData.name}
-          onChange={handleInputChange}
-          required
-        />
+        <form className="container mt-5 mx-0 wiki-form" onSubmit={handleSubmit}>
+          <div className="fs-2 fw-medium text-center">Create New Wiki</div>
+          <div className="form-element">
+            <label htmlFor="name" className="form-label">Name:</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              className="form-control"
+              value={formData.name}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="form-element">
+            <label htmlFor="description" className="form-label">Description:</label>
+            <textarea
+              id="description"
+              name="description"
+              className="form-control"
+              value={formData.description}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="form-element">
+            <label htmlFor="logo" className="form-label">Logo:</label>
+            <input
+              type="file"
+              id="logo"
+              name="logo"
+              accept="image/*"
+              className="form-control"
+              onChange={handleFileChange}
+            />
+          </div>
+          <div className="form-element">
+            <label htmlFor="bg_image" className="form-label">Background Image:</label>
+            <input
+              type="file"
+              id="bg_image"
+              name="bg_image"
+              accept="image/*"
+              className="form-control"
+              onChange={handleFileChange}
+            />
+          </div>
+          <div className="form-element submit-button">
+            <button type="submit" className="my-4 btn btn-primary" disabled={isUploading}>
+              {isUploading ? "Uploading..." : "Create Wiki"}
+            </button>
+          </div>
+        </form>
       </div>
-      <div>
-        <label htmlFor="description">Description:</label>
-        <textarea
-          id="description"
-          name="description"
-          value={formData.description}
-          onChange={handleInputChange}
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="logo">Logo:</label>
-        <input
-          type="file"
-          id="logo"
-          name="logo"
-          accept="image/*"
-          onChange={handleFileChange}
-        />
-      </div>
-      <div>
-        <label htmlFor="bg_image">Background Image:</label>
-        <input
-          type="file"
-          id="bg_image"
-          name="bg_image"
-          accept="image/*"
-          onChange={handleFileChange}
-        />
-      </div>
-      <button type="submit" disabled={isUploading}>
-        {isUploading ? "Uploading..." : "Create Wiki"}
-      </button>
-    </form>
+    </div>
   );
 }
 

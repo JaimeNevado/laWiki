@@ -1,9 +1,10 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import Article from "../components/article"; // Assuming the Article component is in components/article.js
+import Article from "../components/article";
 import ArticleLayout from "../components/article"; // Asumiendo que ArticleLayout muestra el artículo
-import NewArticleForm from "../components/NewArticleForm";
+import NewArticleForm from "./article/NewArticleForm";
 import styles from "../css/ArticlePage.module.css"; // Importar los estilos
+import LinkButton from '../components/buttons/button_with_link';
 
 export default function ArticlePage() {
     const router = useRouter();
@@ -21,23 +22,30 @@ export default function ArticlePage() {
     }, [id]);
 
     return (
-        <div className={styles.container}>
+        <>
+        <div className="page-content">
+            <div className={`${styles.container} mx-0`}>
 
-            {id ? (
-                // Mostrar el artículo si se está accediendo a uno específico
-                article ? (
-                    <div className={styles.articleContent["article-content"]}>
-                        <Article article={article} />
-                    </div>
+                {id ? (
+                    // Mostrar el artículo si se está accediendo a uno específico
+                    article ? (
+                        <div className={styles.articleContent["article-content"]}>
+                            <Article article={article} />
+                        </div>
+                    ) : (
+                        <div>Loading...</div>
+                    )
                 ) : (
-                    <div>Loading...</div>
-                )
-            ) : (
-                // Mostrar el formulario si no hay un ID en la URL
-                <div className={styles.button["new-article-form"]}>
-                    <NewArticleForm />
-                </div>
-            )}
+                    // Mostrar el formulario si no hay un ID en la URL
+                    <>
+                    <div className="fs-3 text-center">Article Not Found</div>
+                    <div className='text-center me-2'>
+                        <LinkButton button_text="Create Article" state="enabled" link="/article/NewArticleForm"/>
+                    </div>
+                    </>
+                )}
+            </div>
         </div>
+        </>
     );
 }

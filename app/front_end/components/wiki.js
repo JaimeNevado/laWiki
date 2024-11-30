@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-// import ArticleLayout from '../components/article';
 import ArticlePreview from './article_preview';
 import Image from 'next/image';
+import "../css/page_content.css";
+import "../css/wiki_page.css";
 
 function WikiSkeleton(wiki) {
   wiki = wiki.wiki;
@@ -80,17 +81,13 @@ const Wiki = (wiki) => {
   }, []); // Empty dependency array ensures the effect runs only once
 
   return (
-    <div>
-      <Image
-        src={wiki.background_img}
-        // fill={true}
-        className="img-fluid"
-        width={100}
-        height={200}
-        alt="..."
-      />
+    <>
+    <div className="page-content wiki-page">
       <div>
         <WikiSkeleton wiki={wiki} />
+      </div>
+      <div className='fw-medium fs-4 text-center'>
+        Some articles to read:
       </div>
       <div className="card-group d-flex justify-content-evenly">
         {articles.length > 0 ? (
@@ -105,6 +102,7 @@ const Wiki = (wiki) => {
         )}
       </div>
     </div>
+    </>
   );
 };
 
