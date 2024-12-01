@@ -17,7 +17,7 @@ export default function NewArticleForm() {
     };
 
     return (
-        <div className={`${styles.container} mt-5 mx-0 page-content`}>
+        <div className={`${styles.container} mt-5 mx-0`}>
             <h2>Create a New Article</h2>
             {success && <div className="alert alert-success">Article created successfully!</div>}
             <form onSubmit={handleSubmit}>

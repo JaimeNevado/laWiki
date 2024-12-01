@@ -17,12 +17,26 @@ function WikiPage() {
         }
     }, [wikiID]);
 
+    useEffect(() => {
+        // This code runs on the client side only
+        const myDiv = document.getElementById('main_wrapper');
+        if (myDiv) {
+          myDiv.style.backgroundImage = wiki ? `url(${wiki.bg_image})` : '#fcfcfc' ;
+          myDiv.style.backgroundSize = 'cover';
+          myDiv.style.backgroundPosition = 'center';
+          myDiv.style.height = 'auto'; // Adjust as needed
+          myDiv.style.width = '100vw';
+          //position: "absolute",
+          myDiv.style.zIndex = "-1";
+        } 
+      });
+
     // Pass the article data to the Article component
     return (
         <>
             {wiki ? (
                 <>
-                <div style={{
+                {/* <div style={{
                     backgroundImage: `url(${wiki.bg_image})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
@@ -31,7 +45,7 @@ function WikiPage() {
                     position: "absolute",
                     zIndex: "-1"
                 }}>
-                </div>
+                </div> */}
                 <Wiki wiki={wiki} />
                 </>
             ):(
