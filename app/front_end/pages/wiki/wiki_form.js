@@ -4,8 +4,8 @@ import { useEffect } from "react";
 import { useMemo } from "react";
 import Image from "next/image";
 import {uploadToCloudinary} from "../../components/utils/cloudinaryPhotos"
-import "../../css/wiki_form.css"
-import "../../css/page_content.css"
+
+
 
 
 function useUploadImage() {

@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import "../../css/page_content.css"
-import styles from "../../css/ArticlePage.module.css";
+
 
 export default function NewArticleForm() {
     const [formData, setFormData] = useState({ title: '', description: '', content: '' });

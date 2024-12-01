@@ -3,8 +3,7 @@ import { useRouter } from 'next/router';
 import ArticlePreview from './article_preview';
 import Image from 'next/image';
 import LinkButton from './buttons/button_with_link';
-import "../css/page_content.css";
-import "../css/wiki_page.css";
+
 
 
 function WikiSkeleton({ wiki }) {

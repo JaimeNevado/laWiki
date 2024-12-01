@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 function Nav() {
 

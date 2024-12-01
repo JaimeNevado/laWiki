@@ -1,8 +1,6 @@
 import Nav from "./nav";
 import Header from "./header";
 import Footer from "./footer";
-import "../css/layout.css"
-import "../css/page_content.css"
 
 const Layout = ({ children }) => {
   return (

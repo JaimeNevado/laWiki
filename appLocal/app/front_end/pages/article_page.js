@@ -5,10 +5,11 @@ import styles from "../css/ArticlePage.module.css"; // Importing styles
 import { useRouter } from 'next/router';
 
 export default function ArticlePage() {
+    
     const router = useRouter();
     const { id } = router.query; // Extract article ID from URL
     const [article, setArticle] = useState(null);
-
+    
     // Utility function to fetch article data
     useEffect(() => {
         if (id) {
@@ -19,13 +20,14 @@ export default function ArticlePage() {
         }
     }, [id]);
 
+
     // Function to fetch location and redirect
     const getMessage = async () => {
-        const lugar = 'malaga'; // Example query parameter
+        const lugar =  article?.googleMaps || "defaultLocation"; // Example query parameter
         const url = "http://nominatim.openstreetmap.org/search?q=" + lugar + 
                                 "&format=json&addressdetails=1";
         console.log(url);
-
+        
         try {
             const response = await fetch(url);
             if (!response.ok) {
@@ -65,8 +67,7 @@ export default function ArticlePage() {
             <div>
                 <p>
                     <a href="#" onClick={(e) => { e.preventDefault(); getMessage(); }}>
-                        Málaga
-                        
+                        {article?.googleMaps || "Google Maps data not available"}
                     </a>
                 </p>
             </div>

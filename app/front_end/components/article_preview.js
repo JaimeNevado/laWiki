@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import "../css/article_preview.css"
+
 
 
 function ArticlePreview(preview) {
