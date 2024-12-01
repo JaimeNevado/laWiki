@@ -29,6 +29,9 @@ api = FastAPI()
 
 origins = [
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
 ]
 api.add_middleware(
     CORSMiddleware,
@@ -63,8 +66,13 @@ async def get_wiki_by_id(wiki_id: str):
 # Create new Wiki
 @api.post(path + "wikis")
 def create_wiki(wiki: Wiki, status_code=201):
-    collection.insert_one(dict(wiki))
-    return {"message": "Wiki was created successfully"}
+    wiki_dict = wiki.dict()
+    result = collection.insert_one(wiki_dict)
+
+    response_msg = {}
+    response_msg["msg"] = "Wiki was created successfully"
+    response_msg["inserted_id"] = f"{result.inserted_id}"
+    return response_msg
 
 
 # Edit wiki
@@ -73,7 +81,11 @@ def update(item_id: str, wiki: Wiki):
     wiki_updated = collection.find_one_and_update(
         {"_id": ObjectId(item_id)}, {"$set": dict(wiki)}
     )
-    return {"message": "Wiki was updated successfully"}
+    wiki_updated = serialize_document(wiki_updated)
+    response_msg = {}
+    response_msg["msg"] = "Wiki was updated successfully"
+    response_msg["inserted_id"] = f"{wiki_updated.get('_id')}"
+    return response_msg
 
 
 # Removes wiki from database
@@ -93,7 +105,7 @@ async def create_article_for_wiki(wiki_id: str, article: Article):
 
     # Send a POST request to the articles microservice to create the article
     response = await client.post(
-        ARTICLE_URL_DOCKER + path + "articles", json=article_data
+        ARTICLE_URL + path + "articles", json=article_data
     )
     response.raise_for_status()  # Raise an error for HTTP errors
 
@@ -105,7 +117,7 @@ async def create_article_for_wiki(wiki_id: str, article: Article):
 @api.get(path + "wikis/{wiki_id}/articles")
 async def get_articles_for_wiki(wiki_id: str):
     client = AsyncClient()
-    url = f"{ARTICLE_URL_DOCKER}{path}articles"
+    url = f"{ARTICLE_URL}{path}articles"
     params = "?wikiID={}".format(wiki_id)
     response = await client.get(url + params)
     return response.json()

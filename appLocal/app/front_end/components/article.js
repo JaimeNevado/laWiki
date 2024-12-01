@@ -1,24 +1,3 @@
-function ArticleLayout(article) {
-  article = article.article;
-  return (
-    <article lang="en">
-      <header>
-        <h1>{article.name}</h1>
-        <h3>by {article.author}</h3>
-        <p>{article.date}</p>
-        <p>id: {article._id}</p>
-      </header>
-      <body>
-        <p>{article.text}</p>
-        <p>{article.attachedFiles}</p>
-        <p>{article.images}</p>
-        <p>{article.googleMaps}</p>
-        <p>{article.wikiID}</p>
-      </body>
-    </article>
-  );
-}
-
 import Image from "next/image";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -55,9 +34,11 @@ function Article(article) {
               <Image
                 src={main_img}
                 className="img-fluid"
-                width={100}
-                height={200}
+                width={0}
+                height={0}
+                sizes="25vw"
                 alt="..."
+                style={{width:"100%", height:"auto"}}
               />
             </div>
             <div className="px-10 py-10" style={{ backgroundColor: "lightblue" }}>

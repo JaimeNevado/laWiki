@@ -84,7 +84,7 @@ def update(item_id: str, wiki: Wiki):
     wiki_updated = serialize_document(wiki_updated)
     response_msg = {}
     response_msg["msg"] = "Wiki was updated successfully"
-    response_msg["inserted_id"] = f"{wiki_updated.get("_id")}"
+    response_msg["inserted_id"] = f"{wiki_updated.get('_id')}"
     return response_msg
 
 

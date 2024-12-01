@@ -1,27 +1,32 @@
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import ArticleLayout from "../components/article"; // Assuming this displays the article
-import NewArticleForm from "../components/NewArticleForm";
-import styles from "../css/ArticlePage.module.css"; // Importing styles
-import { useRouter } from 'next/router';
+import Article from "../components/article";
+import ArticleLayout from "../components/article"; // Asumiendo que ArticleLayout muestra el artículo
+import NewArticleForm from "./article/NewArticleForm";
+import styles from "../css/ArticlePage.module.css"; // Importar los estilos
+import LinkButton from '../components/buttons/button_with_link';
 
 export default function ArticlePage() {
-    
     const router = useRouter();
-    const { id } = router.query; // Extract article ID from URL
+    const { id } = router.query; // Extraer el ID del artículo desde la URL
     const [article, setArticle] = useState(null);
-    
-    // Utility function to fetch article data
+    const [wikibg, setWikiBg] = useState(null);
+
     useEffect(() => {
+        // Obtener el artículo solo cuando hay un ID disponible
         if (id) {
             fetch(`http://127.0.0.1:13001/api/v1/articles/${id}`)
                 .then((response) => response.json())
                 .then((data) => setArticle(data))
                 .catch((error) => console.error("Error fetching article:", error));
+            
+            fetch(`http://127.0.0.1:13001/api/v1/articles/${id}/wiki`)
+                .then((response) => response.json())
+                .then((data) => setWikiBg(data.bg_image))
+                .catch((error) => console.error("Error fetching wiki of the article article:", error));
         }
     }, [id]);
 
-
-    // Function to fetch location and redirect
     const getMessage = async () => {
         const lugar =  article?.googleMaps || "defaultLocation"; // Example query parameter
         const url = "http://nominatim.openstreetmap.org/search?q=" + lugar + 
@@ -44,55 +49,56 @@ export default function ArticlePage() {
             console.error('Error fetching data:', error);
         }
     };
-    
     return (
-        <div className={styles.container}>
-            <h1 className={styles.title}>Article Management</h1>
+        <>
+        
+        <div style={{
+                backgroundImage: `url(${wikibg})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                height: '100vh', // Adjust as needed
+                width: '100vw',
+                position: "absolute",
+                zIndex: "-1"
+            }}>
+        </div>
+        
+        <div className="page-content">
+            <div className={`${styles.container} mx-0`}>
 
-            {id ? (
-                article ? (
-                    <div className={styles.articleContent["article-content"]}>
-                        <ArticleLayout article={article} />
-                    </div>
+               
+                {id ? (
+                    // Mostrar el artículo si se está accediendo a uno específico
+                    article ? (
+                        <>
+                            <div className={styles.articleContent["article-content"]}>
+                                <Article article={article} />
+                            </div>
+                            <div>
+                                <p>
+                                    <a href="#" onClick={(e) => { e.preventDefault(); getMessage(); }}>
+                                        {article?.googleMaps || "Google Maps data not available"}
+                                    </a>
+                                </p>
+                            </div>
+                         </>
+                    ) : (
+                        <div>Loading...</div>
+                    )
                 ) : (
-                    <div>Loading...</div>
-                )
-            ) : (
-                <div className={styles.button["new-article-form"]}>
-                    <NewArticleForm />
-                </div>
-            )}
-
-            {/* Add the link to trigger getMessage */}
-            <div>
-                <p>
-                    <a href="#" onClick={(e) => { e.preventDefault(); getMessage(); }}>
-                        {article?.googleMaps || "Google Maps data not available"}
-                    </a>
-                </p>
+                    // Mostrar el formulario si no hay un ID en la URL
+                    <>
+                    <div className="fs-3 text-center">Article Not Found</div>
+                    <div className='text-center me-2'>
+                        <LinkButton btn_type={"btn-primary"} button_text="Create Article" state="enabled" link="/article/NewArticleForm"/>
+                    </div>
+                   
+                    </>
+                    
+                )}
             </div>
         </div>
+        
+        </>
     );
 }
-
-//    function getMessage(){
-//                 xhttp = new XMLHttpRequest();
-//                 xhttp.onreadystatechange = handleResponse;
-//                 var lugar = "malaga";
-//                 console.log(url);
-//                 xhttp.open("GET", url, true);
-//                 xhttp.send(null);
-//     }
-//   function handleResponse() {
-                 
-//     if (xhttp.readyState == 4 && xhttp.status == 200) {
-                        
-//     var response = xhttp.responseText;
-                    
-//     var texto = JSON.parse(response);
-//         console.log(texto);  
-//         console.log("Coordenadas: " + texto[0].lat + "," + texto[0].lon); // coords. del primer resultado
-//         window.location.href = "showMap2.html?lon=" + texto[0].lon + "&lat=" + texto[0].lat;
-    
-//     }
-//  }

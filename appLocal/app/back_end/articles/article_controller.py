@@ -29,6 +29,9 @@ router = FastAPI()
 
 origins = [
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
 ]
 router.add_middleware(
     CORSMiddleware,
@@ -116,7 +119,7 @@ async def get_comments_of_given_article(article_id: str, date_order: int = 1):
 
     params = "?article_id={}&date_order={}".format(article_id, date_order)
 
-    response = await client.get(COMMENTS_URL_DOCKER + path + "comments" + params)
+    response = await client.get(COMMENTS_URL + path + "comments" + params)
     response.raise_for_status()  # Raise an error for HTTP errors
 
     return response.json()
@@ -132,7 +135,7 @@ async def create_comment_for_given_article(article_id: str, comment: Comment):
 
     # Send a POST request to the articles microservice to create the article
     response = await client.post(
-        COMMENTS_URL_DOCKER + path + "comments", json=comment_data
+        COMMENTS_URL + path + "comments", json=comment_data
     )
     response.raise_for_status()  # Raise an error for HTTP errors
 
@@ -147,7 +150,7 @@ async def get_wiki_of_the_article(article_id: str):
     article = await get_article_by_id(article_id)
     wiki_id = dict(article).get("wikiID")
 
-    response = await client.get(WIKI_URL_DOCKER + path + "wikis/" + wiki_id)
+    response = await client.get(WIKI_URL + path + "wikis/" + wiki_id)
     response.raise_for_status()
 
     return response.json()

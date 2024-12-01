@@ -1,18 +1,27 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    images: {
-      domains: ['raw.githubusercontent.com'], // Add your trusted domains here
-    },
-    async rewrites() {
-      return [
-        {
-          source: "/api/:path*", // Endpoint en el frontend
-          destination: "http://127.0.0.1:13000/api/:path*", // URL del backend
-        },
-      ];
-    },
-  };
-  
-  module.exports = nextConfig;
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'raw.githubusercontent.com',
+        port: '',
+        pathname: '/**',
+        search: '',
+      },
+      // add your link following this pattern
+      // {
+      //   protocol: 'https',
+      //   hostname: '<your_hostmane.your_domain>',
+      //   port: '',
+      //   pathname: '/**',
+      //   search: '',
+      // }
+    ]
+  }
+  // images: {
+  //   domains: [], // Add your trusted domains here
+  // },
+};
 
-  
+module.exports = nextConfig;
