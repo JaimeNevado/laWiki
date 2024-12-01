@@ -5,6 +5,7 @@ from bson import ObjectId
 from typing import Union
 from httpx import AsyncClient
 from datetime import datetime
+from bson.regex import Regex
 import sys
 import os
 
@@ -46,10 +47,21 @@ path = "/api/v1/"
 
 # GET Request Method
 @router.get(path + "articles")
-async def get_articles_by_wikiID(wikiID: Union[str, None] = None, order_type: int = 1):
-    query = None
+async def get_articles_by_wikiID(
+    wikiID: Union[str, None] = None, name: Union[str, None] = None, order_type: int = 1
+):
+    query = {}
     if wikiID is not None:
-        query = {"wikiID": wikiID}
+        query["wikiID"] = wikiID
+    if name is not None:
+        query["name"] = {"$regex": name, "$options": "i"}
+
+    if not query:
+        query = None
+
+    if order_type is None:
+        order_type = 1
+
     articles = collection.find(query).sort("wikiID", order_type)
     serialized_articles = [serialize_document(article) for article in articles]
     return serialized_articles
@@ -58,12 +70,18 @@ async def get_articles_by_wikiID(wikiID: Union[str, None] = None, order_type: in
 # GET Request Method
 @router.get(path + "articles/preview")
 async def get_articles_by_wikiID(
-    wikiID: Union[str, None] = None, num_of_article: int = 10
+    wikiID: Union[str, None] = None,
+    name: Union[str, None] = None,
+    random: bool = False,
+    num_of_article: int = 10,
 ):
     query = []
     if wikiID is not None:
         query.append({"$match": {"wikiID": wikiID}})
-    query.append({"$sample": {"size": num_of_article}})
+    if random:
+        query.append({"$sample": {"size": num_of_article}})
+    if name:
+        query.append({"$match": {"name": {"$regex": name, "$options": "i"}}})
     query.append(
         {
             "$project": {

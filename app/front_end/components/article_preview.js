@@ -3,9 +3,10 @@ import Image from "next/image";
 
 
 
-function ArticlePreview(preview) {
-    preview = preview.preview;
-    preview.images = "https://raw.githubusercontent.com/ijsto/reactnextjssnippets/master/images/logo02.png";
+function ArticlePreview({preview}) {
+    if (!preview.images){
+        preview.images = "https://raw.githubusercontent.com/ijsto/reactnextjssnippets/master/images/logo02.png";
+    }
     return (
         <div className="card m-3" style={{ width: "18rem" }}>
             <Image

@@ -125,9 +125,11 @@ async def get_articles_for_wiki(wiki_id: str):
 
 # Get articles of the wiki
 @api.get(path + "wikis/{wiki_id}/previewArticles")
-async def get_articles_for_wiki(wiki_id: str, num_of_article: int = 10):
+async def get_articles_for_wiki(wiki_id: str, num_of_article: int = 10, random=True):
     client = AsyncClient()
     url = f"{ARTICLE_URL_DOCKER}{path}articles/preview"
-    params = "?wikiID={}&num_of_article={}".format(wiki_id, num_of_article)
+    params = "?wikiID={}&num_of_article={}&random={}".format(
+        wiki_id, num_of_article, random
+    )
     response = await client.get(url + params)
     return response.json()

@@ -65,18 +65,6 @@ export default function ArticlePage() {
     };
     return (
         <>
-{/* 
-            <div style={{
-                backgroundImage: `url(${wikibg})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                height: '100vh', // Adjust as needed
-                width: '100vw',
-                position: "absolute",
-                zIndex: "-1"
-            }}>
-            </div> */}
-
             <div className={`${styles.container} mx-0`}>
 
 

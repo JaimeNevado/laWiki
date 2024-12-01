@@ -1,7 +1,15 @@
 import Link from 'next/link';
 
 
-function Nav() {
+
+function Nav({onSearch}) {
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const searchQuery = formData.get('search');
+    onSearch(searchQuery);
+  }
 
   return (
     <nav style={{width:"100%"}} className="navbar navbar-expand-lg bg-body-tertiary">
@@ -33,8 +41,8 @@ function Nav() {
               <Link className="nav-link" href="/comment">Comment</Link>
             </li>
           </ul>
-          <form className="d-flex" role="search">
-            <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
+          <form className="d-flex" role="search" onSubmit={handleSubmit}>
+            <input name="search" className="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
             <button className="btn btn-outline-success" type="submit">Search</button>
           </form>
         </div>
