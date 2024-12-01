@@ -81,7 +81,11 @@ def update(item_id: str, wiki: Wiki):
     wiki_updated = collection.find_one_and_update(
         {"_id": ObjectId(item_id)}, {"$set": dict(wiki)}
     )
-    return {"message": "Wiki was updated successfully"}
+    wiki_updated = serialize_document(wiki_updated)
+    response_msg = {}
+    response_msg["msg"] = "Wiki was updated successfully"
+    response_msg["inserted_id"] = f"{wiki_updated.get("_id")}"
+    return response_msg
 
 
 # Removes wiki from database

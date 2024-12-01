@@ -1,14 +1,9 @@
 import Link from "next/link";
 
-function LinkButton({ button_text, state, link, func }) {
-    let class_custom = "btn btn-primary enabled"
-
-    if (state === "disabled") {
-        class_custom = "btn btn-primary disabled"
-    }
-    console.log("text: ", button_text);
-    console.log("state: ", state);
-    console.log("link: ", link);
+function LinkButton({ btn_type, button_text, state, link, func }) {
+    let class_custom = "btn";
+    class_custom = `${class_custom} ${btn_type}`;
+    class_custom += `${class_custom} ${state}`;
 
     return (
         <>
