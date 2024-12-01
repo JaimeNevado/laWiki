@@ -17,10 +17,28 @@ function WikiPage() {
         }
     }, [wikiID]);
 
-    // Display a loading state while fetching
-    if (!wiki) return <div>Loading...</div>;
-
     // Pass the article data to the Article component
-    return <Wiki wiki={wiki} />;
+    return (
+        <>
+            {wiki ? (
+                <>
+                <div style={{
+                    backgroundImage: `url(${wiki.bg_image})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    height: '100vh', // Adjust as needed
+                    width: '100vw',
+                    position: "absolute",
+                    zIndex: "-1"
+                }}>
+                </div>
+                <Wiki wiki={wiki} />
+                </>
+            ):(
+                <div>Loading...</div>
+            )}
+        </>
+    );
 }
-export default WikiPage   
+
+export default WikiPage

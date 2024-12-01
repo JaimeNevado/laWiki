@@ -14,11 +14,14 @@ by moving rendering and data fetching to the server, you can reduce the amount o
 useState depende del ciclo de vida del cliente: useState es parte de los hooks de React, y estos están pensados para ejecutarse en el navegador, en el cliente. Estos hooks funcionan junto al ciclo de vida de los componentes de React, que incluye fases como la de montaje (mounting), actualización (updating) y desmontaje (unmounting). Estas fases ocurren en el cliente, donde React maneja la interacción y reactividad del estado.
 
 --Correr el programa
+cd .\front_end\
 npm run dev 
 --Instalar requirements
 pip install -r requirements.txt
 --Correr artículos
+cd .\back_end\wiki\ 
 uvicorn wiki_controller:api --reload  --port 13000 
 --Correr wiki
-uvicorn wiki_controller:api --reload  --port 13000 
+cd .\back_end\articles\
+uvicorn article_controller:router --reload  --port 13001
 

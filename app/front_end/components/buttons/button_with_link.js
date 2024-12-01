@@ -1,19 +1,26 @@
 import Link from "next/link";
 
-function LinkButton({button_text, state, link}){
-    let ar_disabled = "false";
-    let class_custom = "btn btn-primary enabled"
-
-    if (state == "disabled"){
-        ar_disabled = "true";
-        class_custom = "btn btn-primary disabled"
-    }
-    console.log("text: ", button_text);
-    console.log("state: ", state);
-    console.log("link: ", link);
+function LinkButton({ btn_type, button_text, state, link, func }) {
+    let class_custom = "btn";
+    class_custom = `${class_custom} ${btn_type}`;
+    class_custom += `${class_custom} ${state}`;
 
     return (
-        <Link href={link} className={class_custom} role="button" aria-disabled={ar_disabled}>{button_text}</Link>
+        <>
+            {func ? (
+                <Link href={link}>
+                    <button className={class_custom} onClick={func} role="button" aria-disabled={state === "disabled"}>
+                        {button_text}
+                    </button>        
+                </Link>
+            ) : (
+                <Link href={link}>
+                    <button className={class_custom} role="button" aria-disabled={state === "disabled"}>
+                        {button_text}
+                    </button>
+                </Link>
+            )}
+        </>
     );
 
 }

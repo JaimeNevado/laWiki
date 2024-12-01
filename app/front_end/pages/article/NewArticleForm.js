@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import "../../css/page_content.css"
+import styles from "../../css/ArticlePage.module.css";
 
 export default function NewArticleForm() {
     const [formData, setFormData] = useState({ title: '', description: '', content: '' });
@@ -17,7 +19,7 @@ export default function NewArticleForm() {
     };
 
     return (
-        <div className="container mt-5">
+        <div className={`${styles.container} mt-5 mx-0 page-content`}>
             <h2>Create a New Article</h2>
             {success && <div className="alert alert-success">Article created successfully!</div>}
             <form onSubmit={handleSubmit}>

@@ -29,6 +29,9 @@ api = FastAPI()
 
 origins = [
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
 ]
 api.add_middleware(
     CORSMiddleware,
@@ -78,7 +81,11 @@ def update(item_id: str, wiki: Wiki):
     wiki_updated = collection.find_one_and_update(
         {"_id": ObjectId(item_id)}, {"$set": dict(wiki)}
     )
-    return {"message": "Wiki was updated successfully"}
+    wiki_updated = serialize_document(wiki_updated)
+    response_msg = {}
+    response_msg["msg"] = "Wiki was updated successfully"
+    response_msg["inserted_id"] = f"{wiki_updated.get("_id")}"
+    return response_msg
 
 
 # Removes wiki from database
