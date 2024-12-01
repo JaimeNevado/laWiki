@@ -6,21 +6,12 @@ import "../css/page_content.css"
 
 export default function HomePage() {
   
-  const names = ['Ada Lovelace', 'Grace Hopper', 'Margaret Hamilton'];
   return (
     <div className='page-content'>
       <div className='text-end me-2'>
         <LinkButton button_text="Create Wiki" state="enabled" link="/wiki/wiki_form"/>
       </div>
-      {/* <Header title="Develop. Preview. Ship." /> */}
-      {/* <Nav/> */}
-      <ul>
-        {names.map((name) => (
-          <li key={name}>{name}</li>
-        ))}
-      </ul>
       <LikeButton/>
-      {/* <Footer/> */}
     </div>
   );
 }

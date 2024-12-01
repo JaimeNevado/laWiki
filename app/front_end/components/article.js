@@ -34,9 +34,11 @@ function Article(article) {
               <Image
                 src={main_img}
                 className="img-fluid"
-                width={100}
-                height={200}
+                width={0}
+                height={0}
+                sizes="25vw"
                 alt="..."
+                style={{width:"100%", height:"auto"}}
               />
             </div>
             <div className="px-10 py-10" style={{ backgroundColor: "lightblue" }}>

@@ -8,13 +8,15 @@ function ArticlePreview(preview) {
     preview = preview.preview;
     preview.images = "https://raw.githubusercontent.com/ijsto/reactnextjssnippets/master/images/logo02.png";
     return (
-        <div className="card" style={{ width: "18rem" }}>
+        <div className="card m-3" style={{ width: "18rem" }}>
             <Image
                 src={preview.images}
                 className="card-img-top"
-                width={100}
-                height={200}
+                width={0}
+                height={0}
+                sizes="25vw"
                 alt="..."
+                style={{width:'100%', height:'auto'}}
             />
             <div className="card-body">
                 <h5 className="card-title text-center">{preview.name}</h5>

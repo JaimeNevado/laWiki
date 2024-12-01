@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 
 import "../../css/wiki_form.css"
 import "../../css/page_content.css"
+import { useEffect } from "react";
 
 function useUploadImage() {
   const [isUploading, setIsUploading] = useState(false);
@@ -34,6 +35,9 @@ function useUploadImage() {
 
 function useWikiForm(initialState) {
   const [formData, setFormData] = useState(initialState);
+  console.log("from useWikiForm. formData: ", formData, " initialState: ", initialState);
+  formData.name = initialState.name;
+  formData.description = initialState.description;
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -75,13 +79,36 @@ async function submitWiki(payload) {
 
 function WikiForm() {
   const router = useRouter(); // Initialize router
-  const { formData, handleInputChange, handleFileChange } = useWikiForm({
-    name: "",
-    description: "",
-    bg_image: null,
-    logo: null,
-  });
+  const {wikiID} = router.query;
+  const [wiki, setWiki] = useState(null);
+  useEffect(() => {
+    if (wikiID) {
+      fetch(`http://127.0.0.1:13000/api/v1/wikis/${wikiID}`)
+        .then((res) => res.json())
+        .then((data) => setWiki(data))
+        .catch((err) => console.error(err)); 
+    }
+  }, [wikiID]);
+  console.log("from wikiform. id: ", wikiID, " wiki: ", wiki);
+  let initData = {};
+  if (wiki) {
+    initData = {
+      name: wiki.name,
+      description: wiki.description,
+      bg_image: null,
+      logo: null,
+    }
+  } else {
+    initData = {
+      name: "",
+      description: "",
+      bg_image: null,
+      logo: null,
+    }
+  }
 
+  const { formData, handleInputChange, handleFileChange } = useWikiForm(initData);
+  console.log("after setting init data! ", formData);
   const { uploadImage, isUploading } = useUploadImage();
 
   const handleSubmit = async (e) => {
