@@ -1,4 +1,4 @@
-async function uploadToCloudinary(file) {
+export async function uploadToCloudinary(file) {
 	const cloudName = 'digykp2os'; // Reemplaza con tu Cloud Name
 	const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
 

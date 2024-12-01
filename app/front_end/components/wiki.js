@@ -12,7 +12,7 @@ function WikiSkeleton({ wiki }) {
   return (
     <div className="container mt-4">
       <div className='text-end'>
-        <LinkButton button_text="Edit Wiki" state="enabled" link="/wiki/wiki_form" func={() => router.push({
+        <LinkButton btn_type={"btn-primary"} button_text="Edit Wiki" state="enabled" link="/wiki/wiki_form" func={() => router.push({
             pathname: "/wiki/wiki_form",
             query: {wikiID: wiki._id},
           })
@@ -63,7 +63,7 @@ function WikiSkeleton({ wiki }) {
 
 const Wiki = ({ wiki }) => {
   const router = useRouter();
-  console.log(wiki);
+  // console.log(wiki);
   let id
   if (!wiki) {
     id = '6717e076740a32803fb26f21'; // temporarely send a hardcoded wikiID
@@ -112,7 +112,7 @@ const Wiki = ({ wiki }) => {
             <p>Loading articles...</p>
           )}
           <div className='text-end me-2'>
-            <LinkButton button_text="Create Article" state="enabled" link="/article/NewArticleForm" />
+            <LinkButton btn_type={"btn-primary"} button_text="Create Article" state="enabled" link="/article/NewArticleForm" />
           </div>
         </div>
       </div>

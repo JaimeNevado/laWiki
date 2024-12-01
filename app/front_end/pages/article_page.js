@@ -58,7 +58,7 @@ export default function ArticlePage() {
                     <>
                     <div className="fs-3 text-center">Article Not Found</div>
                     <div className='text-center me-2'>
-                        <LinkButton button_text="Create Article" state="enabled" link="/article/NewArticleForm"/>
+                        <LinkButton btn_type={"btn-primary"} button_text="Create Article" state="enabled" link="/article/NewArticleForm"/>
                     </div>
                     </>
                 )}

@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useMemo } from "react";
 import Image from "next/image";
-import LinkButton from "../../components/buttons/button_with_link";
+import {uploadToCloudinary} from "../../components/utils/cloudinaryPhotos"
 import "../../css/wiki_form.css"
 import "../../css/page_content.css"
 
@@ -13,21 +13,15 @@ function useUploadImage() {
 
   const uploadImage = async (file, current_img) => {
     if (!file && !current_img) {
-      return null;
-    } else if (current_img) {
+      return "https://raw.githubusercontent.com/ijsto/reactnextjssnippets/master/images/logo02.png";
+    } else if (!file && current_img) {
       return current_img;
     }
     setIsUploading(true);
 
     try {
-      // Replace with actual upload logic
-      const uploadImageToCloud = async (file) => {
-        // Mock: Simulate an upload delay
-        return new Promise((resolve) =>
-          setTimeout(() => resolve("https://raw.githubusercontent.com/ijsto/reactnextjssnippets/master/images/logo02.png"), 1000)
-        );
-      };
-      const url = await uploadImageToCloud(file);
+      const url = await uploadToCloudinary(file);
+      console.log("Cloudinary URL ", url);
       return url;
     } catch (error) {
       console.error("Image upload failed:", error);
@@ -124,7 +118,7 @@ function WikiForm() {
         .catch((err) => console.error(err));
     }
   }, [wikiID]);
-  console.log("from wikiform. id: ", wikiID, " wiki: ", wiki);
+  // console.log("from wikiform. id: ", wikiID, " wiki: ", wiki);
   const initData = useMemo(() => {
     return wiki
       ? {
@@ -147,7 +141,7 @@ function WikiForm() {
   }, [wiki]);
 
   const { formData, handleInputChange, handleFileChange } = useWikiForm(initData);
-  console.log("after setting init data! ", formData);
+  // console.log("after setting init data! ", formData);
   const { uploadImage, isUploading } = useUploadImage();
 
   const handleSubmit = async (e) => {
