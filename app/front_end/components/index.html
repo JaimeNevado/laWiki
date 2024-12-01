@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login con Google</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+        }
+        .login-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .login-container h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .google-btn {
+            display: inline-block;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Bienvenido</h1>
+        <p>Inicia sesión con Google</p>
+        <div id="google-login" class="google-btn"></div>
+    </div>
+    <script>
+        // Inicializa Google Identity Services
+        window.onload = function () {
+            google.accounts.id.initialize({
+                client_id: "TU_CLIENT_ID", // Reemplaza con tu CLIENT_ID
+                callback: handleCredentialResponse
+            });
+
+            google.accounts.id.renderButton(
+                document.getElementById("google-login"),
+                { theme: "outline", size: "large" }
+            );
+
+            google.accounts.id.prompt(); // Muestra el cuadro de diálogo automáticamente
+        };
+
+        function handleCredentialResponse(response) {
+            console.log("Token JWT recibido:", response.credential);
+
+            // Envía el token al backend para validarlo
+            fetch("http://127.0.0.1:8000/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ token: response.credential })
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.user) {
+                        alert(`¡Bienvenido, ${data.user.name}!`);
+                    } else {
+                        alert("Error al iniciar sesión");
+                    }
+                })
+                .catch((error) => console.error("Error en la autenticación:", error));
+        }
+    </script>
+</body>
+</html>
