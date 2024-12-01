@@ -93,7 +93,7 @@ const Wiki = ({ wiki }) => {
 
   return (
     <>
-      <div className="page-content wiki-page">
+      <div className="wiki-page">
         <div>
           <WikiSkeleton wiki={wiki} />
         </div>

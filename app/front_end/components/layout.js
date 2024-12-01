@@ -4,18 +4,12 @@ import Footer from "./footer";
 
 const Layout = ({ children }) => {
   return (
-    <div className="layoutWrapper">
+    <div id="main_wrapper" className="layoutWrapper">
       <div className="layout">
-        <div className="page-content">
           <Header />
-        </div>
-        <div className="page-content">
           <Nav />
-        </div>
-        <main>{children}</main>
-        <div className="page-content">
+          <main>{children}</main>
           <Footer />
-        </div>
       </div>
     </div>
   );

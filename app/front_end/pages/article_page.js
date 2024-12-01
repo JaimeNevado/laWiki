@@ -19,7 +19,7 @@ export default function ArticlePage() {
                 .then((response) => response.json())
                 .then((data) => setArticle(data))
                 .catch((error) => console.error("Error fetching article:", error));
-            
+
             fetch(`http://127.0.0.1:13001/api/v1/articles/${id}/wiki`)
                 .then((response) => response.json())
                 .then((data) => setWikiBg(data.bg_image))
@@ -27,12 +27,26 @@ export default function ArticlePage() {
         }
     }, [id]);
 
+    useEffect(() => {
+        // This code runs on the client side only
+        const myDiv = document.getElementById('main_wrapper');
+        if (myDiv) {
+          myDiv.style.backgroundImage = wikibg ? `url(${wikibg})` : '#fcfcfc' ;
+          myDiv.style.backgroundSize = 'cover';
+          myDiv.style.backgroundPosition = 'center';
+          myDiv.style.height = 'auto'; // Adjust as needed
+          myDiv.style.width = '100vw';
+          //position: "absolute",
+          myDiv.style.zIndex = "-1";
+        } 
+      });
+
     const getMessage = async () => {
-        const lugar =  article?.googleMaps || "defaultLocation"; // Example query parameter
-        const url = "http://nominatim.openstreetmap.org/search?q=" + lugar + 
-                                "&format=json&addressdetails=1";
+        const lugar = article?.googleMaps || "defaultLocation"; // Example query parameter
+        const url = "http://nominatim.openstreetmap.org/search?q=" + lugar +
+            "&format=json&addressdetails=1";
         console.log(url);
-        
+
         try {
             const response = await fetch(url);
             if (!response.ok) {
@@ -51,8 +65,8 @@ export default function ArticlePage() {
     };
     return (
         <>
-        
-        <div style={{
+{/* 
+            <div style={{
                 backgroundImage: `url(${wikibg})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
@@ -61,12 +75,11 @@ export default function ArticlePage() {
                 position: "absolute",
                 zIndex: "-1"
             }}>
-        </div>
-        
-        <div className="page-content">
+            </div> */}
+
             <div className={`${styles.container} mx-0`}>
 
-               
+
                 {id ? (
                     // Mostrar el artículo si se está accediendo a uno específico
                     article ? (
@@ -81,24 +94,23 @@ export default function ArticlePage() {
                                     </a>
                                 </p>
                             </div>
-                         </>
+                        </>
                     ) : (
                         <div>Loading...</div>
                     )
                 ) : (
                     // Mostrar el formulario si no hay un ID en la URL
                     <>
-                    <div className="fs-3 text-center">Article Not Found</div>
-                    <div className='text-center me-2'>
-                        <LinkButton btn_type={"btn-primary"} button_text="Create Article" state="enabled" link="/article/NewArticleForm"/>
-                    </div>
-                   
+                        <div className="fs-3 text-center">Article Not Found</div>
+                        <div className='text-center me-2'>
+                            <LinkButton btn_type={"btn-primary"} button_text="Create Article" state="enabled" link="/article/NewArticleForm" />
+                        </div>
+
                     </>
-                    
+
                 )}
             </div>
-        </div>
-        
+
         </>
     );
 }

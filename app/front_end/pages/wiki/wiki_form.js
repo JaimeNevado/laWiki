@@ -204,7 +204,7 @@ function WikiForm() {
 }
 
   return (
-    <div className="page-content">
+    <>
       <div className="row align-self-center">
         <div className="col-9 d-flex align-items-center" >
           <form className="container mt-5 mx-0 wiki-form" onSubmit={handleSubmit}>
@@ -336,7 +336,7 @@ function WikiForm() {
           </button>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

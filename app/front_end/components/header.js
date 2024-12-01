@@ -4,7 +4,7 @@ function Header() {
         
        <>
              <link rel="icon" href="/static/V.ico" type="image/x-icon" />
-             <h1 style={{backgroundColor: "lavender", padding: 15}}>LaWiki</h1>
+             <h1 style={{backgroundColor: "lavender", padding: 15, width:"100%"}}>LaWiki</h1>
         
              </>
     );
