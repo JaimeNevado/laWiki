@@ -4,8 +4,7 @@ from articles import Article
 from bson import ObjectId
 from typing import Union
 from httpx import AsyncClient
-from datetime import datetime
-from bson.regex import Regex
+from datetime import datetime, timezone
 import sys
 import os
 
@@ -74,6 +73,10 @@ async def get_articles_by_wikiID(
     name: Union[str, None] = None,
     random: bool = False,
     num_of_article: int = 10,
+    # wiki_name: Union[str, None] = None,
+    author: Union[str, None] = None,
+    date_from: str = datetime(1970, 1, 1, tzinfo=timezone.utc).isoformat(),
+    date_to: str = datetime.now(timezone.utc).isoformat(),
 ):
     query = []
     if wikiID is not None:
@@ -82,6 +85,9 @@ async def get_articles_by_wikiID(
         query.append({"$sample": {"size": num_of_article}})
     if name:
         query.append({"$match": {"name": {"$regex": name, "$options": "i"}}})
+    if author:
+        query.append({"$match": {"author": {"$regex": author, "$options": "i"}}})
+    query.append({"$match": {"date": {"$gte": date_from, "$lte": date_to}}})
     query.append(
         {
             "$project": {
@@ -111,7 +117,7 @@ async def get_article_by_id(article_id: str):
 @router.post(path + "articles")
 async def post_article(article: Article):
     article_dict = article.dict()
-    article_dict["date"] = datetime.isoformat(datetime.now())
+    article_dict["date"] = datetime.now(timezone.utc).isoformat()
     collection.insert_one(article_dict)
     return {"message": "Article was created successfully"}
 

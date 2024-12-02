@@ -9,9 +9,11 @@ function Search() {
     const { query } = router.query;
     const [articleList, setArticleList] = useState(null);
 
+
     useEffect(() => {
+        console.log(`http://127.0.0.1:13001/api/v1/articles/preview?${query}`);
         if (query) {
-            fetch(`http://127.0.0.1:13001/api/v1/articles/preview?name=${query}`)
+            fetch(`http://127.0.0.1:13001/api/v1/articles/preview?${query}`)
                 .then((res) => res.json())
                 .then((data) => setArticleList(data))
                 .catch((err) => console.error(err));

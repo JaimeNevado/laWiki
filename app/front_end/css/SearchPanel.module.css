@@ -1,0 +1,60 @@
+.panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 300px;
+  height: 100%;
+  background-color: #f0f0f0;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  transform: translateX(0);
+  transition: transform 1s ease;
+}
+
+.panel h2 {
+  margin-top: 0;
+}
+
+.field {
+  margin-bottom: 20px;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.field input {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.searchButton {
+  padding: 10px 20px;
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.close_btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background-color: red;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: solid 2px black;
+  font-weight: 600;
+}
+
+.close_btn:hover {
+  background-color: darkred;
+}
