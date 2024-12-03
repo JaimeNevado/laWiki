@@ -123,7 +123,7 @@ async def get_article_of_the_comment(comment_id: str):
 
     client = AsyncClient()
 
-    response = await client.get(ARTICLE_URL_DOCKER + path + "articles/" + article_id)
+    response = await client.get(ARTICLE_URL + path + "articles/" + article_id)
     response.raise_for_status()  # Raise an error for HTTP errors
 
     return response.json()
@@ -136,9 +136,7 @@ async def get_wiki_of_the_comment(comment_id: str):
     article_id = dict(article).get("_id")
 
     client = AsyncClient()
-    response = await client.get(
-        ARTICLE_URL_DOCKER + path + "articles/" + article_id + "/wiki"
-    )
+    response = await client.get(ARTICLE_URL + path + "articles/" + article_id + "/wiki")
     response.raise_for_status()
 
     return response.json()
