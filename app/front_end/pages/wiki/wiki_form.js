@@ -35,14 +35,6 @@ function useUploadImage() {
 }
 
 function useWikiForm(initialState) {
-  // console.log("from useWikiForm. formData: ", formData, " initialState: ", initialState);
-  // formData.name = initialState.name;
-  // formData.description = initialState.description;
-  // formData.author = initialState.author;
-  // formData.bg_image_url = initialState.bg_image_url;
-  // formData.logo_url = initialState.logo_url;
-
-
   const [formData, setFormData] = useState(initialState);
 
   useEffect(() => {
