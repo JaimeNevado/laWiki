@@ -13,7 +13,13 @@ by moving rendering and data fetching to the server, you can reduce the amount o
 -useState en el cliente: 
 useState depende del ciclo de vida del cliente: useState es parte de los hooks de React, y estos están pensados para ejecutarse en el navegador, en el cliente. Estos hooks funcionan junto al ciclo de vida de los componentes de React, que incluye fases como la de montaje (mounting), actualización (updating) y desmontaje (unmounting). Estas fases ocurren en el cliente, donde React maneja la interacción y reactividad del estado.
 
---CORRER EL PROGRAMA 
+--CORRER EL PROGRAMA:
+Desde la raíz app/ ejecutar ./run_app.ps1
+
+--DETENER EL PROGRAMA:
+Cada ventana abierta cntrl c
+
+--PROBAR UNO EN ESPECIFICO:
 
 cd .\front_end\
 npm run dev 
