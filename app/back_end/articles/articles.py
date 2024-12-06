@@ -1,6 +1,7 @@
 from sqlite3 import Date
 from pydantic import BaseModel
 from typing import List, Union, Optional
+from datetime import datetime
 
 
 class Image(BaseModel):
@@ -15,7 +16,7 @@ class Image(BaseModel):
         "json_schema_extra": {
             "examples": [
                 {
-                    "image_url": "https://example.url/image_123.png",
+                    "image_url": "https://raw.githubusercontent.com/ijsto/reactnextjssnippets/master/images/logo02.png",
                     "description": "beautiful something",
                 }
             ]
@@ -32,7 +33,7 @@ class Article(BaseModel):
     images: Optional[List[str]] = None
     # images: Union[List[Image], None] = None
     googleMaps: Union[str, None] = None
-    date: Union[str, None] = None  # Using ISO-8601 format
+    date: Optional[datetime] = None  # Using ISO-8601 format
     wikiID: Union[str, None] = None
 
     model_config = {
@@ -45,11 +46,10 @@ class Article(BaseModel):
                     "attachedFiles": "https://example.url",
                     "author": "illya",
                     "images": [
-                        "https://example.url/image_123.png",
-                        "https://example.url/image_3.png",
+                        "https://raw.githubusercontent.com/ijsto/reactnextjssnippets/master/images/logo02.png",
+                        "https://raw.githubusercontent.com/ijsto/reactnextjssnippets/master/images/logo02.png",
                     ],
                     "googleMaps": "https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&loading=async&libraries=places&callback=initMap",
-                    "date": "2024-11-15T22:27:54+0000",
                     "wikiID": "672b6bbe4de836fec6f7cf9f",
                 }
             ]

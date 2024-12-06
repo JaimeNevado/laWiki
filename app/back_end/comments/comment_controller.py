@@ -4,6 +4,7 @@ from bson import ObjectId
 from typing import Union
 from httpx import AsyncClient
 from comments import Comment
+from datetime import datetime, timezone
 import sys
 import os
 
@@ -87,6 +88,8 @@ async def get_comment_by_id(comment_id: str):
 # add new comment
 @api.post(path + "comments")
 def create_comment(comment: Comment, status_code=201):
+    comment_dict = comment.dict()
+    comment["date"] = datetime.now(timezone.utc)
     collection.insert_one(dict(comment))
     return {"message": "Comment was created successfully"}
 

@@ -63,9 +63,9 @@ function WikiSkeleton({ wiki }) {
 const Wiki = ({ wiki }) => {
   const router = useRouter();
   // console.log(wiki);
-  let id
+  let {id} = router.query;
   if (!wiki) {
-    id = '6717e076740a32803fb26f21'; // temporarely send a hardcoded wikiID
+    id = '6752e6c677c86b2a52cb9335'; // temporarely send a hardcoded wikiID
   } else {
     id = wiki._id;
   }

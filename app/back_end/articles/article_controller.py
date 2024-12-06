@@ -75,8 +75,8 @@ async def get_articles_by_wikiID(
     num_of_article: int = 10,
     # wiki_name: Union[str, None] = None,
     author: Union[str, None] = None,
-    date_from: str = datetime(1970, 1, 1, tzinfo=timezone.utc).isoformat(),
-    date_to: str = datetime.now(timezone.utc).isoformat(),
+    date_from: datetime = None,  # datetime(1970, 1, 1, tzinfo=timezone.utc),
+    date_to: datetime = None,  # datetime.now(timezone.utc),
 ):
     query = []
     if wikiID is not None:
@@ -87,7 +87,13 @@ async def get_articles_by_wikiID(
         query.append({"$match": {"name": {"$regex": name, "$options": "i"}}})
     if author:
         query.append({"$match": {"author": {"$regex": author, "$options": "i"}}})
-    query.append({"$match": {"date": {"$gte": date_from, "$lte": date_to}}})
+
+    if date_from and date_to:
+        query.append({"$match": {"date": {"$gte": date_from, "$lte": date_to}}})
+    elif date_from and not date_to:
+        query.append({"$match": {"date": {"$gte": date_from}}})
+    elif not date_from and date_to:
+        query.append({"$match": {"date": {"$lte": date_to}}})
     query.append(
         {
             "$project": {
@@ -99,6 +105,7 @@ async def get_articles_by_wikiID(
             }
         }
     )
+    # print("from: ", date_from, " to: ", date_to)
     articles = collection.aggregate(query)
     serialized_articles = [serialize_document(article) for article in articles]
     return serialized_articles
@@ -117,7 +124,7 @@ async def get_article_by_id(article_id: str):
 @router.post(path + "articles")
 async def post_article(article: Article):
     article_dict = article.dict()
-    article_dict["date"] = datetime.now(timezone.utc).isoformat()
+    article_dict["date"] = datetime.now(timezone.utc)
     collection.insert_one(article_dict)
     return {"message": "Article was created successfully"}
 
@@ -134,6 +141,13 @@ async def update(id: str, article: Article):
 async def delete(id: str):
     collection.find_one_and_delete({"_id": ObjectId(id)})
     return {"message": "Article was deleted successfully"}
+
+
+@router.delete(path + "articles/wiki/{id}")
+async def delete_articles_of_given_wiki(id: str):
+    result = collection.delete_many({"wikiID": id})
+    msg = f"Was removed {result.deleted_count} articles"
+    return {"msg": msg}
 
 
 # Show commets that belongs to this article

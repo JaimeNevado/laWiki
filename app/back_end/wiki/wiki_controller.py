@@ -24,7 +24,6 @@ ARTICLE_URL_DOCKER = "http://articles-1"
 db = MongoDBAtlas()
 db.connect()
 collection = db.get_collection("Wikis")
-collectionArticles = db.get_collections("Articles")
 api = FastAPI()
 
 origins = [
@@ -59,8 +58,9 @@ def get_wikis(author: Union[str, None] = None, order_type: int = 1):
 @api.get(path + "wikis/{wiki_id}")
 async def get_wiki_by_id(wiki_id: str):
     wiki = collection.find_one({"_id": ObjectId(wiki_id)})
-    serialized_wiki = serialize_document(wiki)
-    return serialized_wiki
+    if wiki is not None:
+        return serialize_document(wiki)
+    return {}
 
 
 # Create new Wiki
@@ -92,7 +92,6 @@ def update(item_id: str, wiki: Wiki):
 @api.delete(path + "wikis/{item_id}")
 def delete(item_id: str):
     collection.delete_one({"_id": ObjectId(item_id)})
-    collectionArticles.delete_many({"wikiID":item_id})
     return {"message": "Wiki was deleted successfully"}
 
 

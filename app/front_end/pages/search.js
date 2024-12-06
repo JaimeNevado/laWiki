@@ -11,7 +11,11 @@ function Search() {
 
 
     useEffect(() => {
-        console.log(`http://127.0.0.1:13001/api/v1/articles/preview?${query}`);
+        // console.log(`http://127.0.0.1:13001/api/v1/articles/preview?${query}`);
+        const myDiv = document.getElementById('main_wrapper');
+        if (myDiv){
+            myDiv.style.backgroundImage = null ;
+        }
         if (query) {
             fetch(`http://127.0.0.1:13001/api/v1/articles/preview?${query}`)
                 .then((res) => res.json())

@@ -31,7 +31,7 @@ def isostr_to_date(
 
 
 def formate_date_and_apply_timezone(doc: dict, fmt: str, timezone: str):
-    parsed_dt = datetime.fromisoformat(doc["date"])
+    parsed_dt = doc["date"]  # datetime.fromisoformat(doc["date"])
     local_tz = pytz.timezone(timezone)
     local_dt = parsed_dt.astimezone(local_tz)
     return local_dt.strftime(fmt)

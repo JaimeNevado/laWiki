@@ -8,7 +8,7 @@ export default function CommentsSection({ articleId }) {
     // Fetch comments for the given article
     useEffect(() => {
         if (articleId) {
-            fetch(`http://127.0.0.1:8000/api/v1/${articleId}/comments/`)
+            fetch(`http://127.0.0.1:13002/api/v1/${articleId}/comments/`)
                 .then((response) => response.json())
                 .then((data) => {
                     setComments(data);
@@ -28,7 +28,7 @@ export default function CommentsSection({ articleId }) {
             date: new Date().toISOString(),
         };
 
-        fetch("http://127.0.0.1:8000/api/v1/comments", {
+        fetch("http://127.0.0.1:13002/api/v1/comments", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(commentData),

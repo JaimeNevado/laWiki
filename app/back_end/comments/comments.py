@@ -1,11 +1,12 @@
 from pydantic import BaseModel
-from typing import Union
+from typing import Optional
+from datetime import datetime
 
 
 class Comment(BaseModel):
-    date: str
+    date: datetime
     title: str
-    body: Union[str, None] = None
+    body: Optional[str] = None
     article_id: str
     author_id: str
 
@@ -13,9 +14,8 @@ class Comment(BaseModel):
         "json_schema_extra": {
             "examples": [
                 {
-                    "date": "2024-11-15T22:45:47+0000",
                     "title": "Regarding that phrase",
-                    "body": "I think better to say it would be...",
+                    "body": "I think better way to say it would be...",
                     "article_id": "672b6bbe4de836fec6f7cf9f",
                     "author_id": "672b6bbe4de836fec6f7cf9f",
                 }
