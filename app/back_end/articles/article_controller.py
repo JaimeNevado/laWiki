@@ -136,6 +136,13 @@ async def delete(id: str):
     return {"message": "Article was deleted successfully"}
 
 
+@router.delete(path + "articles/wiki/{id}")
+async def delete(id: str):
+    resutl = collection.delete_many({"wikiID": id})
+    msg = f"Was removed {resutl.deleted_count} articles"
+    return {"msg": msg}
+
+
 # Show commets that belongs to this article
 @router.get(path + "articles/{article_id}/comments")
 async def get_comments_of_given_article(article_id: str, date_order: int = 1):

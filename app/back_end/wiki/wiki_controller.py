@@ -24,7 +24,6 @@ ARTICLE_URL_DOCKER = "http://articles-1"
 db = MongoDBAtlas()
 db.connect()
 collection = db.get_collection("Wikis")
-collectionArticles = db.get_collections("Articles")
 api = FastAPI()
 
 origins = [
@@ -92,7 +91,6 @@ def update(item_id: str, wiki: Wiki):
 @api.delete(path + "wikis/{item_id}")
 def delete(item_id: str):
     collection.delete_one({"_id": ObjectId(item_id)})
-    collectionArticles.delete_many({"wikiID":item_id})
     return {"message": "Wiki was deleted successfully"}
 
 
