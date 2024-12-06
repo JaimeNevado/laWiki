@@ -99,6 +99,7 @@ async def get_articles_by_wikiID(
             }
         }
     )
+    # print("from: ", date_from, " to: ", date_to)
     articles = collection.aggregate(query)
     serialized_articles = [serialize_document(article) for article in articles]
     return serialized_articles
@@ -134,6 +135,13 @@ async def update(id: str, article: Article):
 async def delete(id: str):
     collection.find_one_and_delete({"_id": ObjectId(id)})
     return {"message": "Article was deleted successfully"}
+
+
+@router.delete(path + "articles/wiki/{wiki_id}")
+async def delete_articles_of_given_wiki(id: str):
+    result = collection.delete_many({"wikiID": id})
+    msg = {"msg": "Was removed {result.deleted_count} articles"}
+    return msg
 
 
 # Show commets that belongs to this article

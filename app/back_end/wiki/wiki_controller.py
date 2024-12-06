@@ -91,7 +91,9 @@ def update(item_id: str, wiki: Wiki):
 # Removes wiki from database
 @api.delete(path + "wikis/{item_id}")
 def delete(item_id: str):
+    wiki_id = item_id
     collection.delete_one({"_id": ObjectId(item_id)})
+    
     return {"message": "Wiki was deleted successfully"}
 
 
