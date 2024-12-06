@@ -99,6 +99,7 @@ async def get_articles_by_wikiID(
             }
         }
     )
+    # print("from: ", date_from, " to: ", date_to)
     articles = collection.aggregate(query)
     serialized_articles = [serialize_document(article) for article in articles]
     return serialized_articles
@@ -137,9 +138,9 @@ async def delete(id: str):
 
 
 @router.delete(path + "articles/wiki/{id}")
-async def delete(id: str):
-    resutl = collection.delete_many({"wikiID": id})
-    msg = f"Was removed {resutl.deleted_count} articles"
+async def delete_articles_of_given_wiki(id: str):
+    result = collection.delete_many({"wikiID": id})
+    msg = f"Was removed {result.deleted_count} articles"
     return {"msg": msg}
 
 

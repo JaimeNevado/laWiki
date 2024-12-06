@@ -21,7 +21,7 @@ function ArticlePreview({preview}) {
             />
             <div className="card-body">
                 <h5 className="card-title text-center">{preview.name}</h5>
-                <p className={`${styles.short-text} card-text fs-6 fw-light`}>{preview.short_text}</p>
+                <p className={`${styles.shorttext} card-text fs-6 fw-light`}>{preview.short_text}</p>
                 <p className="d-flex justify-content-between">
                     <Link href={`/article_page?id=${preview._id}`} className="card-link">Read more</Link>
                     <span>by <Link href="#" className="card-link">{preview.author}</Link> </span>

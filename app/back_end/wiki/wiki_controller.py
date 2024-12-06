@@ -58,8 +58,9 @@ def get_wikis(author: Union[str, None] = None, order_type: int = 1):
 @api.get(path + "wikis/{wiki_id}")
 async def get_wiki_by_id(wiki_id: str):
     wiki = collection.find_one({"_id": ObjectId(wiki_id)})
-    serialized_wiki = serialize_document(wiki)
-    return serialized_wiki
+    if wiki is not None:
+        return serialize_document(wiki)
+    return {}
 
 
 # Create new Wiki

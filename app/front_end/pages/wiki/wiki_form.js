@@ -177,7 +177,7 @@ function WikiForm() {
   const handleDelete = async() => {    
     try {
       // removing wiki itself
-      let response = await fetch(`http://127.0.0.1:13000/api/v1/wikis/${wikiID}`, {
+      const response = await fetch(`http://127.0.0.1:13000/api/v1/wikis/${wikiID}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -188,13 +188,13 @@ function WikiForm() {
       }
 
       // removing articles
-      response = await fetch (`http://127.0.0.1:13001/api/v1/articles/wiki/${wikiID}`, {
+      const response_art = await fetch (`http://127.0.0.1:13001/api/v1/articles/wiki/${wikiID}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
         },
       });
-      if (!response.ok) {
+      if (!response_art.ok) {
         throw new Error(`Failed to remove articles of the wiki wiki: ${response.statusText}`);
       }
       alert("Wiki and related articles removed successfully!");
