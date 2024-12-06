@@ -4,11 +4,12 @@ import styles from "../css/ArticlePreview.module.css"
 
 
 
-function ArticlePreview({preview}) {
-    if (!preview.images){
-        preview.images = "https://raw.githubusercontent.com/ijsto/reactnextjssnippets/master/images/logo02.png";
-    }
-    return (
+function ArticlePreview({preview,previewVersion}) {
+    //da problemas porque si mando previewVersion no existe preview
+    // if (!preview.images){
+    //     preview.images = "https://raw.githubusercontent.com/ijsto/reactnextjssnippets/master/images/logo02.png";
+    // }
+    return preview?(
         <div className="card m-3" style={{ width: "18rem" }}>
             <Image
                 src={preview.images}
@@ -28,7 +29,13 @@ function ArticlePreview({preview}) {
                 </p>
             </div>
         </div>
-    );
+    ):previewVersion?(
+        <>
+        <h1>{previewVersion.short_text || "Texto corto"}</h1>
+        <p>Version: {previewVersion.version|| "Version X"} </p>
+        <p>Contenido:{previewVersion.text || "Tesxto"}</p>
+        </>
+    ):(<h4>loading</h4>);;
 }
 
 export default ArticlePreview;

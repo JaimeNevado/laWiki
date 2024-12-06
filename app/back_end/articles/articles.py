@@ -23,6 +23,15 @@ class Image(BaseModel):
         }
     }
 
+class Version(BaseModel):
+    version: int
+    short_text: Optional[str] = None
+    text: Optional[str] = None
+    date: Optional[str] = None
+    def to_dict(self):
+        # Convertimos el objeto Version a un diccionario de Python
+        return self.dict()
+
 
 class Article(BaseModel):
     name: Union[str, None] = None
@@ -35,7 +44,7 @@ class Article(BaseModel):
     googleMaps: Union[str, None] = None
     date: Optional[datetime] = None  # Using ISO-8601 format
     wikiID: Union[str, None] = None
-
+    versions: Optional[List[Version]] = []
     model_config = {
         "json_schema_extra": {
             "examples": [
@@ -49,9 +58,30 @@ class Article(BaseModel):
                         "https://raw.githubusercontent.com/ijsto/reactnextjssnippets/master/images/logo02.png",
                         "https://raw.githubusercontent.com/ijsto/reactnextjssnippets/master/images/logo02.png",
                     ],
-                    "googleMaps": "https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&loading=async&libraries=places&callback=initMap",
-                    "wikiID": "672b6bbe4de836fec6f7cf9f",
+                    "googleMaps": "Malaga",
+                    "date": "2024-11-15T22:27:54+0000",
+                    "wikiID": "67535bf515ff0bae8398d4b2",
+                     "versions": [
+                        {
+                            "version": 1,
+                            "short_text" : "Katana is a Japanese Sword used by samurai",
+                            "text" : "A katana is a Japanese sword characterized by a curved, single-edged blade with a circular or squared guard and long grip to accommodate two hands. Developed later than the tachi, it was used by samurai in feudal Japan and worn with the edge facing upward",
+                            "date" : "2024-11-15T22:27:54+0000",
+                        },
+                           {
+                            "version": 2,
+                            "short_text" : "Katana is a Japanese Sword used by samurai",
+                            "text" : "A katana(Name in japanese) is a Japanese sword characterized by a curved, single-edged blade with a circular or squared guard and long grip to accommodate two hands. Developed later than the tachi, it was used by samurai in feudal Japan and worn with the edge facing upward",
+                            "date" : "2024-11-15T22:27:54+0000",
+                        },
+                    ],
                 }
             ]
         }
     }
+    def to_dict(self):
+        # Convertimos el artículo completo a un diccionario
+        article_dict = self.dict()
+        # Convertimos cada versión a un diccionario
+        article_dict['versions'] = [version.to_dict() for version in self.versions]
+        return article_dict

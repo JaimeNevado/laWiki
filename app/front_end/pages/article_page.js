@@ -5,6 +5,7 @@ import ArticleLayout from "../components/article"; // Asumiendo que ArticleLayou
 import NewArticleForm from "./article/NewArticleForm";
 import styles from "../css/ArticlePage.module.css"; // Importar los estilos
 import LinkButton from '../components/buttons/button_with_link';
+import ArticlePreview from "../components/article_preview";
 
 export default function ArticlePage() {
     const router = useRouter();
@@ -63,6 +64,30 @@ export default function ArticlePage() {
             console.error('Error fetching data:', error);
         }
     };
+    const handleRestoreVersion = async (version) =>{
+        const currentDate = new Date();  // Fecha y hora actual
+        const isoDate = currentDate.toISOString();
+        try {
+            const articleUpdated = {
+                ...article,
+                short_text : version.short_text,
+                text :  version.text,
+                date : "2024-12-05T19:54:48.911097+00:00",
+            }
+            
+            setArticle(articleUpdated);
+            const response = await fetch(`http://127.0.0.1:13001/api/v1/articles/${article._id}`, {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(articleUpdated), // Enviamos el artículo actualizado
+              });
+        }catch(error){
+            console.error("Error:", error);
+            alert("Hubo un problema al actualizar el artículo.");
+        }
+    };
     return (
         <>
             <div className={`${styles.container} mx-0`}>
@@ -81,6 +106,18 @@ export default function ArticlePage() {
                                         {article?.googleMaps || "Google Maps data not available"}
                                     </a>
                                 </p>
+                            </div>
+                            <h2>Versiones:</h2>
+                            <div>
+                            {article.versions.map((version, index) => (
+                                <>
+                                <ArticlePreview key={index} previewVersion={version}>
+                                </ArticlePreview>
+                                <button onClick={() => handleRestoreVersion(version)}>
+                                    Restaurar versión {version.version}
+                                </button>
+                                </>
+                            ))}
                             </div>
                         </>
                     ) : (
