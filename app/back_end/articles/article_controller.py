@@ -123,7 +123,7 @@ async def get_article_by_id(article_id: str):
 # POST Request Method
 @router.post(path + "articles")
 async def post_article(article: Article):
-    article_dict = article.dict()
+    article_dict =  article.to_dict()
     article_dict["date"] = datetime.now(timezone.utc)
     collection.insert_one(article_dict)
     return {"message": "Article was created successfully"}
@@ -132,7 +132,7 @@ async def post_article(article: Article):
 # PUT Request Method
 @router.put(path + "articles/{id}")
 async def update(id: str, article: Article):
-    collection.find_one_and_update({"_id": ObjectId(id)}, {"$set": dict(article)})
+    collection.find_one_and_update({"_id": ObjectId(id)}, {"$set": article.to_dict()})
     return {"message": "Article was  updated successfully"}
 
 
