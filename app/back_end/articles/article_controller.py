@@ -28,7 +28,7 @@ collection = db.get_collection("Articles")
 router = FastAPI()
 
 origins = [
-    "http://localhost:3000",
+    "http://localhost:300",
     "http://127.0.0.1:3000",
     "http://localhost:3001",
     "http://127.0.0.1:3001",
@@ -123,10 +123,14 @@ async def get_article_by_id(article_id: str):
 # POST Request Method
 @router.post(path + "articles")
 async def post_article(article: Article):
-    article_dict =  article.to_dict()
-    article_dict["date"] = datetime.now(timezone.utc)
-    collection.insert_one(article_dict)
-    return {"message": "Article was created successfully"}
+    article_dict = article.dict()
+    article_dict["date"] = datetime.now(timezone.utc).isoformat()
+    result = collection.insert_one(article_dict)
+    response_msg = {}
+    response_msg["msg"] = "Article was created successfully"
+    response_msg["inserted_id"] = f"{result.inserted_id}"
+    return response_msg
+
 
 
 # PUT Request Method

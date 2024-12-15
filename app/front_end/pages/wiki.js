@@ -1,48 +1,60 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import Wiki from "../components/wiki"; // Assuming the Article component is in components/article.js
+import Wiki from "../components/wiki";
 
 function WikiPage() {
     const router = useRouter();
-    const { wikiID } = router.query; // Extract the article ID from the query string
+    const { wikiID } = router.query;
     const [wiki, setWiki] = useState(null);
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Fetch the article only when the id is available
         if (wikiID) {
+            setLoading(true);
             fetch(`http://127.0.0.1:13000/api/v1/wikis/${wikiID}`)
-                .then((response) => response.json())
-                .then((data) => setWiki(data))
-                .catch((error) => console.error("Error fetching article:", error));
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    setWiki(data);
+                    setLoading(false);
+                })
+                .catch((error) => {
+                    console.error("Error fetching article:", error);
+                    setError("Failed to load wiki content.");
+                    setLoading(false);
+                });
         }
     }, [wikiID]);
 
     useEffect(() => {
-        // This code runs on the client side only
         const myDiv = document.getElementById('main_wrapper');
-        if (myDiv) {
-          myDiv.style.backgroundImage = wiki ? `url(${wiki.bg_image})` : '#fcfcfc' ;
-          myDiv.style.backgroundSize = 'cover';
-          myDiv.style.backgroundPosition = 'center';
-          myDiv.style.height = 'auto'; // Adjust as needed
-          myDiv.style.width = '100vw';
-          //position: "absolute",
-          myDiv.style.zIndex = "-1";
-        } 
-      });
+        if (myDiv && wiki) {
+            const bgImage = wiki.bg_image || '#fcfcfc';
+            myDiv.style.backgroundImage = `url(${bgImage})`;
+            myDiv.style.backgroundSize = 'cover';
+            myDiv.style.backgroundPosition = 'center';
+            myDiv.style.height = 'auto';
+            myDiv.style.width = '100vw';
+            myDiv.style.zIndex = "-1";
+        }
+    }, [wiki]);
 
-    // Pass the article data to the Article component
     return (
         <>
-            {wiki ? (
-                <>
-                <Wiki wiki={wiki} />
-                </>
-            ):(
+            {loading ? (
                 <div>Loading...</div>
+            ) : error ? (
+                <div>{error}</div>
+            ) : (
+                <Wiki wiki={wiki} />
             )}
         </>
     );
 }
 
-export default WikiPage
+export default WikiPage;
