@@ -73,10 +73,12 @@ async def get_articles_by_wikiID(
     name: Union[str, None] = None,
     random: bool = False,
     num_of_article: int = 10,
-    # wiki_name: Union[str, None] = None,
+    wiki_name: Union[str, None] = None,
     author: Union[str, None] = None,
     date_from: datetime = None,  # datetime(1970, 1, 1, tzinfo=timezone.utc),
     date_to: datetime = None,  # datetime.now(timezone.utc),
+
+
 ):
     query = []
     if wikiID is not None:

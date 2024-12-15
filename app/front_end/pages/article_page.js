@@ -1,100 +1,104 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import Article from "../components/article";
-import ArticleLayout from "../components/article"; // Asumiendo que ArticleLayout muestra el artículo
-import NewArticleForm from "./article/NewArticleForm";
-import styles from "../css/ArticlePage.module.css"; // Importar los estilos
-import LinkButton from '../components/buttons/button_with_link';
+import LinkButton from "../components/buttons/button_with_link";
+import styles from "../css/ArticlePage.module.css";
+import fetchData from "../components/utils/fetchData";
 
 export default function ArticlesListPage() {
-  const [articles, setArticles] = useState([]);
+  const router = useRouter();
+  const { id } = router.query;
+  const [article, setArticle] = useState(null);
+  const [wikibg, setWikiBg] = useState(null);
+  const [error, setError] = useState(null);
 
-    useEffect(() => {
-        // Obtener el artículo solo cuando hay un ID disponible
-        if (id) {
-            fetch(`http://127.0.0.1:13001/api/v1/articles/${id}`)
-                .then((response) => response.json())
-                .then((data) => setArticle(data))
-                .catch((error) => console.error("Error fetching article:", error));
+  useEffect(() => {
+    if (id) {
+      fetchData(
+        `http://127.0.0.1:13001/api/v1/articles/${id}`,
+        setArticle,
+        setError
+      );
+      fetchData(
+        `http://127.0.0.1:13001/api/v1/articles/${id}/wiki`,
+        (data) => setWikiBg(data.bg_image),
+        setError
+      );
+    }
+  }, [id]);
 
-            fetch(`http://127.0.0.1:13001/api/v1/articles/${id}/wiki`)
-                .then((response) => response.json())
-                .then((data) => setWikiBg(data.bg_image))
-                .catch((error) => console.error("Error fetching wiki of the article article:", error));
-        }
-    }, [id]);
+  useEffect(() => {
+    const myDiv = document.getElementById("main_wrapper");
+    if (myDiv) {
+      myDiv.style.backgroundImage = wikibg ? `url(${wikibg})` : "none";
+      myDiv.style.backgroundSize = "cover";
+      myDiv.style.backgroundPosition = "center";
+      myDiv.style.height = "auto";
+      myDiv.style.width = "100vw";
+      myDiv.style.zIndex = "-1";
+    }
+  }, [wikibg]);
 
-    useEffect(() => {
-        // This code runs on the client side only
-        const myDiv = document.getElementById('main_wrapper');
-        if (myDiv) {
-          myDiv.style.backgroundImage = wikibg ? `url(${wikibg})` : '#fcfcfc' ;
-          myDiv.style.backgroundSize = 'cover';
-          myDiv.style.backgroundPosition = 'center';
-          myDiv.style.height = 'auto'; // Adjust as needed
-          myDiv.style.width = '100vw';
-          //position: "absolute",
-          myDiv.style.zIndex = "-1";
-        } 
-      });
+  useEffect(() => {
+    console.log("Article ID from query:", id);  // Log the id from the URL
+    if (id) {
+      fetchData(
+        `http://127.0.0.1:13001/api/v1/articles/${id}`,
+        setArticle,
+        setError
+      );
+      fetchData(
+        `http://127.0.0.1:13001/api/v1/articles/${id}/wiki`,
+        (data) => setWikiBg(data.bg_image),
+        setError
+      );
+    }
+  }, [id]);
+  
 
-    const getMessage = async () => {
-        const lugar = article?.googleMaps || "defaultLocation"; // Example query parameter
-        const url = "http://nominatim.openstreetmap.org/search?q=" + lugar +
-            "&format=json&addressdetails=1";
-        console.log(url);
+  const getMessage = async () => {
+    const lugar = article?.googleMaps || "defaultLocation";
+    const url = `http://nominatim.openstreetmap.org/search?q=${lugar}&format=json&addressdetails=1`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Failed to fetch location");
+      const data = await response.json();
+      router.push(`https://www.openstreetmap.org/?mlat=${data[0].lat}&mlon=${data[0].lon}#map=14/${data[0].lat}/${data[0].lon}`);
+    } catch (err) {
+      console.error("Error fetching location:", err);
+      setError("Error fetching location");
+    }
+  };
 
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+  if (error) return <p className="text-danger text-center">{error}</p>;
 
-            const data = await response.json();
-            console.log(data);
-            console.log(`Coordenadas: ${data[0].lat}, ${data[0].lon}`); // Assuming similar data structure
-
-            // Redirect to another page with coordinates in query params
-            router.push(`https://www.openstreetmap.org/?mlat=${data[0].lat}&mlon=${data[0].lon}#map=14/${data[0].lat}/${data[0].lon}`);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
-    };
-    return (
-        <>
-            <div className={`${styles.container} mx-0`}>
-
-
-                {id ? (
-                    // Mostrar el artículo si se está accediendo a uno específico
-                    article ? (
-                        <>
-                            <div className={styles.articleContent["article-content"]}>
-                                <Article article={article} />
-                            </div>
-                            <div>
-                                <p>
-                                    <a href="#" onClick={(e) => { e.preventDefault(); getMessage(); }}>
-                                        {article?.googleMaps || "Google Maps data not available"}
-                                    </a>
-                                </p>
-                            </div>
-                        </>
-                    ) : (
-                        <div>Loading...</div>
-                    )
-                ) : (
-                    // Mostrar el formulario si no hay un ID en la URL
-                    <>
-                        <div className="fs-3 text-center">Article Not Found</div>
-                        <div className='text-center me-2'>
-                            <LinkButton btn_type={"btn-primary"} button_text="Create Article" state="enabled" link="/article/NewArticleForm" />
-                        </div>
-
-                    </>
-
-                )}
+  return (
+    <div id="main_wrapper" className={`${styles.container} mx-0`}>
+      {id ? (
+        article ? (
+          <>
+            <div className={styles.articleContent}>
+              <Article article={article} />
             </div>
-
+            <div>
+              <p>
+                <a href="#" onClick={(e) => { e.preventDefault(); getMessage(); }}>
+                  {article?.googleMaps || "Google Maps data not available"}
+                </a>
+              </p>
+            </div>
+          </>
+        ) : (
+          <div>Loading...</div>
+        )
+      ) : (
+        <>
+          <div className="fs-3 text-center">Article Not Found</div>
+          <div className="text-center me-2">
+            <LinkButton btn_type="btn-primary" button_text="Create Article" state="enabled" link="/article/new-article-form" />
+          </div>
         </>
-    );
+      )}
+    </div>
+  );
 }

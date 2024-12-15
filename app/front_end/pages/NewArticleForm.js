@@ -61,36 +61,27 @@ function ArticleForm() {
   const router = useRouter();
   const { articleID } = router.query;
   const [article, setArticle] = useState(null);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    content: "",
+  });
 
   useEffect(() => {
     if (articleID) {
       fetch(`http://127.0.0.1:13001/api/v1/articles/${articleID}`)
         .then((res) => res.json())
-        .then((data) => setArticle(data))
+        .then((data) => {
+          setArticle(data);
+          setFormData({
+            title: data.title || "",
+            description: data.description || "",
+            content: data.content || "",
+          });
+        })
         .catch((err) => console.error(err));
     }
   }, [articleID]);
-
-  const initData = useMemo(() => {
-    return article
-      ? {
-          _id: article._id,
-          title: article.title || "",
-          description: article.description || "",
-          content: article.content || "",
-        }
-      : {
-          title: "",
-          description: "",
-          content: "",
-        };
-  }, [article]);
-
-  const [formData, setFormData] = useState(initData);
-
-  useEffect(() => {
-    setFormData(initData);
-  }, [initData]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -114,9 +105,9 @@ function ArticleForm() {
         result = await submitArticle(payload);
       }
 
-      if (result.inserted_id || result._id) {
+      if (result._id) {
         alert("Article saved successfully!");
-        router.push(`/article?articleID=${result.inserted_id || result._id}`);
+        router.push(`/article/${result._id}`);
       } else {
         throw new Error("Invalid response from server.");
       }
@@ -142,7 +133,7 @@ function ArticleForm() {
   return (
     <div className="container mt-5">
       <h2 className="text-center">
-        {articleID ? `Edit Article: "${initData.title}"` : "Create New Article"}
+        {articleID ? `Edit Article: "${formData.title}"` : "Create New Article"}
       </h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
