@@ -33,11 +33,24 @@ function useWikiForm(initialState) {
 async function submitWiki({ wikiID, payload } = {}) {
   try {
     let response;
-    console.log("from submitWiki. id: ", wikiID, " payload: ", Array.from(payload.entries()));
+    if (!wikiID) {
+      // Create new Wiki
+      console.log("from submitWiki. id: ", wikiID, " payload: ", Array.from(payload.entries()));
       response = await fetch("http://127.0.0.1:13000/api/v2/wikis", {
         method: "POST",
+        headers: {
+        },
         body: payload, // Send FormData directly, don't stringify
       });
+    } else {
+      // Update existing Wiki
+      console.log("from submitWiki. id: ", wikiID, " payload: ", Array.from(payload.entries()));
+      response = await fetch(`http://127.0.0.1:13000/api/v2/wikis/${wikiID}`, {
+        method: "PUT",
+        body: payload, // Send FormData directly, don't stringify
+      });
+    }
+
     if (!response.ok) {
       throw new Error(`Failed to submit wiki: ${response.statusText}`);
     }
