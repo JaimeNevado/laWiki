@@ -11,6 +11,8 @@ export default function ArticlesListPage() {
   const [article, setArticle] = useState(null);
   const [wikibg, setWikiBg] = useState(null);
   const [error, setError] = useState(null);
+  const [comments, setComments] = useState([]); // State to hold comments
+  const [newComment, setNewComment] = useState(""); // State for new comment input
 
   useEffect(() => {
     if (id) {
@@ -24,8 +26,17 @@ export default function ArticlesListPage() {
         (data) => setWikiBg(data.bg_image),
         setError
       );
+      fetchData(
+        `http://127.0.0.1:13001/api/v1/articles/${id}/comments/`,
+        (data) => {
+          // Asegurarse de que la respuesta sea un array
+          setComments(Array.isArray(data) ? data : []);
+        },
+        setError
+      );
     }
   }, [id]);
+  
 
   useEffect(() => {
     const myDiv = document.getElementById("main_wrapper");
@@ -52,9 +63,54 @@ export default function ArticlesListPage() {
         (data) => setWikiBg(data.bg_image),
         setError
       );
+      fetchData(
+        `http://127.0.0.1:13001/api/v1/articles/${id}/comments/`,
+        (data) => {
+          if (data.length === 0) {
+            setComments('No hay comentarios para este artículo.');
+          } else {
+            setComments(data);
+          }
+        },
+        setError
+      );
     }
   }, [id]);
   
+   // Handle comment submission
+   const handleCommentSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!newComment) return; // Do nothing if comment is empty
+
+    try {
+      const response = await fetch("http://127.0.0.1:13001/api/v1/comments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          article_id: id,
+          author_id: "default_user", // Replace with the actual user ID if available
+          title: article?.title || "No Title",
+          content: newComment,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to add comment");
+
+      // Update comments list by adding the new comment
+      const newCommentData = await response.json();
+      setComments((prevComments) => [
+        ...prevComments,
+        { content: newComment, author_id: "default_user", date: new Date() },
+      ]);
+      setNewComment(""); // Reset the comment input
+    } catch (error) {
+      console.error("Error adding comment:", error);
+      setError("Error adding comment");
+    }
+  };
 
   const getMessage = async () => {
     const lugar = article?.googleMaps || "defaultLocation";
@@ -86,6 +142,38 @@ export default function ArticlesListPage() {
                   {article?.googleMaps || "Google Maps data not available"}
                 </a>
               </p>
+            </div>
+            {/* Displaying comments */}
+            <div>
+              <h3>Comments</h3>
+              <ul>
+                {Array.isArray(comments) && comments.length > 0 ? (
+                  comments.map((comment, index) => (
+                    <li key={index}>
+                      <p><strong>{comment.author_id}</strong>: {comment.content}</p>
+                      <p>{new Date(comment.date).toLocaleString()}</p>
+                    </li>
+                  ))
+                ) : (
+                  <p>No comments available.</p>
+                )}
+              </ul>
+            </div>
+
+            {/* Comment form */}
+            <div>
+              <h4>Add a Comment</h4>
+              <form onSubmit={handleCommentSubmit}>
+                <textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  rows="4"
+                  cols="50"
+                  placeholder="Write your comment..."
+                />
+                <br />
+                <button type="submit">Submit Comment</button>
+              </form>
             </div>
           </>
         ) : (
