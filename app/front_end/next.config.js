@@ -10,13 +10,13 @@ const nextConfig = {
         search: '',
       },
       // add your link following this pattern
-      // {
-      //   protocol: 'https',
-      //   hostname: '<your_hostmane.your_domain>',
-      //   port: '',
-      //   pathname: '/**',
-      //   search: '',
-      // }
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        port: '',
+        pathname: '/**',
+        search: '',
+      }
     ]
   }
   // images: {

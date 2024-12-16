@@ -9,3 +9,4 @@ fastapi-cors
 pytz
 cloudinary
 environs
+python-multipart

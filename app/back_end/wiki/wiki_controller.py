@@ -1,9 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from bson import ObjectId
 from typing import Union
 from httpx import AsyncClient
 from wiki import Wiki
 from fastapi.middleware.cors import CORSMiddleware
+from datetime import datetime
 
 import sys
 import os
@@ -46,6 +47,7 @@ api.add_middleware(
 )
 
 path = "/api/v1/"
+path_v2 = "/api/v2/"
 
 
 # sirve tanto para wikis como para wiki
@@ -91,6 +93,48 @@ def update(item_id: str, wiki: Wiki):
     response_msg["msg"] = "Wiki was updated successfully"
     response_msg["inserted_id"] = f"{wiki_updated.get('_id')}"
     return response_msg
+
+
+@api.post(path_v2 + "wikis")
+async def create_wiki_test(request: Request):
+    form = await request.form()
+    # print("Create wiki test form: ", form)
+
+    wikiID = form.get("wikiID")
+    name = form.get("name")
+    description = form.get("description")
+    author = form.get("author")
+    bg_image = form.get("bg_image")
+    logo = form.get("logo")
+
+    wiki = {}
+    wiki["name"] = name
+    wiki["description"] = description
+    wiki["author"] = author
+    if bg_image is not None:
+        file_content = await bg_image.read()
+        upload_result = image_uploader.upload_image(
+            file_content, f"{name}_bg_{datetime.now().timestamp()}"
+        )
+        wiki["bg_image"] = upload_result["secure_url"]
+    if logo is not None:
+        file_content = await logo.read()
+        upload_result = image_uploader.upload_image(
+            file_content, f"{name}_logo_{datetime.now().timestamp()}"
+        )
+        wiki["logo"] = upload_result["secure_url"]
+
+    result = None
+    if (
+        wikiID is not None
+        and wikiID != ""
+        and wikiID != "undefined"
+        and wikiID != "null"
+    ):
+        result = update(wikiID, Wiki(**wiki))
+    else:
+        result = create_wiki(Wiki(**wiki))
+    return result
 
 
 # Removes wiki from database
