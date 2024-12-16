@@ -15,7 +15,7 @@ export default function ArticlesListPage() {
         return response.json();
       })
       .then((data) => {
-        setArticles(data);
+        setArticles(data); // Aseguramos que los datos coincidan con la estructura del backend
         setLoading(false);
       })
       .catch((error) => {
@@ -35,17 +35,17 @@ export default function ArticlesListPage() {
           <div key={article._id} className="col-md-4">
             <div className="card mb-3">
               <img
-                src={article.image || "/placeholder.jpg"}
+                src={article.images?.[0] || "/placeholder.jpg"}
                 className="card-img-top"
-                alt={article.title || "Article Image"}
+                alt={article.name || "Article Image"}
               />
               <div className="card-body">
-                <h5 className="card-title">{article.title}</h5>
+                <h5 className="card-title">{article.name}</h5>
                 <p className="card-text">
-                  {article.description || "No description available."}
+                  {article.short_text || "No description available."}
                 </p>
-                <Link href={`/articles/${article._id}`}>
-                  <a className="btn btn-primary">Read More</a>
+                <Link href={`/articles/${article._id}`} className="btn btn-primary">
+                  Read More
                 </Link>
               </div>
             </div>

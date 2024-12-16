@@ -1,10 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from articles import Article
+from pydantic import BaseModel, Field
+from typing import List, Optional, Union
 from bson import ObjectId
-from typing import Union
-from httpx import AsyncClient
 from datetime import datetime, timezone
+from httpx import AsyncClient
 import sys
 import os
 
@@ -15,18 +15,19 @@ from la_wiki_utils import serialize_document, isostr_to_date
 sys.path.append(os.path.abspath("../comments"))
 from comments import Comment
 
-
+# URLs for microservices
 COMMENTS_URL = "http://127.0.0.1:13002"
-COMMENTS_URL_DOCKER = "http://comments-1"
 WIKI_URL = "http://127.0.0.1:13000"
-WIKI_URL_DOCKER = "http://wikis-1"
 
+# Database connection
 db = MongoDBAtlas()
 db.connect()
 collection = db.get_collection("Articles")
 
+# FastAPI router
 router = FastAPI()
 
+# CORS configuration
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -41,10 +42,19 @@ router.add_middleware(
     allow_headers=["*"],
 )
 
+# Base path
 path = "/api/v1/"
 
+# Article model
+class Article(BaseModel):
+    name: str = Field(..., min_length=1, max_length=255, description="Name of the article")
+    author: str = Field(..., min_length=1, max_length=100, description="Author's name")
+    content: str = Field(..., description="Main content of the article")
+    images: Optional[List[str]] = Field(default=[], description="List of image URLs")
+    wikiID: str = Field(..., description="Wiki ID associated with the article")
+    short_text: Optional[str] = Field(default=None, max_length=500, description="Short summary of the article")
 
-# GET Request Method
+# GET all articles
 @router.get(path + "articles")
 async def get_articles_by_wikiID(
     wikiID: Union[str, None] = None, name: Union[str, None] = None, order_type: int = 1
@@ -58,25 +68,20 @@ async def get_articles_by_wikiID(
     if not query:
         query = None
 
-    if order_type is None:
-        order_type = 1
-
     articles = collection.find(query).sort("wikiID", order_type)
     serialized_articles = [serialize_document(article) for article in articles]
     return serialized_articles
 
-
-# GET Request Method
+# GET articles with preview
 @router.get(path + "articles/preview")
-async def get_articles_by_wikiID(
+async def get_articles_preview(
     wikiID: Union[str, None] = None,
     name: Union[str, None] = None,
     random: bool = False,
     num_of_article: int = 10,
-    wiki_name: Union[str, None] = None,
     author: Union[str, None] = None,
-    date_from: datetime = None,  # datetime(1970, 1, 1, tzinfo=timezone.utc),
-    date_to: datetime = None,  # datetime.now(timezone.utc),
+    date_from: datetime = None,
+    date_to: datetime = None,
 ):
     query = []
     if wikiID is not None:
@@ -90,10 +95,11 @@ async def get_articles_by_wikiID(
 
     if date_from and date_to:
         query.append({"$match": {"date": {"$gte": date_from, "$lte": date_to}}})
-    elif date_from and not date_to:
+    elif date_from:
         query.append({"$match": {"date": {"$gte": date_from}}})
-    elif not date_from and date_to:
+    elif date_to:
         query.append({"$match": {"date": {"$lte": date_to}}})
+
     query.append(
         {
             "$project": {
@@ -105,91 +111,91 @@ async def get_articles_by_wikiID(
             }
         }
     )
-    # print("from: ", date_from, " to: ", date_to)
+
     articles = collection.aggregate(query)
     serialized_articles = [serialize_document(article) for article in articles]
     return serialized_articles
 
-
-# Get 1 article by id
+# GET one article by ID
 @router.get(path + "articles/{article_id}")
 async def get_article_by_id(article_id: str):
     article = collection.find_one({"_id": ObjectId(article_id)})
-    serialized_article = serialize_document(article)  # No error control so far
-    aritcle_date_parsed = isostr_to_date(serialized_article)
-    return aritcle_date_parsed
+    if not article:
+        raise HTTPException(status_code=404, detail="Article not found")
 
+    serialized_article = serialize_document(article)
+    return isostr_to_date(serialized_article)
 
-# POST Request Method
+# POST create an article
 @router.post(path + "articles")
 async def post_article(article: Article):
-    article_dict = article.dict()
-    article_dict["date"] = datetime.now(timezone.utc)
-    result = collection.insert_one(article_dict)
-    response_msg = {}
-    response_msg["msg"] = "Article was created successfully"
-    response_msg["inserted_id"] = f"{result.inserted_id}"
-    return response_msg
+    try:
+        article_dict = article.dict()
+        article_dict["date"] = datetime.now(timezone.utc)
 
+        result = collection.insert_one(article_dict)
+        return {
+            "msg": "Article was created successfully",
+            "inserted_id": str(result.inserted_id),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create article: {e}")
 
-# PUT Request Method
+# PUT update an article
 @router.put(path + "articles/{id}")
-async def update(id: str, article: Article):
-    collection.find_one_and_update({"_id": ObjectId(id)}, {"$set": article.to_dict()})
-    return {"message": "Article was  updated successfully"}
+async def update_article(id: str, article: Article):
+    updated = collection.find_one_and_update(
+        {"_id": ObjectId(id)}, {"$set": article.dict()}
+    )
+    if not updated:
+        raise HTTPException(status_code=404, detail="Article not found")
+    return {"message": "Article was updated successfully"}
 
-
-# Delete Request Method
+# DELETE an article
 @router.delete(path + "articles/{id}")
-async def delete(id: str):
-    collection.find_one_and_delete({"_id": ObjectId(id)})
+async def delete_article(id: str):
+    deleted = collection.find_one_and_delete({"_id": ObjectId(id)})
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Article not found")
     return {"message": "Article was deleted successfully"}
 
-
+# DELETE articles by wikiID
 @router.delete(path + "articles/wiki/{id}")
-async def delete_articles_of_given_wiki(id: str):
+async def delete_articles_by_wiki(id: str):
     result = collection.delete_many({"wikiID": id})
-    msg = f"Was removed {result.deleted_count} articles"
-    return {"msg": msg}
+    return {"msg": f"Removed {result.deleted_count} articles"}
 
-
-# Show commets that belongs to this article
+# GET comments for an article
 @router.get(path + "articles/{article_id}/comments")
-async def get_comments_of_given_article(article_id: str, date_order: int = 1):
-    client = AsyncClient()
+async def get_comments(article_id: str, date_order: int = 1):
+    async with AsyncClient() as client:
+        response = await client.get(
+            f"{COMMENTS_URL}{path}comments", params={"article_id": article_id, "date_order": date_order}
+        )
+        response.raise_for_status()
+        return response.json()
 
-    params = "?article_id={}&date_order={}".format(article_id, date_order)
-
-    response = await client.get(COMMENTS_URL + path + "comments" + params)
-    response.raise_for_status()  # Raise an error for HTTP errors
-
-    return response.json()
-
-
-# Create a comment for the article
+# POST comment for an article
 @router.post(path + "articles/{article_id}/comments")
-async def create_comment_for_given_article(article_id: str, comment: Comment):
-    # Using an asynchronous HTTP client to call the article microservice
-    client = AsyncClient()
-    comment_data = dict(comment)
-    comment_data["article_id"] = article_id
+async def create_comment(article_id: str, comment: Comment):
+    async with AsyncClient() as client:
+        comment_data = comment.dict()
+        comment_data["article_id"] = article_id
 
-    # Send a POST request to the articles microservice to create the article
-    response = await client.post(COMMENTS_URL + path + "comments", json=comment_data)
-    response.raise_for_status()  # Raise an error for HTTP errors
+        response = await client.post(f"{COMMENTS_URL}{path}comments", json=comment_data)
+        response.raise_for_status()
+        return response.json()
 
-    # Assuming the article service returns a JSON list of articles
-    return response.json()
-
-
-# Get wiki of the given article
+# GET wiki for an article
 @router.get(path + "articles/{article_id}/wiki")
-async def get_wiki_of_the_article(article_id: str):
-    client = AsyncClient()
+async def get_wiki(article_id: str):
     article = await get_article_by_id(article_id)
-    wiki_id = dict(article).get("wikiID")
+    wiki_id = article.get("wikiID")
+    if not wiki_id:
+        raise HTTPException(status_code=404, detail="Wiki not found for this article")
 
-    response = await client.get(WIKI_URL + path + "wikis/" + wiki_id)
-    response.raise_for_status()
+    async with AsyncClient() as client:
+        response = await client.get(f"{WIKI_URL}{path}wikis/{wiki_id}")
+        response.raise_for_status()
+        return response.json()
 
-    return response.json()

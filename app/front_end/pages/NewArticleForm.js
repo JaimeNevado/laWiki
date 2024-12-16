@@ -1,196 +1,164 @@
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
+import Image from "next/image";
 
-async function submitArticle(payload) {
-  try {
-    const response = await fetch("http://127.0.0.1:13001/api/v1/articles", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to submit article: ${response.statusText}`);
-    }
-    return await response.json();
-  } catch (error) {
-    console.error("API submission error:", error);
-    throw error;
-  }
-}
-
-async function modifyArticle(articleID, payload) {
-  try {
-    const response = await fetch(`http://127.0.0.1:13001/api/v1/articles/${articleID}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to modify article: ${response.statusText}`);
-    }
-    return await response.json();
-  } catch (error) {
-    console.error("API modification error:", error);
-    throw error;
-  }
-}
-
-async function deleteArticle(articleID) {
-  try {
-    const response = await fetch(`http://127.0.0.1:13001/api/v1/articles/${articleID}`, {
-      method: "DELETE",
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to delete article: ${response.statusText}`);
-    }
-    return response.json();
-  } catch (error) {
-    console.error("API deletion error:", error);
-    throw error;
-  }
-}
-
-function ArticleForm() {
-  const router = useRouter();
-  const { articleID } = router.query;
-  const [article, setArticle] = useState(null);
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    content: "",
-  });
+function useArticleForm(initialState) {
+  const [formData, setFormData] = useState(initialState);
 
   useEffect(() => {
-    if (articleID) {
-      fetch(`http://127.0.0.1:13001/api/v1/articles/${articleID}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setArticle(data);
-          setFormData({
-            title: data.title || "",
-            description: data.description || "",
-            content: data.content || "",
-          });
-        })
-        .catch((err) => console.error(err));
-    }
-  }, [articleID]);
+    setFormData(initialState); // Update only if the actual initialState changes
+  }, [initialState]); // Dependency ensures this runs only when initialState changes
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    const file = files[0];
+    setFormData((prev) => ({ ...prev, [name]: file }));
+  };
+
+  return {
+    formData,
+    handleInputChange,
+    handleFileChange,
+  };
+}
+
+async function submitArticle(payload) {
+  try {
+      const response = await fetch("http://127.0.0.1:13001/api/v1/articles", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload), // Asegúrate de enviar los datos como JSON
+      });
+
+      if (!response.ok) {
+          throw new Error(`Failed to submit article: ${response.statusText}`);
+      }
+
+      return await response.json();
+  } catch (error) {
+      console.error("API submission error:", error);
+      throw error;
+  }
+}
+
+
+function ArticleForm() {
+  const router = useRouter();
+  const { articleID } = router.query;
+  const [article, setArticle] = useState(null);
+
+  useEffect(() => {
+    if (articleID) {
+      fetch(`http://127.0.0.1:13001/api/v1/articles/${articleID}`)
+        .then((res) => res.json())
+        .then((data) => setArticle(data))
+        .catch((err) => console.error(err));
+    }
+  }, [articleID]);
+
+  const initData = useMemo(() => {
+    return article
+      ? {
+          _id: article._id,
+          title: article.title || "",
+          content: article.content || "",
+          author: article.author || "",
+          image: null,
+          image_url: article.image || "",
+        }
+      : {
+          title: "",
+          content: "",
+          author: "",
+          image: null,
+        };
+  }, [article]);
+
+  const { formData, handleInputChange, handleFileChange } = useArticleForm(initData);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      const payload = {
-        title: formData.title,
-        description: formData.description,
-        content: formData.content,
-      };
+      const formDataToSend = new FormData();
 
-      let result;
-      if (articleID) {
-        result = await modifyArticle(articleID, payload);
-      } else {
-        result = await submitArticle(payload);
+      formDataToSend.append("title", formData.title);
+      formDataToSend.append("content", formData.content);
+      formDataToSend.append("author", formData.author);
+
+      if (formData.image) {
+        formDataToSend.append("image", formData.image);
       }
 
-      if (result._id) {
-        alert("Article saved successfully!");
-        router.push(`/article/${result._id}`);
+      const result = await submitArticle({ articleID, payload: formDataToSend });
+      if (result.inserted_id) {
+        if (window.confirm("Article saved successfully! Click OK to view it.")) {
+          router.push(`/article?articleID=${result.inserted_id}`);
+        }
       } else {
-        throw new Error("Invalid response from server.");
+        throw new Error("Invalid response from server");
       }
     } catch (error) {
-      console.error("Error saving article:", error);
+      console.error("Error submitting form:", error);
       alert("Error saving article.");
     }
   };
 
-  const handleDelete = async () => {
-    if (window.confirm("Are you sure you want to delete this article?")) {
-      try {
-        await deleteArticle(articleID);
-        alert("Article deleted successfully!");
-        router.push(`/`);
-      } catch (error) {
-        console.error("Error deleting article:", error);
-        alert("Error deleting article.");
-      }
-    }
-  };
-
   return (
-    <div className="container mt-5">
-      <h2 className="text-center">
-        {articleID ? `Edit Article: "${formData.title}"` : "Create New Article"}
-      </h2>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="title" className="form-label">
-            Title
-          </label>
+    <>
+      <form onSubmit={handleSubmit} encType="multipart/form-data">
+        <h2>{articleID ? `Edit Article "${initData.title}"` : "Create New Article"}</h2>
+        <div>
+          <label htmlFor="title">Title:</label>
           <input
             type="text"
             id="title"
             name="title"
-            className="form-control"
             value={formData.title}
             onChange={handleInputChange}
             required
           />
         </div>
-        <div className="mb-3">
-          <label htmlFor="description" className="form-label">
-            Description
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            className="form-control"
-            value={formData.description}
-            onChange={handleInputChange}
-            required
-          ></textarea>
-        </div>
-        <div className="mb-3">
-          <label htmlFor="content" className="form-label">
-            Content
-          </label>
+        <div>
+          <label htmlFor="content">Content:</label>
           <textarea
             id="content"
             name="content"
-            className="form-control"
-            rows="5"
             value={formData.content}
             onChange={handleInputChange}
             required
-          ></textarea>
+          />
         </div>
-        <button type="submit" className="btn btn-primary">
-          {articleID ? "Update Article" : "Create Article"}
-        </button>
-        {articleID && (
-          <button
-            type="button"
-            className="btn btn-danger ms-3"
-            onClick={handleDelete}
-          >
-            Delete Article
-          </button>
-        )}
+        <div>
+          <label htmlFor="author">Author:</label>
+          <input
+            type="text"
+            id="author"
+            name="author"
+            value={formData.author}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="image">Image:</label>
+          <input
+            type="file"
+            id="image"
+            name="image"
+            accept="image/*"
+            onChange={handleFileChange}
+          />
+        </div>
+        <button type="submit">Save Article</button>
       </form>
-    </div>
+    </>
   );
 }
 

@@ -29,7 +29,7 @@ function Nav({ onSearch}) {
               <Link className="nav-link" href="/NewArticleForm">My Articles</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" href="/article_page">Article</Link>
+              <Link className="nav-link" href="/idex">Article</Link>
             </li>
             <li className="nav-item">
               <Link className="nav-link" href="/my-wikis">My Wikis</Link>
