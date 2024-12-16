@@ -7,30 +7,30 @@ export default function Comments() {
 
     useEffect(() => {
         // Cargar todos los comentarios desde el backend
-        fetch("http://127.0.0.1:13001/api/v1/comments")
+        fetch("http://127.0.0.1:13002/api/v1/comments")
             .then((response) => {
                 if (!response.ok) {
-                    throw new Error(`Error: ${response.status}`);
+                    throw new Error(`Error fetching comments: ${response.status}`);
                 }
                 return response.json();
             })
             .then((data) => {
-                setComments(data); // Guardar los comentarios obtenidos
+                setComments(data);
                 setLoading(false);
             })
-            .catch((err) => {
-                console.error("Error fetching comments:", err);
-                setError("No se pudieron cargar los comentarios.");
+            .catch((error) => {
+                console.error("Error fetching comments:", error);
+                setError(error.message);
                 setLoading(false);
             });
-    }, []); // Este hook se ejecuta solo una vez cuando se monta el componente
+    }, []); // Ejecutar solo al montar el componente
 
     if (loading) {
-        return <div>Loading comments...</div>;
+        return <p>Cargando comentarios...</p>;
     }
 
     if (error) {
-        return <div>{error}</div>;
+        return <p>Error al cargar comentarios: {error}</p>;
     }
 
     return (
@@ -41,10 +41,11 @@ export default function Comments() {
                     <div key={comment._id} style={{ marginBottom: "20px" }}>
                         <h3>{comment.title}</h3>
                         <p>
-                            <strong>Author:</strong> {comment.author_id}
+                            <strong>Autor:</strong> {comment.author_id || "Desconocido"}
                         </p>
                         <p>
-                            <strong>Date:</strong> {new Date(comment.date).toLocaleString()}
+                            <strong>Fecha:</strong>{" "}
+                            {comment.date ? new Date(comment.date).toLocaleString() : "Sin fecha"}
                         </p>
                         <p>{comment.body || "No hay contenido para este comentario."}</p>
                     </div>
