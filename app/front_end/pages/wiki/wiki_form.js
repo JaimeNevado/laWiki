@@ -3,36 +3,7 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useMemo } from "react";
 import Image from "next/image";
-import {uploadToCloudinary} from "../../components/utils/cloudinaryPhotos"
 
-
-
-
-function useUploadImage() {
-  const [isUploading, setIsUploading] = useState(false);
-
-  const uploadImage = async (file, current_img) => {
-    if (!file && !current_img) {
-      return "https://raw.githubusercontent.com/ijsto/reactnextjssnippets/master/images/logo02.png";
-    } else if (!file && current_img) {
-      return current_img;
-    }
-    setIsUploading(true);
-
-    try {
-      const url = await uploadToCloudinary(file);
-      console.log("Cloudinary URL ", url);
-      return url;
-    } catch (error) {
-      console.error("Image upload failed:", error);
-      return null;
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  return { uploadImage, isUploading };
-}
 
 function useWikiForm(initialState) {
   const [formData, setFormData] = useState(initialState);
@@ -47,8 +18,8 @@ function useWikiForm(initialState) {
   };
 
   const handleFileChange = (e) => {
-    const { name } = e.target;
-    const file = e.target.files[0];
+    const { name, files } = e.target;
+    const file = files[0];
     setFormData((prev) => ({ ...prev, [name]: file }));
   };
 
@@ -59,35 +30,28 @@ function useWikiForm(initialState) {
   };
 }
 
-async function submitWiki(payload) {
+async function submitWiki({ wikiID, payload } = {}) {
   try {
-    const response = await fetch("http://127.0.0.1:13000/api/v1/wikis", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to submit wiki: ${response.statusText}`);
+    let response;
+    if (!wikiID) {
+      // Create new wiki
+      response = await fetch("http://127.0.0.1:13000/api/v1/wikis", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        body: payload, // Send FormData directly, don't stringify
+      });
+    } else {
+      // update existing wiki
+      response = await fetch(`http://127.0.0.1:13000/api/v1/wikis/${wikiID}`, {
+        method: "PUT",
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        body: payload,
+      });
     }
-    return await response.json();
-  } catch (error) {
-    console.error("API submission error:", error);
-    throw error;
-  }
-}
-
-async function modifyWiki(wikiID, payload) {
-  try {
-    const response = await fetch(`http://127.0.0.1:13000/api/v1/wikis/${wikiID}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
     if (!response.ok) {
       throw new Error(`Failed to submit wiki: ${response.statusText}`);
     }
@@ -133,33 +97,28 @@ function WikiForm() {
   }, [wiki]);
 
   const { formData, handleInputChange, handleFileChange } = useWikiForm(initData);
-  // console.log("after setting init data! ", formData);
-  const { uploadImage, isUploading } = useUploadImage();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      // Preprocess images
-      const bg_image_url = await uploadImage(formData.bg_image, formData.bg_image_url);
-      const logo_url = await uploadImage(formData.logo, formData.logo_url);
+      const formDataToSend = new FormData();
 
-      // Prepare the payload, including the hardcoded author
-      const payload = {
-        name: formData.name,
-        description: formData.description,
-        bg_image: bg_image_url,
-        logo: logo_url,
-        author: formData.author
-      };
+      // Append text fields
+      formDataToSend.append('wikiID', wikiID);
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('description', formData.description);
+      formDataToSend.append('author', formData.author);
+
+      // Append files if they exist
+      if (formData.bg_image) {
+        formDataToSend.append('bg_image', formData.bg_image);
+      }
+      if (formData.logo) {
+        formDataToSend.append('logo', formData.logo);
+      }
 
       // Submit the form
-      let result;
-      if (wikiID) {
-        result = await modifyWiki(wikiID, payload);
-      } else {
-        result = await submitWiki(payload);
-      }
+      const result = await submitWiki({ wikiID: wikiID, payload: formDataToSend });
       if (result.inserted_id) {
         // Show success message and navigate to the wiki page
         if (window.confirm("Wiki saved successfully! Click OK to view it.")) {
@@ -169,12 +128,12 @@ function WikiForm() {
         throw new Error("Invalid response from server");
       }
     } catch (error) {
-      console.error("Error saving wiki:", error);
+      console.error('Error submitting form:', error);
       alert("Error saving wiki.");
     }
   };
 
-  const handleDelete = async() => {    
+  const handleDelete = async () => {
     try {
       // removing wiki itself
       const response = await fetch(`http://127.0.0.1:13000/api/v1/wikis/${wikiID}`, {
@@ -188,7 +147,7 @@ function WikiForm() {
       }
 
       // removing articles
-      const response_art = await fetch (`http://127.0.0.1:13001/api/v1/articles/wiki/${wikiID}`, {
+      const response_art = await fetch(`http://127.0.0.1:13001/api/v1/articles/wiki/${wikiID}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -203,13 +162,13 @@ function WikiForm() {
       console.error("API submission error:", error);
       throw error;
     }
-}
+  }
 
   return (
     <>
       <div className="row align-self-center">
         <div className="col-9 d-flex align-items-center" >
-          <form className="container mt-5 mx-0 wiki-form" onSubmit={handleSubmit}>
+          <form className="container mt-5 mx-0 wiki-form" onSubmit={handleSubmit} encType="multipart/form-data">
             <div className="fs-2 fw-medium text-center">{wikiID ? (`Edit Wiki \"${initData.name}\"`) : ("Create New Wiki")}</div>
             <div className="form-element">
               <label htmlFor="name" className="form-label">Name:</label>
@@ -268,8 +227,8 @@ function WikiForm() {
               />
             </div>
             <div className="form-element submit-button">
-              <button type="submit" className="my-4 btn btn-primary" disabled={isUploading}>
-                {isUploading ? "Uploading..." : "Save Wiki"}
+              <button type="submit" className="my-4 btn btn-primary">
+                Save Wiki
               </button>
             </div>
           </form>
@@ -326,8 +285,8 @@ function WikiForm() {
       </div>
       <div className="row mt-2">
         <div className="col-9 text-center">
-          <button 
-            className="btn btn-danger" 
+          <button
+            className="btn btn-danger"
             onClick={() => {
               if (window.confirm("Are you sure want to remove this Wiki?\nAll data will be lost!")) {
                 handleDelete();

@@ -11,6 +11,7 @@ import os
 sys.path.append(os.path.abspath("../"))
 from database_connection import MongoDBAtlas
 from la_wiki_utils import serialize_document
+from image_upload import ImageUploader
 
 sys.path.append(os.path.abspath("../articles"))
 from articles import Article
@@ -24,6 +25,10 @@ ARTICLE_URL_DOCKER = "http://articles-1"
 db = MongoDBAtlas()
 db.connect()
 collection = db.get_collection("Wikis")
+
+# initializing image uploader
+image_uploader = ImageUploader()
+
 api = FastAPI()
 
 origins = [

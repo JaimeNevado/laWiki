@@ -77,8 +77,6 @@ async def get_articles_by_wikiID(
     author: Union[str, None] = None,
     date_from: datetime = None,  # datetime(1970, 1, 1, tzinfo=timezone.utc),
     date_to: datetime = None,  # datetime.now(timezone.utc),
-
-
 ):
     query = []
     if wikiID is not None:
@@ -126,13 +124,12 @@ async def get_article_by_id(article_id: str):
 @router.post(path + "articles")
 async def post_article(article: Article):
     article_dict = article.dict()
-    article_dict["date"] = datetime.now(timezone.utc).isoformat()
+    article_dict["date"] = datetime.now(timezone.utc)
     result = collection.insert_one(article_dict)
     response_msg = {}
     response_msg["msg"] = "Article was created successfully"
     response_msg["inserted_id"] = f"{result.inserted_id}"
     return response_msg
-
 
 
 # PUT Request Method
