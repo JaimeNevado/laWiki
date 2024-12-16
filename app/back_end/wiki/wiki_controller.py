@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, File, Form, Request, UploadFile
 from bson import ObjectId
 from typing import Union
 from httpx import AsyncClient
@@ -95,48 +95,6 @@ def update(item_id: str, wiki: Wiki):
     return response_msg
 
 
-@api.post(path_v2 + "wikis")
-async def create_wiki_test(request: Request):
-    form = await request.form()
-    # print("Create wiki test form: ", form)
-
-    wikiID = form.get("wikiID")
-    name = form.get("name")
-    description = form.get("description")
-    author = form.get("author")
-    bg_image = form.get("bg_image")
-    logo = form.get("logo")
-
-    wiki: Wiki = {}
-    wiki["name"] = name
-    wiki["description"] = description
-    wiki["author"] = author
-    if bg_image is not None:
-        file_content = await bg_image.read()
-        upload_result = image_uploader.upload_image(
-            file_content, f"{name}_bg_{datetime.now().timestamp()}"
-        )
-        wiki["bg_image"] = upload_result["secure_url"]
-    if logo is not None:
-        file_content = await logo.read()
-        upload_result = image_uploader.upload_image(
-            file_content, f"{name}_logo_{datetime.now().timestamp()}"
-        )
-        wiki["logo"] = upload_result["secure_url"]
-
-    result = None
-    if (
-        wikiID is not None
-        and wikiID != ""
-        and wikiID != "undefined"
-        and wikiID != "null"
-    ):
-        result = update(wikiID, wiki)
-    else:
-        result = create_wiki(wiki)
-    return result
-
-
 # Removes wiki from database
 @api.delete(path + "wikis/{item_id}")
 def delete(item_id: str):
@@ -180,3 +138,62 @@ async def get_articles_for_wiki(wiki_id: str, num_of_article: int = 10, random=T
     )
     response = await client.get(url + params)
     return response.json()
+
+
+@api.post(path_v2 + "wikis")
+async def create_wiki2(
+    title: str = Form(..., alias="name"),
+    content: str = Form(..., alias="description"),
+    author: str = Form(..., alias="author"),
+    logo: UploadFile = File(None, alias="logo"),
+    bg_image: UploadFile = File(None, alias="bg_image"),
+    status_code=201,
+):
+    wiki = Wiki(name=title, description=content, author=author)
+
+    if logo is not None:
+        logo_url = await image_uploader.upload_image_from_form(logo)
+        wiki.logo = logo_url
+
+    if bg_image is not None:
+        bg_image_url = await image_uploader.upload_image_from_form(bg_image)
+        wiki.bg_image = bg_image_url
+
+    result = collection.insert_one(wiki.dict())
+    response_msg = {}
+    response_msg["msg"] = "Wiki was created successfully"
+    response_msg["inserted_id"] = f"{result.inserted_id}"
+    return response_msg
+
+
+@api.put(path_v2 + "wikis/{item_id}")
+async def update_wiki2(
+    item_id: str,
+    title: str = Form(..., alias="name"),
+    content: str = Form(..., alias="description"),
+    author: str = Form(..., alias="author"),
+    logo: UploadFile = File(None, alias="logo"),
+    bg_image: UploadFile = File(None, alias="bg_image"),
+):
+    wiki = {
+        "name": title,
+        "description": content,
+        "author": author,
+    }
+    # wiki = Wiki(name=title, description=content, author=author)
+    if logo is not None:
+        logo_url = await image_uploader.upload_image_from_form(logo)
+        wiki["logo"] = logo_url
+
+    if bg_image is not None:
+        bg_image_url = await image_uploader.upload_image_from_form(bg_image)
+        wiki["bg_image"] = bg_image_url
+
+    wiki_updated = collection.find_one_and_update(
+        {"_id": ObjectId(item_id)}, {"$set": wiki}
+    )
+    wiki_updated = serialize_document(wiki_updated)
+    response_msg = {}
+    response_msg["msg"] = "Wiki was updated successfully"
+    response_msg["inserted_id"] = f"{wiki_updated.get('_id')}"
+    return response_msg
