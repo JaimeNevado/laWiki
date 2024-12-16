@@ -107,7 +107,7 @@ async def create_wiki_test(request: Request):
     bg_image = form.get("bg_image")
     logo = form.get("logo")
 
-    wiki = {}
+    wiki: Wiki = {}
     wiki["name"] = name
     wiki["description"] = description
     wiki["author"] = author
@@ -131,9 +131,9 @@ async def create_wiki_test(request: Request):
         and wikiID != "undefined"
         and wikiID != "null"
     ):
-        result = update(wikiID, Wiki(**wiki))
+        result = update(wikiID, wiki)
     else:
-        result = create_wiki(Wiki(**wiki))
+        result = create_wiki(wiki)
     return result
 
 
