@@ -1,154 +1,303 @@
 import { useState } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
+import { useMemo } from "react";
+import Image from "next/image";
 
-export default function NewArticleForm() {
-  const [formData, setFormData] = useState({
-    name: "",
-    text: "",
-    author: "",
-    googleMaps: "",
-    date: new Date().toISOString(), // Fecha actual en formato ISO
-  });
-  const [images, setImages] = useState([]);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState(null);
 
-  const handleChange = (e) => {
+function useWikiForm(initialState) {
+  const [formData, setFormData] = useState(initialState);
+
+  useEffect(() => {
+    setFormData(initialState); // Update only if the actual initialState changes
+  }, [initialState]); // Dependency ensures this runs only when initialState changes
+
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleFileChange = (e) => {
-    const files = Array.from(e.target.files); // Convertir archivos a un array
-    setImages(files);
+    const { name, files } = e.target;
+    const file = files[0];
+    setFormData((prev) => ({ ...prev, [name]: file }));
   };
+
+  return {
+    formData,
+    handleInputChange,
+    handleFileChange,
+  };
+}
+
+async function submitWiki({ wikiID, payload } = {}) {
+  try {
+    let response;
+    if (!wikiID) {
+      // Create new Wiki
+      console.log("from submitWiki. id: ", wikiID, " payload: ", Array.from(payload.entries()));
+      response = await fetch("http://127.0.0.1:13000/api/v2/wikis", {
+        method: "POST",
+        headers: {
+        },
+        body: payload, // Send FormData directly, don't stringify
+      });
+    } else {
+      // Update existing Wiki
+      console.log("from submitWiki. id: ", wikiID, " payload: ", Array.from(payload.entries()));
+      response = await fetch(`http://127.0.0.1:13000/api/v2/wikis/${wikiID}`, {
+        method: "PUT",
+        body: payload, // Send FormData directly, don't stringify
+      });
+    }
+
+    if (!response.ok) {
+      throw new Error(`Failed to submit wiki: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("API submission error:", error);
+    throw error;
+  }
+}
+
+function WikiForm() {
+  const router = useRouter(); // Initialize router
+  const { wikiID } = router.query;
+  const [wiki, setWiki] = useState(null);
+  useEffect(() => {
+    if (wikiID) {
+      fetch(`http://127.0.0.1:13000/api/v1/wikis/${wikiID}`)
+        .then((res) => res.json())
+        .then((data) => setWiki(data))
+        .catch((err) => console.error(err));
+    }
+  }, [wikiID]);
+  // console.log("from wikiform. id: ", wikiID, " wiki: ", wiki);
+  const initData = useMemo(() => {
+    return wiki
+      ? {
+        _id: wiki._id,
+        name: wiki.name || "",
+        description: wiki.description || "",
+        author: wiki.author || "",
+        bg_image: null,
+        bg_image_url: wiki.bg_image || "",
+        logo: null,
+        logo_url: wiki.logo || "",
+      }
+      : {
+        name: "",
+        description: "",
+        author: "",
+        bg_image: null,
+        logo: null,
+      };
+  }, [wiki]);
+
+  const { formData, handleInputChange, handleFileChange } = useWikiForm(initData);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null); // Reiniciar el estado de error
-
-    // Validar campos obligatorios
-    if (!formData.name || !formData.text || !formData.author) {
-      setError("All fields (name, text, author) are required.");
-      return;
-    }
-
-    // Verificar los datos antes de enviarlos
-    console.log("Data being sent:", formData);
-    console.log("Images being sent:", images);
-
     try {
       const formDataToSend = new FormData();
-      // Añadir campos de texto
-      formDataToSend.append("name", formData.name);
-      formDataToSend.append("text", formData.text);
-      formDataToSend.append("author", formData.author);
-      formDataToSend.append("googleMaps", formData.googleMaps);
-      formDataToSend.append("date", formData.date); // Fecha en formato ISO
 
-      // Añadir archivos de imagen
-      images.forEach((image) => {
-        formDataToSend.append("images", image);
-      });
+      // Append text fields
+      formDataToSend.append('wikiID', wikiID);
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('description', formData.description);
+      formDataToSend.append('author', formData.author);
 
-      const response = await fetch("http://127.0.0.1:13001/api/v1/articles", {
-        method: "POST",
-        body: formDataToSend, // Usamos FormData para enviar archivos
-      });
-
-      if (!response.ok) {
-        // Obtener más detalles del error desde la respuesta del servidor
-        const errorData = await response.json();
-        console.error("Backend error response:", errorData);
-
-        // Mostrar el mensaje completo de error y la respuesta del servidor
-        setError(`Failed to create article: ${errorData.message || response.statusText}`);
-        throw new Error(errorData.message || response.statusText);
+      // Append files if they exist
+      if (formData.bg_image) {
+        formDataToSend.append('bg_image', formData.bg_image);
+      }
+      if (formData.logo) {
+        formDataToSend.append('logo', formData.logo);
       }
 
-      console.log("Article created successfully:", formData);
-      setSuccess(true);
-      setFormData({
-        name: "",
-        text: "",
-        author: "",
-        googleMaps: "",
-        date: new Date().toISOString(),
-      }); // Reiniciar el formulario
-      setImages([]); // Limpiar imágenes
-      setTimeout(() => setSuccess(false), 3000);
-    } catch (err) {
-      console.error("Error creating article:", err);
-      setError(err.message || "An unexpected error occurred.");
+      // Submit the form
+      const result = await submitWiki({ wikiID: wikiID, payload: formDataToSend });
+      if (result.inserted_id) {
+        // Show success message and navigate to the wiki page
+        if (window.confirm("Wiki saved successfully! Click OK to view it.")) {
+          router.push(`/wiki?wikiID=${result.inserted_id}`);
+        }
+      } else {
+        throw new Error("Invalid response from server");
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert("Error saving wiki.");
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      // removing wiki itself
+      const response = await fetch(`http://127.0.0.1:13000/api/v1/wikis/${wikiID}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to remove wiki: ${response.statusText}`);
+      }
+
+      // removing articles
+      const response_art = await fetch(`http://127.0.0.1:13001/api/v1/articles/wiki/${wikiID}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response_art.ok) {
+        throw new Error(`Failed to remove articles of the wiki wiki: ${response.statusText}`);
+      }
+      alert("Wiki and related articles removed successfully!");
+      router.push(`/`);
+    } catch (error) {
+      console.error("API submission error:", error);
+      throw error;
+    }
+  }
+
   return (
-    <div className="container mt-5">
-      <h2>Create a New Article</h2>
-      {success && <div className="alert alert-success">Article created successfully!</div>}
-      {error && <div className="alert alert-danger">{error}</div>}
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="name" className="form-label">Name</label>
-          <input
-            type="text"
-            className="form-control"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
+    <>
+      <div className="row align-self-center">
+        <div className="col-9 d-flex align-items-center" >
+          <form className="container mt-5 mx-0 wiki-form" onSubmit={handleSubmit} encType="multipart/form-data">
+            <div className="fs-2 fw-medium text-center">{wikiID ? (`Edit Wiki \"${initData.name}\"`) : ("Create New Wiki")}</div>
+            <div className="form-element">
+              <label htmlFor="name" className="form-label">Name:</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                className="form-control"
+                value={formData.name}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="form-element">
+              <label htmlFor="description" className="form-label">Description:</label>
+              <textarea
+                id="description"
+                name="description"
+                className="form-control"
+                value={formData.description}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="form-element">
+              <label htmlFor="author" className="form-label">Author:</label>
+              <textarea
+                id="author"
+                name="author"
+                className="form-control"
+                value={formData.author}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="form-element">
+              <label htmlFor="logo" className="form-label">Logo:</label>
+              <input
+                type="file"
+                id="logo"
+                name="logo"
+                accept="image/*"
+                className="form-control"
+                onChange={handleFileChange}
+              />
+            </div>
+            <div className="form-element">
+              <label htmlFor="bg_image" className="form-label">Background Image:</label>
+              <input
+                type="file"
+                id="bg_image"
+                name="bg_image"
+                accept="image/*"
+                className="form-control"
+                onChange={handleFileChange}
+              />
+            </div>
+            <div className="form-element submit-button">
+              <button type="submit" className="my-4 btn btn-primary">
+                Save Wiki
+              </button>
+            </div>
+          </form>
         </div>
-        <div className="mb-3">
-          <label htmlFor="author" className="form-label">Author</label>
-          <input
-            type="text"
-            className="form-control"
-            id="author"
-            name="author"
-            value={formData.author}
-            onChange={handleChange}
-            required
-          />
+        {/* Current Images */}
+        <div className="col-3 d-flex align-items-center">
+          <div className="col">
+            <div className="row text-center mb-5">
+              {formData.logo_url ? (
+                <>
+                  <div className="fs-6">
+                    Current Wiki Logo:
+                  </div>
+                  <div className="mx-auto d-block" style={{ maxWidth: "250px" }}>
+                    <Image
+                      src={formData.logo_url}
+                      className="img-fluid"
+                      width={0}
+                      height={0}
+                      sizes='25vw'
+                      alt="Current wiki logo"
+                      style={{ width: "100%", height: "auto" }}
+                    />
+                  </div>
+                </>
+              ) : (
+                <></>
+              )}
+            </div>
+            <div className="row">
+              {formData.bg_image_url ? (
+                <>
+                  <div className="fs-6 text-center">
+                    Current Wiki Background:
+                  </div>
+                  <div className="mx-auto d-block" style={{ maxWidth: "250px" }}>
+                    <Image
+                      src={formData.bg_image_url}
+                      className="img-fluid"
+                      width={0}
+                      height={0}
+                      sizes='25vw'
+                      alt="Current wiki background"
+                      style={{ width: "100%", height: "auto" }}
+                    />
+                  </div>
+                </>
+              ) : (
+                <></>
+              )}
+            </div>
+          </div>
         </div>
-        <div className="mb-3">
-          <label htmlFor="text" className="form-label">Text</label>
-          <textarea
-            className="form-control"
-            id="text"
-            name="text"
-            rows="5"
-            value={formData.text}
-            onChange={handleChange}
-            required
-          ></textarea>
+      </div>
+      <div className="row mt-2">
+        <div className="col-9 text-center">
+          <button
+            className="btn btn-danger"
+            onClick={() => {
+              if (window.confirm("Are you sure want to remove this Wiki?\nAll data will be lost!")) {
+                handleDelete();
+              }
+            }}
+          >
+            {`Delete Wiki \"${initData.name}\"`}
+          </button>
         </div>
-        <div className="mb-3">
-          <label htmlFor="images" className="form-label">Images</label>
-          <input
-            type="file"
-            className="form-control"
-            id="images"
-            name="images"
-            multiple
-            onChange={handleFileChange}
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="googleMaps" className="form-label">Google Maps Location</label>
-          <input
-            type="text"
-            className="form-control"
-            id="googleMaps"
-            name="googleMaps"
-            value={formData.googleMaps}
-            onChange={handleChange}
-          />
-        </div>
-        <button type="submit" className="btn btn-primary">Create Article</button>
-      </form>
-    </div>
+      </div>
+    </>
   );
 }
+
+export default WikiForm;

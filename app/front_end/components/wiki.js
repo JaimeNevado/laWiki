@@ -101,15 +101,15 @@ const Wiki = ({ wiki }) => {
           Some articles to read:
         </div>
         <div className="card-group d-flex justify-content-evenly">
-          {articles.length > 0 ? (
-            articles.map((preview, index) => (
-              <div key={index}>
-                <ArticlePreview preview={preview} />
-              </div>
-            ))
-          ) : (
-            <p>Loading articles...</p>
-          )}
+        {articles.length > 0 ? (
+          articles.map((preview, index) => (
+            <div key={index}>
+              <ArticlePreview preview={preview} />
+            </div>
+          ))
+        ) : (
+          <p>{articles.length === 0 ? "No hay artículos disponibles." : "Loading articles..."}</p>
+        )}
           <div className='text-end me-2'>
             <LinkButton btn_type={"btn-primary"} button_text="Create Article" state="enabled" link="/article/NewArticleForm" />
           </div>
