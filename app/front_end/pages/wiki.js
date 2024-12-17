@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import Wiki from "../../components/wiki";
+import Wiki from "../components/wiki";
 
 function WikiPage() {
     const router = useRouter();
