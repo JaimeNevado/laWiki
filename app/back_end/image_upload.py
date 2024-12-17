@@ -2,6 +2,7 @@ import cloudinary
 import cloudinary.uploader
 from environs import Env
 from io import BytesIO
+from datetime import datetime
 
 # import os
 # from cloudinary.utils import cloudinary_url
@@ -32,6 +33,14 @@ class ImageUploader:
             public_id=id,
         )
         return upload_result
+
+    async def upload_image_from_form(self, form_image):
+        file_content = await form_image.read()
+        upload_result = self.upload_image(
+            image=file_content,
+            id=f"{form_image.filename}_{datetime.now().timestamp()}",
+        )
+        return upload_result["secure_url"]
 
 
 # script_dir = os.path.dirname(os.path.abspath(__file__))
