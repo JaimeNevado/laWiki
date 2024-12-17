@@ -6,7 +6,7 @@ export default function ArticleDetailsPage() {
   const { id } = router.query;
   const [article, setArticle] = useState(null);
   const [error, setError] = useState(null);
-
+// hello
   useEffect(() => {
     if (id) {
       fetch(`http://127.0.0.1:13001/api/v1/articles/${id}`)
