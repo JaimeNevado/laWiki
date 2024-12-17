@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import ArticlePreview from './article_preview';
 import Image from 'next/image';
 import LinkButton from './buttons/button_with_link';
-
-
 
 function WikiSkeleton({ wiki }) {
   const router = useRouter();
@@ -13,7 +11,7 @@ function WikiSkeleton({ wiki }) {
       <div className='text-end'>
         <LinkButton btn_type={"btn-primary"} button_text="Edit Wiki" state="enabled" link="/wiki/wiki_form" func={() => router.push({
             pathname: "/wiki/wiki_form",
-            query: {wikiID: wiki._id},
+            query: { wikiID: wiki._id },
           })
         } />
       </div>
@@ -59,13 +57,11 @@ function WikiSkeleton({ wiki }) {
   );
 }
 
-
 const Wiki = ({ wiki }) => {
   const router = useRouter();
-  // console.log(wiki);
-  let {id} = router.query;
+  let { id } = router.query;
   if (!wiki) {
-    id = '6752e6c677c86b2a52cb9335'; // temporarely send a hardcoded wikiID
+    id = '6752e6c677c86b2a52cb9335'; // Temporarily sending a hardcoded wikiID
   } else {
     id = wiki._id;
   }
@@ -101,17 +97,18 @@ const Wiki = ({ wiki }) => {
           Some articles to read:
         </div>
         <div className="card-group d-flex justify-content-evenly">
-        {articles.length > 0 ? (
-          articles.map((preview, index) => (
-            <div key={index}>
-              <ArticlePreview preview={preview} />
-            </div>
-          ))
-        ) : (
-          <p>{articles.length === 0 ? "No hay artículos disponibles." : "Loading articles..."}</p>
-        )}
+          {articles.length > 0 ? (
+            articles.map((preview, index) => (
+              <div key={index}>
+                <ArticlePreview preview={preview} />
+              </div>
+            ))
+          ) : (
+            <p>{articles.length === 0 ? "No hay artículos disponibles." : "Loading articles..."}</p>
+          )}
+          {/* Correct link for creating article */}
           <div className='text-end me-2'>
-            <LinkButton btn_type={"btn-primary"} button_text="Create Article" state="enabled" link="/article/NewArticleForm" />
+            <LinkButton btn_type={"btn-primary"} button_text="Create Article" state="enabled" link="/NewArticleForm" />
           </div>
         </div>
       </div>

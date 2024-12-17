@@ -158,7 +158,7 @@ export default function ArticlesListPage() {
         <>
           <div className="fs-3 text-center">Article Not Found</div>
           <div className="text-center me-2">
-            <LinkButton btn_type="btn-primary" button_text="Create Article" state="enabled" link="/article/new-article-form" />
+            <LinkButton btn_type="btn-primary" button_text="Create Article" state="enabled" link="/NewArticleForm" />
           </div>
         </>
       )}
