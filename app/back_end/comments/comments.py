@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 class Comment(BaseModel):
-    date: datetime
+    date: Optional[datetime] = None
     title: str
     body: Optional[str] = None
     article_id: str

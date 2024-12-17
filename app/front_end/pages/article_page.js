@@ -67,39 +67,51 @@ export default function ArticlesListPage() {
   };
 
   // Handle comment submission
-  const handleCommentSubmit = async (e) => {
-    e.preventDefault();
+const handleCommentSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!newComment) return; // Do nothing if comment is empty
+  if (!newComment) return; // Do nothing if comment is empty
 
-    try {
-      const response = await fetch("http://127.0.0.1:13001/api/v1/comments", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          article_id: id,
-          author_id: "default_user", // Replace with the actual user ID if available
-          title: article?.title || "No Title",
-          content: newComment,
-        }),
-      });
+  try {
+    // Enviar datos al backend
+    const response = await fetch("http://127.0.0.1:13002/api/v1/comments", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        article_id: id,
+        author_id: "default_user", // Replace with the actual user ID if available
+        title: article?.title || "No Title",
+        body: newComment, // Ajuste: 'body' en lugar de 'content'
+      }),
+    });
 
-      if (!response.ok) throw new Error("Failed to add comment");
+    if (!response.ok) throw new Error("Failed to add comment");
 
-      // Update comments list by adding the new comment
-      const newCommentData = await response.json();
-      setComments((prevComments) => [
-        ...prevComments,
-        { content: newComment, author_id: "default_user", date: new Date() },
-      ]);
-      setNewComment(""); // Reset the comment input
-    } catch (error) {
-      console.error("Error adding comment:", error);
-      setError("Error adding comment");
-    }
-  };
+    // Obtener respuesta del backend
+    const result = await response.json();
+
+    // Actualizar la lista de comentarios localmente
+    setComments((prevComments) => [
+      ...prevComments,
+      {
+        article_id: id,
+        author_id: "default_user",
+        title: article?.title || "No Title",
+        body: newComment,
+        date: new Date(), // Simular fecha actual para mostrar al usuario
+      },
+    ]);
+
+    setNewComment(""); // Reset the comment input
+    console.log(result.message); // Mostrar el mensaje del servidor
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    setError("Error adding comment");
+  }
+};
+
 
   if (error) return <p className="text-danger text-center">{error}</p>;
 
