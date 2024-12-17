@@ -44,7 +44,8 @@ export default function ArticlesListPage() {
                 <p className="card-text">
                   {article.short_text || "No description available."}
                 </p>
-                <Link href={`/articles/${article._id}`} className="btn btn-primary">
+                {/* Ajustar el enlace para apuntar a la página `article_page.js` */}
+                <Link href={`/article_page?articleID=${article._id}`} className="btn btn-primary">
                   Read More
                 </Link>
               </div>

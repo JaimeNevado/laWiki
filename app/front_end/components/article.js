@@ -1,11 +1,11 @@
 import Image from "next/image";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-function Article(article) {
-  article = article.article;
-  let images = article.images;
-  let main_img = images[0];
-  main_img = "https://raw.githubusercontent.com/ijsto/reactnextjssnippets/master/images/logo02.png";
+// Componente Article
+function Article({ article }) {
+  let images = article.images || [];
+  let main_img = images[0] || "https://raw.githubusercontent.com/ijsto/reactnextjssnippets/master/images/logo02.png";
+
   return (
     <article lang="en">
       <div className="container mt-4">
@@ -20,7 +20,7 @@ function Article(article) {
         <div className="row">
           <div className="col-12 text-end">
             <p>
-            by: <strong>{article.author}</strong><br />
+              by: <strong>{article.author}</strong><br />
               <strong>{article.date}</strong>
             </p>
           </div>
@@ -34,11 +34,10 @@ function Article(article) {
               <Image
                 src={main_img}
                 className="img-fluid"
-                width={0}
-                height={0}
-                sizes="25vw"
-                alt="..."
-                style={{width:"100%", height:"auto"}}
+                width={500} // Set fixed width, adjust as needed
+                height={300} // Set fixed height, adjust as needed
+                alt="Article Image"
+                layout="intrinsic"
               />
             </div>
             <div className="px-10 py-10" style={{ backgroundColor: "lightblue" }}>

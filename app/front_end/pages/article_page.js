@@ -14,11 +14,13 @@ export default function ArticlesListPage() {
 
   useEffect(() => {
     if (id) {
+      // Fetching article data
       fetchData(
         `http://127.0.0.1:13001/api/v1/articles/${id}`,
         setArticle,
         setError
       );
+      // Fetching wiki background image
       fetchData(
         `http://127.0.0.1:13001/api/v1/articles/${id}/wiki`,
         (data) => setWikiBg(data.bg_image),
@@ -38,23 +40,6 @@ export default function ArticlesListPage() {
       myDiv.style.zIndex = "-1";
     }
   }, [wikibg]);
-
-  useEffect(() => {
-    console.log("Article ID from query:", id);  // Log the id from the URL
-    if (id) {
-      fetchData(
-        `http://127.0.0.1:13001/api/v1/articles/${id}`,
-        setArticle,
-        setError
-      );
-      fetchData(
-        `http://127.0.0.1:13001/api/v1/articles/${id}/wiki`,
-        (data) => setWikiBg(data.bg_image),
-        setError
-      );
-    }
-  }, [id]);
-  
 
   const getMessage = async () => {
     const lugar = article?.googleMaps || "defaultLocation";
