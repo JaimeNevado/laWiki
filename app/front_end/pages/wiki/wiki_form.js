@@ -121,7 +121,7 @@ function WikiForm() {
       if (result.inserted_id) {
         // Show success message and navigate to the wiki page
         if (window.confirm("Wiki saved successfully! Click OK to view it.")) {
-          router.push(`/wiki?wikiID=${result.inserted_id}`);
+          router.push(`/wiki/${result.inserted_id}`);
         }
       } else {
         throw new Error("Invalid response from server");
