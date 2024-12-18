@@ -40,3 +40,9 @@ uvicorn comment_controller:api --reload  --port 13002
 
 --Versiones
 67535bf515ff0bae8398d4b2 wiki id de la wiki de versiones prueba
+
+
+---Modelos
+En articulos hay dos Modelos
+---Date en editArticle por defecto al igual que id ver que estrategia seguir
+---Estrategias para id: 
