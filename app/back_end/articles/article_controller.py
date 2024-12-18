@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from httpx import AsyncClient
 import sys
 import os
-
+from articles import Article;
 sys.path.append(os.path.abspath("../"))
 from database_connection import MongoDBAtlas
 from la_wiki_utils import serialize_document, isostr_to_date
@@ -46,13 +46,13 @@ router.add_middleware(
 path = "/api/v1/"
 
 # Article model
-class Article(BaseModel):
-    name: str = Field(..., min_length=1, max_length=255, description="Name of the article")
-    author: str = Field(..., min_length=1, max_length=100, description="Author's name")
-    content: str = Field(..., description="Main content of the article")
-    images: Optional[List[str]] = Field(default=[], description="List of image URLs")
-    wikiID: str = Field(..., description="Wiki ID associated with the article")
-    short_text: Optional[str] = Field(default=None, max_length=500, description="Short summary of the article")
+# class Article(BaseModel):
+#     name: str = Field(..., min_length=1, max_length=255, description="Name of the article")
+#     author: str = Field(..., min_length=1, max_length=100, description="Author's name")
+#     content: str = Field(..., description="Main content of the article")
+#     images: Optional[List[str]] = Field(default=[], description="List of image URLs")
+#     wikiID: str = Field(..., description="Wiki ID associated with the article")
+#     short_text: Optional[str] = Field(default=None, max_length=500, description="Short summary of the article")
 
 # GET all articles
 @router.get(path + "articles")
@@ -145,7 +145,7 @@ async def post_article(article: Article):
 @router.put(path + "articles/{id}")
 async def update_article(id: str, article: Article):
     updated = collection.find_one_and_update(
-        {"_id": ObjectId(id)}, {"$set": article.dict()}
+        {"_id": ObjectId(id)}, {"$set": article.to_dict()}
     )
     if not updated:
         raise HTTPException(status_code=404, detail="Article not found")

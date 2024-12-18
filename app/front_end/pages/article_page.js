@@ -4,6 +4,7 @@ import Article from "../components/article";
 import LinkButton from "../components/buttons/button_with_link";
 import styles from "../css/ArticlePage.module.css";
 import fetchData from "../components/utils/fetchData";
+import ArticlePreview from "../components/article_preview";
 
 export default function ArticlesListPage() {
   const router = useRouter();
@@ -66,6 +67,31 @@ export default function ArticlesListPage() {
     }
   };
 
+  //handle version
+    const handleRestoreVersion = async (version) =>{
+      const currentDate = new Date();  // Fecha y hora actual
+      const isoDate = currentDate.toISOString();
+      try {
+          const articleUpdated = {
+              ...article,
+              short_text : version.short_text,
+              text :  version.text,
+              date : "2024-12-05T19:54:48.911097+00:00",
+          }
+          
+          setArticle(articleUpdated);
+          const response = await fetch(`http://127.0.0.1:13001/api/v1/articles/${article._id}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(articleUpdated), // Enviamos el artículo actualizado
+            });
+      }catch(error){
+          console.error("Error:", error);
+          alert("Hubo un problema al actualizar el artículo.");
+      }
+  };
   // Handle comment submission
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
@@ -149,6 +175,20 @@ export default function ArticlesListPage() {
                 <br />
                 <button type="submit">Submit Comment</button>
               </form>
+            </div>
+
+           {/* Versiones  */}
+            <h2>Versiones:</h2>
+            <div>
+            {article.versions.map((version, index) => (
+                <>
+                <ArticlePreview key={index} previewVersion={version}>
+                </ArticlePreview>
+                <button onClick={() => handleRestoreVersion(version)}>
+                    Restaurar versión {version.version}
+                </button>
+                </>
+            ))}
             </div>
           </>
         ) : (

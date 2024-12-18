@@ -24,7 +24,7 @@ class Image(BaseModel):
     }
 
 class Version(BaseModel):
-    version: int
+    version: Optional[int]
     short_text: Optional[str] = None
     text: Optional[str] = None
     date: Optional[str] = None
