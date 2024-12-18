@@ -23,16 +23,13 @@ function Nav({ onSearch}) {
               <Link className="nav-link active" aria-current="page" href="/">Home</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" href="/wiki">Wiki</Link>
-            </li>
-            <li className="nav-item">
               <Link className="nav-link" href="/NewArticleForm">My Articles</Link>
             </li>
             <li className="nav-item">
               <Link className="nav-link" href="/idex">Article</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" href="/my-wikis">My Wikis</Link>
+              <Link className="nav-link" href="/myWikis">My Wikis</Link>
             </li>
             <li className="nav-item">
               <Link className="nav-link" href="/profile">My Profile</Link>
