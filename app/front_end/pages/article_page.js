@@ -14,7 +14,6 @@ export default function ArticlesListPage() {
   const [error, setError] = useState(null);
   const [comments, setComments] = useState([]); // State to hold comments
   const [newComment, setNewComment] = useState(""); // State for new comment input
-
   useEffect(() => {
     if (id) {
       // Fetching article data
@@ -128,13 +127,40 @@ export default function ArticlesListPage() {
   };
 
   if (error) return <p className="text-danger text-center">{error}</p>;
-
+  const handleDelete = () => {
+    // Realizar la solicitud DELETE
+    fetch(`http://127.0.0.1:13001/api/v1/articles/${article._id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to delete');
+        }
+        return response.json();
+      })
+      .then(() => {
+        // Redirigir a la página del wiki después de eliminar el comentario
+        router.push(`/wiki/${article.wikiID}`); // Cambia a la ruta deseada
+      })
+      .catch(error => {
+        console.error("Error deleting comment:", error);
+        // Puedes agregar un mensaje de error o manejar el fallo aquí
+      });
+  };
   return (
     <div id="main_wrapper" className={`${styles.container} mx-0`}>
       {id ? (
         article ? (
           <>
             <div className={styles.articleContent}>
+            <button 
+              className="btn btn-danger mt-3" 
+              onClick={handleDelete}>
+              Eliminar
+            </button>
               <Article article={article} />
             </div>
             <div>
