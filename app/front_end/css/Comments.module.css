@@ -1,0 +1,71 @@
+.commentsContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra los comentarios horizontalmente */
+    justify-content: center; /* Centra los comentarios verticalmente */
+    padding: 20px;
+    background-color: #f9f9f9; /* Fondo neutro */
+    min-height: 100vh; /* Altura mínima para llenar la pantalla */
+    color: #333; /* Texto en gris oscuro */
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .title {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #444; /* Tono más oscuro para el título */
+    text-align: center;
+  }
+  
+  .commentCard {
+    background-color: #ffffff; /* Fondo blanco */
+    border: 1px solid #ddd; /* Borde claro */
+    border-radius: 8px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+    width: 80%; /* Ancho del comentario */
+    max-width: 600px; /* Máximo ancho */
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .commentCard:hover {
+    transform: translateY(-5px); /* Efecto de elevación al pasar el cursor */
+  }
+  
+  .commentTitle {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #555;
+  }
+  
+  .commentAuthor,
+  .commentDate {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    color: #666; /* Texto más claro */
+  }
+  
+  .commentBody {
+    font-size: 1rem;
+    color: #333; /* Texto estándar */
+  }
+  
+  .noComments {
+    font-size: 1.2rem;
+    color: #777; /* Texto claro */
+  }
+  
+  .loading {
+    font-size: 1.5rem;
+    color: #888;
+    text-align: center;
+  }
+  
+  .error {
+    font-size: 1.5rem;
+    color: #d9534f; /* Rojo para errores */
+    text-align: center;
+  }
+  
