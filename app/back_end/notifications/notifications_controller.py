@@ -66,8 +66,16 @@ def get_notification(notification_id: str):
 
 
 @api.get(path + "get_notifications_count")
-def get_notifications_count(user_id: str):
-    query = {"user_id": user_id, "opened": False}
+def get_notifications_count(user_id: Optional[str] = None, read: bool = False):
+    query = {}
+    if user_id is not None:
+        query["user_id"] = user_id
+    if read is not None:
+        query["opened"] = read
+
+    if query == {}:
+        query = None
+    # query = {"user_id": user_id, "opened": False}
     count = collection.count_documents(query)
     return {"count": count}
 
@@ -81,7 +89,7 @@ def add_notification(notification: Notification, status_code=201):
     return {"notification_id": str(notification_id)}
 
 
-@api.post(path + "set_notification_as_read")
+@api.put(path + "set_notification_as_read")
 def set_notification_as_read(notification_id: str):
     query = {"_id": ObjectId(notification_id)}
     collection.update_one(query, {"$set": {"opened": True}})
