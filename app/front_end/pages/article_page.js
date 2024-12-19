@@ -14,6 +14,7 @@ export default function ArticlesListPage() {
   const [error, setError] = useState(null);
   const [comments, setComments] = useState([]); // State to hold comments
   const [newComment, setNewComment] = useState(""); // State for new comment input
+
   useEffect(() => {
     if (id) {
       // Fetching article data
@@ -155,12 +156,16 @@ export default function ArticlesListPage() {
       {id ? (
         article ? (
           <>
-            <div className={styles.articleContent}>
-            <button 
-              className="btn btn-danger mt-3" 
-              onClick={handleDelete}>
-              Eliminar
-            </button>
+            <div className={`{styles.articleContent} `}>
+
+              <button
+                className="btn btn-danger" 
+                onClick={handleDelete}>
+                Eliminar
+              </button>
+              <LinkButton btn_type="btn-primary" button_text="Edit article" state="enabled" link={`/editArticleForm?article_id=${article._id}`} />
+          </div>
+            <div>
               <Article article={article} />
             </div>
             <div>

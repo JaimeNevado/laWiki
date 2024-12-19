@@ -4,11 +4,14 @@ import "bootstrap/dist/css/bootstrap.min.css";
 export default function NewArticleForm() {
   const [formData, setFormData] = useState({
     name: "",
-    content: "", // Changed from 'text' to 'content' to match backend model
+    text: "", // Cambiado de 'content' a 'text' para coincidir con el modelo backend
+    short_text: "", // Campo opcional para una descripción corta
+    attachedFiles: "", // Campo para archivos adjuntos
     author: "",
     googleMaps: "",
-    wikiID: "", // Added wikiID which is required in the backend model
-    short_text: "", // Optional field added for short description
+    date: "", // Campo para la fecha
+    wikiID: "", // Campo requerido en el modelo backend
+    versions: [], // Campo para las versiones
   });
   const [images, setImages] = useState([]);
   const [success, setSuccess] = useState(false);
@@ -29,8 +32,8 @@ export default function NewArticleForm() {
     setError(null);
 
     // Validate required fields
-    if (!formData.name || !formData.content || !formData.author || !formData.wikiID) {
-      setError("Name, content, author, and Wiki ID are required.");
+    if (!formData.name || !formData.text || !formData.author || !formData.wikiID) {
+      setError("Name, text, author, and Wiki ID are required.");
       return;
     }
 
@@ -47,11 +50,14 @@ export default function NewArticleForm() {
       // Prepare the payload to match the backend Article model
       const articlePayload = {
         name: formData.name,
-        content: formData.content,
+        text: formData.text,
         author: formData.author,
         wikiID: formData.wikiID,
         images: imageUrls,
         short_text: formData.short_text || null,
+        attachedFiles: formData.attachedFiles,
+        date: formData.date,
+        versions: formData.versions,
       };
 
       const response = await fetch("http://127.0.0.1:13001/api/v1/articles", {
@@ -75,11 +81,14 @@ export default function NewArticleForm() {
       setSuccess(true);
       setFormData({
         name: "",
-        content: "",
+        text: "",
         author: "",
         googleMaps: "",
         wikiID: "",
         short_text: "",
+        attachedFiles: "",
+        date: "",
+        versions: [],
       });
       setImages([]);
       setTimeout(() => setSuccess(false), 3000);
@@ -95,8 +104,8 @@ export default function NewArticleForm() {
       {success && <div className="alert alert-success">Article created successfully!</div>}
       {error && <div className="alert alert-danger">{error}</div>}
       <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="name" className="form-label">Name</label>
+        <div className="form-group">
+          <label htmlFor="name">Name</label>
           <input
             type="text"
             className="form-control"
@@ -107,8 +116,8 @@ export default function NewArticleForm() {
             required
           />
         </div>
-        <div className="mb-3">
-          <label htmlFor="author" className="form-label">Author</label>
+        <div className="form-group">
+          <label htmlFor="author">Author</label>
           <input
             type="text"
             className="form-control"
@@ -119,8 +128,8 @@ export default function NewArticleForm() {
             required
           />
         </div>
-        <div className="mb-3">
-          <label htmlFor="wikiID" className="form-label">Wiki ID</label>
+        <div className="form-group">
+          <label htmlFor="wikiID">Wiki ID</label>
           <input
             type="text"
             className="form-control"
@@ -132,20 +141,20 @@ export default function NewArticleForm() {
             placeholder="Enter the associated Wiki ID"
           />
         </div>
-        <div className="mb-3">
-          <label htmlFor="content" className="form-label">Content</label>
+        <div className="form-group">
+          <label htmlFor="text">Text</label>
           <textarea
             className="form-control"
-            id="content"
-            name="content"
+            id="text"
+            name="text"
             rows="5"
-            value={formData.content}
+            value={formData.text}
             onChange={handleChange}
             required
           ></textarea>
         </div>
-        <div className="mb-3">
-          <label htmlFor="short_text" className="form-label">Short Description (Optional)</label>
+        <div className="form-group">
+          <label htmlFor="short_text">Short Description (Optional)</label>
           <textarea
             className="form-control"
             id="short_text"
@@ -155,8 +164,30 @@ export default function NewArticleForm() {
             onChange={handleChange}
           ></textarea>
         </div>
-        <div className="mb-3">
-          <label htmlFor="images" className="form-label">Images</label>
+        <div className="form-group">
+          <label htmlFor="attachedFiles">Attached Files</label>
+          <input
+            type="text"
+            className="form-control"
+            id="attachedFiles"
+            name="attachedFiles"
+            value={formData.attachedFiles}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="date">Date</label>
+          <input
+            type="datetime-local"
+            className="form-control"
+            id="date"
+            name="date"
+            value={formData.date}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="images">Images</label>
           <input
             type="file"
             className="form-control"
@@ -166,8 +197,8 @@ export default function NewArticleForm() {
             onChange={handleFileChange}
           />
         </div>
-        <div className="mb-3">
-          <label htmlFor="googleMaps" className="form-label">Google Maps Location (Optional)</label>
+        <div className="form-group">
+          <label htmlFor="googleMaps">Google Maps Location (Optional)</label>
           <input
             type="text"
             className="form-control"

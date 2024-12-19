@@ -1,36 +1,38 @@
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-export default function NewArticleForm() {
+export default function EditArticleForm() {
+    const router = useRouter();
+    const { article_id } = router.query; // Get article_id from the URL query parameters
     const [formData, setFormData] = useState({ name: '', text: '', googleMaps: '' });
     const [success, setSuccess] = useState(false);
     const [currentArticle, setCurrentArticle] = useState(null); // Usamos el estado para currentArticle
-    const article_id = "6761d020ceff2451a158be62";
-    const url = `http://localhost:13001/api/v1/articles/${article_id}`;
 
-    // Fetch del artículo cuando el componente se monta
     useEffect(() => {
-        const fetchArticle = async () => {
-            try {
-                const response = await fetch(url, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                });
-                if (!response.ok) {
-                    throw new Error(`Error en la petición: ${response.status}`);
+        if (article_id) {
+            const url = `http://localhost:13001/api/v1/articles/${article_id}`;
+            const fetchArticle = async () => {
+                try {
+                    const response = await fetch(url, {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                    });
+                    if (!response.ok) {
+                        throw new Error(`Error en la petición: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    console.log("Artículo recibido:", data);
+                    setCurrentArticle(data); // Actualizamos el estado con el artículo recibido
+                } catch (error) {
+                    console.error("Error al obtener el artículo:", error.message);
                 }
-                const data = await response.json();
-                console.log("Artículo recibido:", data);
-                setCurrentArticle(data); // Actualizamos el estado con el artículo recibido
-            } catch (error) {
-                console.error("Error al obtener el artículo:", error.message);
-            }
-        };
-
-        fetchArticle(); // Llamamos a la función asíncrona
-    }, [url]); // Solo se ejecuta cuando el componente se monta
+            };
+            fetchArticle();
+        }
+    }, [article_id]);
 
     // Actualizar formData cuando currentArticle cambia
     useEffect(() => {
@@ -56,6 +58,7 @@ export default function NewArticleForm() {
         console.log("Articulo editado", articuloEditado);
         const articuloEditadoVersiones = actualizarVersion(articuloEditado);
         console.log("Articulo editado con versiones:", articuloEditado);
+        const url = `http://localhost:13001/api/v1/articles/${article_id}`;
         fetch(url, {
             method: "PUT",
             headers: {
