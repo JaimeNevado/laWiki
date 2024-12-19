@@ -5,6 +5,7 @@ import LinkButton from "../components/buttons/button_with_link";
 import styles from "../css/ArticlePage.module.css";
 import fetchData from "../components/utils/fetchData";
 import ArticlePreview from "../components/article_preview";
+import Image from "next/image";
 
 export default function ArticlesListPage() {
   const router = useRouter();
@@ -221,6 +222,21 @@ export default function ArticlesListPage() {
                 </>
             ))}
             </div>
+            <div className="container mt-5 mb-5">
+                        <div className="row">
+                            {article.images.map((image, index) => (
+                                <div className="col-md-4" key={index}>
+                                    <Image
+                                        src={image}
+                                        width={250}
+                                        height={250}
+                                        className="img-fluid"
+                                        alt={`Image ${index + 1}`}
+                                    />
+                                </div>
+                            ))}
+                        </div> 
+               </div>
           </>
         ) : (
           <div>Loading...</div>

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
+import Image from "next/image";
 export default function EditArticleForm() {
     const router = useRouter();
     const { article_id } = router.query; // Get article_id from the URL query parameters
-    const [formData, setFormData] = useState({ name: '', text: '', googleMaps: '' });
+    const [formData, setFormData] = useState({ name: '', text: '', googleMaps: '', image : '' });
     const [success, setSuccess] = useState(false);
     const [currentArticle, setCurrentArticle] = useState(null); // Usamos el estado para currentArticle
 
@@ -54,7 +54,8 @@ export default function EditArticleForm() {
     // Manejar la edición del artículo
     const handleSubmit = (e) => {
         e.preventDefault();
-        const articuloEditado = { ...currentArticle, ...formData, date : "2024-11-15T22:27:54+0000" };
+        const articuloEditado = { ...currentArticle, ...formData, date : "2024-11-15T22:27:54+0000",
+            images: formData.image ? [...(currentArticle.images || []), formData.image] : currentArticle.images};
         console.log("Articulo editado", articuloEditado);
         const articuloEditadoVersiones = actualizarVersion(articuloEditado);
         console.log("Articulo editado con versiones:", articuloEditado);
@@ -141,8 +142,35 @@ export default function EditArticleForm() {
                         required
                     ></textarea>
                 </div>
-                <button type="submit" className="btn btn-primary">Edit Article</button>
+                <div className="form-element mb-3">
+                <label htmlFor="image" className="form-label">Logo:</label>
+                <input
+                    type="file"
+                    id="image"
+                    name="image"
+                    accept="image/*"
+                    className="form-control"
+                    onChange={handleChange}
+                />
+                </div>
+                <button type="submit" className="btn btn-primary ">Edit Article</button>
             </form>
+
+        <div className="container mt-5 mb-5">
+            <div className="row">
+                {currentArticle.images.map((image, index) => (
+                    <div className="col-md-4" key={index}>
+                        <Image
+                            src={image}
+                            width={250}
+                            height={250}
+                            className="img-fluid"
+                            alt={`Image ${index + 1}`}
+                        />
+                    </div>
+                ))}
+            </div>
+        </div>
         </div>
     );
 }

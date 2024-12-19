@@ -1,17 +1,21 @@
 import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { useRouter } from "next/router";
 
 export default function NewArticleForm() {
+  const router = useRouter();
+  const { wikiID } = router.query;
   const [formData, setFormData] = useState({
     name: "",
-    text: "", // Cambiado de 'content' a 'text' para coincidir con el modelo backend
-    short_text: "", // Campo opcional para una descripción corta
-    attachedFiles: "", // Campo para archivos adjuntos
+    text: "",
+    short_text: "",
+    attachedFiles: "",
     author: "",
     googleMaps: "",
-    date: "", // Campo para la fecha
-    wikiID: "", // Campo requerido en el modelo backend
-    versions: [], // Campo para las versiones
+    date: "2024-11-15T22:27:54",
+    wikiID: wikiID || "",
+    images: [],
+    versions: [],
   });
   const [images, setImages] = useState([]);
   const [success, setSuccess] = useState(false);
@@ -29,72 +33,42 @@ export default function NewArticleForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
 
-    // Validate required fields
-    if (!formData.name || !formData.text || !formData.author || !formData.wikiID) {
-      setError("Name, text, author, and Wiki ID are required.");
-      return;
-    }
+    // Convert image files to URLs if necessary
+    const imageUrls = images.map((file) => URL.createObjectURL(file));
+
+    const articleData = {
+      ...formData,
+      images: imageUrls,
+      versions: [
+        {
+          version: 1,
+          short_text: formData.short_text,
+          text: formData.text,
+          date: formData.date,
+        },
+      ],
+    };
 
     try {
-      // Prepare image URLs (this assumes image upload is handled separately)
-      const imageUrls = await Promise.all(
-        images.map(async (file) => {
-          // You would typically use a service like Cloudinary here
-          // This is a placeholder - replace with actual image upload logic
-          return URL.createObjectURL(file);
-        })
-      );
-
-      // Prepare the payload to match the backend Article model
-      const articlePayload = {
-        name: formData.name,
-        text: formData.text,
-        author: formData.author,
-        wikiID: formData.wikiID,
-        images: imageUrls,
-        short_text: formData.short_text || null,
-        attachedFiles: formData.attachedFiles,
-        date: formData.date,
-        versions: formData.versions,
-      };
-
       const response = await fetch("http://127.0.0.1:13001/api/v1/articles", {
         method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(articlePayload),
+        body: JSON.stringify(articleData),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Backend error response:", errorData);
-        setError(`Failed to create article: ${errorData.message || response.statusText}`);
-        throw new Error(errorData.message || response.statusText);
+        throw new Error(`Failed to submit article: ${response.statusText}`);
       }
 
-      const responseData = await response.json();
-      console.log("Article created successfully:", responseData);
-      
+      const result = await response.json();
       setSuccess(true);
-      setFormData({
-        name: "",
-        text: "",
-        author: "",
-        googleMaps: "",
-        wikiID: "",
-        short_text: "",
-        attachedFiles: "",
-        date: "",
-        versions: [],
-      });
-      setImages([]);
-      setTimeout(() => setSuccess(false), 3000);
-    } catch (err) {
-      console.error("Error creating article:", err);
-      setError(err.message || "An unexpected error occurred.");
+      router.push(`/article/${result._id}`);
+    } catch (error) {
+      console.error("Error submitting article:", error);
+      setError(error.message);
     }
   };
 
@@ -131,13 +105,13 @@ export default function NewArticleForm() {
         <div className="form-group">
           <label htmlFor="wikiID">Wiki ID</label>
           <input
-            type="text"
             className="form-control"
             id="wikiID"
             name="wikiID"
-            value={formData.wikiID}
+            value={wikiID}
             onChange={handleChange}
             required
+            type="hidden"
             placeholder="Enter the associated Wiki ID"
           />
         </div>
@@ -176,17 +150,6 @@ export default function NewArticleForm() {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="date">Date</label>
-          <input
-            type="datetime-local"
-            className="form-control"
-            id="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="form-group">
           <label htmlFor="images">Images</label>
           <input
             type="file"
@@ -208,8 +171,10 @@ export default function NewArticleForm() {
             onChange={handleChange}
           />
         </div>
-        <button type="submit" className="btn btn-primary">Create Article</button>
+        <button type="submit" className="btn btn-primary">Submit</button>
       </form>
+      {success && <p>Article submitted successfully!</p>}
+      {error && <p>Error: {error}</p>}
     </div>
   );
 }
