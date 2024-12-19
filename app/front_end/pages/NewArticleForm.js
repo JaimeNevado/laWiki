@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 export default function NewArticleForm() {
   const router = useRouter();
   const { wikiID } = router.query;
+  console.log("wikiID:", wikiID);
   const [formData, setFormData] = useState({
     name: "",
     text: "",
@@ -100,19 +101,6 @@ export default function NewArticleForm() {
             value={formData.author}
             onChange={handleChange}
             required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="wikiID">Wiki ID</label>
-          <input
-            className="form-control"
-            id="wikiID"
-            name="wikiID"
-            value={wikiID}
-            onChange={handleChange}
-            required
-            type="hidden"
-            placeholder="Enter the associated Wiki ID"
           />
         </div>
         <div className="form-group">

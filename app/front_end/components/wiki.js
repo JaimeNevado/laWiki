@@ -108,7 +108,7 @@ const Wiki = ({ wiki }) => {
           )}
           {/* Correct link for creating article */}
           <div className='text-end me-2'>
-            <LinkButton btn_type={"btn-primary"} button_text="Create Article" state="enabled" link={`/NewArticleForm?wikiID = ${wiki._id}`} />
+            <LinkButton btn_type={"btn-primary"} button_text="Create Article" state="enabled" link={`/NewArticleForm?wikiID=${wiki._id}`} />
           </div>
         </div>
       </div>
