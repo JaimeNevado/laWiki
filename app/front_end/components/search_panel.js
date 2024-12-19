@@ -25,7 +25,6 @@ const SearchPanel = ({ onSearch }) => {
         setSearchParams(default_values);
         togglePanel(); // Optionally close the panel after search
     };
-
     return (
         <div>
             <button onClick={togglePanel} className="btn btn-outline-success">
