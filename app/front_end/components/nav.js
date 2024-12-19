@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import SearchPanel from "../components/search_panel";
+import NotificationBell from './notifications/notifications_bell';
 
 function Nav({ onSearch}) {
 
@@ -44,6 +45,9 @@ function Nav({ onSearch}) {
           </form>
           <div className='ms-2'>
             <SearchPanel onSearch={onSearch} />
+          </div>
+          <div className="ms-3 position-relative">
+            <NotificationBell />
           </div>
         </div>
       </div>

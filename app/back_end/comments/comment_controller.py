@@ -87,11 +87,17 @@ async def get_comment_by_id(comment_id: str):
 
 # add new comment
 @api.post(path + "comments")
-def create_comment(comment: Comment, status_code=201):
-    comment_dict = comment.dict()
-    comment_dict["date"] = datetime.now(timezone.utc)
-    collection.insert_one(dict(comment))
-    return {"message": "Comment was created successfully"}
+async def create_comment(comment: Comment, status_code=201):
+    try:
+        comment_dict = comment.dict()
+        comment_dict["date"] = datetime.now(timezone.utc)
+        if (comment_dict["rating"] is not None) and (comment_dict["rating"] > 5 or comment_dict["rating"] < 0):
+            return {"message": "Rating must be between 0 and 5"}
+        collection.insert_one(comment_dict)
+        return {"message": "Comment was created successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create comment: {e}")
+    
 
 
 @api.delete(path + "comments/{comment_id}")

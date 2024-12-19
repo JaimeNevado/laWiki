@@ -5,8 +5,7 @@ from datetime import datetime
 
 class Comment(BaseModel):
     date: Optional[datetime] = None
-    title: str
-    body: Optional[str] = None
+    content: Optional[str] = None
     article_id: str
     author_id: str
     rating: Optional[float] = None
@@ -16,8 +15,7 @@ class Comment(BaseModel):
         "json_schema_extra": {
             "examples": [
                 {
-                    "title": "Regarding that phrase",
-                    "body": "I think better way to say it would be...",
+                    "content": "I think better way to say it would be...",
                     "article_id": "672b6bbe4de836fec6f7cf9f",
                     "author_id": "672b6bbe4de836fec6f7cf9f",
                     "rating": 5,
