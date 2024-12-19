@@ -20,6 +20,9 @@ run_app() {
 
     # Comment controller
     xfce4-terminal --tab --title="Comment" --command "bash -c 'source $VIRTUALENV_PATH/bin/activate && cd $(pwd)/back_end/comments/ && uvicorn comment_controller:api --reload --port 13002'" --hold
+    
+    # Notifications controller
+    xfce4-terminal --tab --title="Notifications" --command "bash -c 'source $VIRTUALENV_PATH/bin/activate && cd $(pwd)/back_end/notifications/ && uvicorn notifications_controller:api --reload --port 13003'" --hold
 
 
 }

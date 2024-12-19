@@ -39,10 +39,17 @@ path = "/api/v1/"
 
 # Get Notifications
 @api.get(path + "notifications")
-def get_notifications(user_id: Optional[str], read: bool = None):
-    query = {"user_id": user_id}
-    if read:
+def get_notifications(user_id: Optional[str] = None, read: bool = None):
+
+    query = {}
+    if user_id is not None:
+        query["user_id"] = user_id
+    if read is not None:
         query["opened"] = False
+
+    if query == {}:
+        query = None
+
     notifications = collection.find(query).sort("date", -1)
     serialized_notifications = [
         serialize_document(notification) for notification in notifications

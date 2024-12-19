@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import SearchPanel from "../components/search_panel";
+import NotificationBell from './notifications/notifications_bell';
 
 function Nav({ onSearch}) {
 
@@ -46,12 +47,7 @@ function Nav({ onSearch}) {
             <SearchPanel onSearch={onSearch} />
           </div>
           <div className="ms-3 position-relative">
-            <button className="btn nav-link position-relative">
-              <span style={{ fontSize: '1.2rem' }}>🔔</span>
-              <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                0
-              </span>
-            </button>
+            <NotificationBell />
           </div>
         </div>
       </div>

@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 class Notification(BaseModel):
-    date: datetime
+    date: Optional[datetime] = None
     title: str
     body: Optional[str] = None
     opened: bool
