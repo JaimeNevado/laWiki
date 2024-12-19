@@ -145,7 +145,7 @@ export default function ArticlesListPage() {
       })
       .then(() => {
         // Redirigir a la página del wiki después de eliminar el comentario
-        router.push(`/wiki/${article.wikiID}`); // Cambia a la ruta deseada
+        router.push(`/wiki/ -${article.wikiID}`); // Cambia a la ruta deseada
       })
       .catch(error => {
         console.error("Error deleting comment:", error);
@@ -222,7 +222,7 @@ export default function ArticlesListPage() {
                 </>
             ))}
             </div>
-            <div className="container mt-5 mb-5">
+            <div className="container mt-5 mb-5 ">
                         <div className="row">
                             {article.images.map((image, index) => (
                                 <div className="col-md-4" key={index}>

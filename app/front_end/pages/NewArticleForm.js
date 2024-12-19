@@ -66,7 +66,7 @@ export default function NewArticleForm() {
 
       const result = await response.json();
       setSuccess(true);
-      router.push(`/article/${result._id}`);
+      router.push(`/article_page?id=${result.inserted_id}`);
     } catch (error) {
       console.error("Error submitting article:", error);
       setError(error.message);

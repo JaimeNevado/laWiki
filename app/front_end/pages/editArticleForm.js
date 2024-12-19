@@ -5,7 +5,7 @@ import Image from "next/image";
 export default function EditArticleForm() {
     const router = useRouter();
     const { article_id } = router.query; // Get article_id from the URL query parameters
-    const [formData, setFormData] = useState({ name: '', text: '', googleMaps: '', image : '' });
+    const [formData, setFormData] = useState({ short_text: '', text: '', googleMaps: '', image : '' });
     const [success, setSuccess] = useState(false);
     const [currentArticle, setCurrentArticle] = useState(null); // Usamos el estado para currentArticle
 
@@ -40,7 +40,7 @@ export default function EditArticleForm() {
             setFormData({
                 googleMaps: currentArticle.googleMaps || '',
                 text: currentArticle.text || '',
-                name: currentArticle.name || '',
+                short_text: currentArticle.short_text|| '',
             });
         }
     }, [currentArticle]); // Se ejecuta cada vez que se actualiza currentArticle
@@ -76,6 +76,7 @@ export default function EditArticleForm() {
             .then(result => {
                 console.log("Éxito:", result); // Mostramos el resultado en consola
                 setSuccess(true); // Mostramos mensaje de éxito
+                router.push(`/article_page?id=${article_id}`); // Redirigimos a la página del artículo
             })
             .catch(error => {
                 console.error("Error al realizar la petición PUT:", error.message);
@@ -103,17 +104,17 @@ export default function EditArticleForm() {
 
     return (
         <div className="container mt-5">
-            <h2>Edit Article</h2>
+            <h2>Edit Article {formData.short_text}</h2>
             {success && <div className="alert alert-success">Article updated successfully!</div>}
             <form onSubmit={handleSubmit}>
                 <div className="mb-3">
-                    <label htmlFor="name" className="form-label">Title</label>
+                    <label htmlFor="short_text" className="form-label">Brief description</label>
                     <input
                         type="text"
                         className="form-control"
-                        id="name"
-                        name="name"
-                        value={formData.name} // Usamos formData para el valor
+                        id="short_text"
+                        name="short_text"
+                        value={formData.short_text} // Usamos formData para el valor
                         onChange={handleChange}
                         required
                     />
@@ -131,16 +132,15 @@ export default function EditArticleForm() {
                     />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="google_maps" className="form-label">Content</label>
-                    <textarea
+                    <label htmlFor="googleMaps" className="form-label">Location: </label>
+                    <input
                         className="form-control"
-                        id="google_maps"
-                        name="google_maps"
-                        rows="5"
+                        type="text"
+                        id="googleMaps"
+                        name="googleMaps"
                         value={formData.googleMaps} // Usamos formData para el valor
                         onChange={handleChange}
-                        required
-                    ></textarea>
+                   />
                 </div>
                 <div className="form-element mb-3">
                 <label htmlFor="image" className="form-label">Logo:</label>
