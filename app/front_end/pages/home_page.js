@@ -55,7 +55,6 @@ export default function HomePage() {
         </div>
       </div>
         <WikiList wikis={wikis} />
-      {/* <LikeButton /> */}
     </>
   );
 }
