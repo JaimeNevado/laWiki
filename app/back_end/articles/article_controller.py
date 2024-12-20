@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Optional, Union
@@ -11,14 +11,15 @@ from articles import Article;
 sys.path.append(os.path.abspath("../"))
 from database_connection import MongoDBAtlas
 from la_wiki_utils import serialize_document, isostr_to_date
-
+from image_upload import ImageUploader
 sys.path.append(os.path.abspath("../comments"))
 from comments import Comment
+from typing import List, Optional, Union
 
 # URLs for microservices
 COMMENTS_URL = "http://127.0.0.1:13002"
 WIKI_URL = "http://127.0.0.1:13000"
-
+image_uploader = ImageUploader()
 # Database connection
 db = MongoDBAtlas()
 db.connect()
@@ -44,6 +45,8 @@ router.add_middleware(
 
 # Base path
 path = "/api/v1/"
+#investigación de imagenes
+path2 = "/api/v2/"
 
 # Article model
 # class Article(BaseModel):
@@ -199,3 +202,9 @@ async def get_wiki(article_id: str):
         response.raise_for_status()
         return response.json()
 
+
+####v2
+@router.post(path+ "upload_images")
+async def upload_images(files: List[UploadFile] = File(...)):
+    urls = await image_uploader.upload_images(files)
+    return {"urls": urls}

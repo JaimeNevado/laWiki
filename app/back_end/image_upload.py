@@ -3,7 +3,7 @@ import cloudinary.uploader
 from environs import Env
 from io import BytesIO
 from datetime import datetime
-
+from typing import List
 # import os
 # from cloudinary.utils import cloudinary_url
 # from dotenv import load_dotenv
@@ -42,7 +42,12 @@ class ImageUploader:
         )
         return upload_result["secure_url"]
 
-
+    async def upload_images(self, form_images: List):
+        urls = []
+        for form_image in form_images:
+            url = await self.upload_image_from_form(form_image)
+            urls.append(url)
+        return urls
 # script_dir = os.path.dirname(os.path.abspath(__file__))
 # file_path = os.path.join(script_dir, "img", "test.png")
 # with open(file_path, "rb") as file:
