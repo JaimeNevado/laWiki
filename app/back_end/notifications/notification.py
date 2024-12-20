@@ -8,7 +8,7 @@ class Notification(BaseModel):
     title: str
     body: Optional[str] = None
     opened: bool
-    user_id: str
+    user_id: str  # user id that must receive this notification
 
     model_config = {
         "json_schema_extra": {
