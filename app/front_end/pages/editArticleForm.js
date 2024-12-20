@@ -5,10 +5,10 @@ import Image from "next/image";
 export default function EditArticleForm() {
     const router = useRouter();
     const { article_id } = router.query; // Get article_id from the URL query parameters
-    const [formData, setFormData] = useState({ short_text: '', text: '', googleMaps: '', image : '' });
+    const [formData, setFormData] = useState({ short_text: '', text: '', googleMaps: ''});
     const [success, setSuccess] = useState(false);
     const [currentArticle, setCurrentArticle] = useState(null); // Usamos el estado para currentArticle
-
+    const [images, setImages] = useState([]);
     useEffect(() => {
         if (article_id) {
             const url = `http://localhost:13001/api/v1/articles/${article_id}`;
@@ -52,10 +52,29 @@ export default function EditArticleForm() {
     };
 
     // Manejar la edición del artículo
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        const imagesFormData = new FormData();
+    images.forEach((image, index) => {
+      imagesFormData.append(`files`, image);
+    });
+
+  
+      // Subir las imágenes y obtener las URLs
+      const uploadResponse = await fetch("http://127.0.0.1:13001/api/v1/upload_images", {
+        method: "POST",
+        body: imagesFormData,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error(`Failed to upload images: ${uploadResponse.statusText}`);
+      }
+    
+      const uploadResult = await uploadResponse.json();
+      const imageUrls = uploadResult.urls;
+        console.log("ImageUrls:", imageUrls);
         const articuloEditado = { ...currentArticle, ...formData, date : "2024-11-15T22:27:54+0000",
-            images: formData.image ? [...(currentArticle.images || []), formData.image] : currentArticle.images};
+            images: images?[...(currentArticle.images || []), ...imageUrls] : currentArticle.images};
         console.log("Articulo editado", articuloEditado);
         const articuloEditadoVersiones = actualizarVersion(articuloEditado);
         console.log("Articulo editado con versiones:", articuloEditado);
@@ -97,6 +116,10 @@ export default function EditArticleForm() {
         return nuevoArticulo;
     }
 
+    const handleFileChange = (e) => {
+        const files = Array.from(e.target.files);
+        setImages(files);
+      };
     // Si el artículo no ha sido cargado, mostramos un mensaje de carga
     if (!currentArticle) {
         return <div>Cargando...</div>;
@@ -142,17 +165,18 @@ export default function EditArticleForm() {
                         onChange={handleChange}
                    />
                 </div>
-                <div className="form-element mb-3">
-                <label htmlFor="image" className="form-label">Logo:</label>
+                <div className="form-group">
+                <label htmlFor="images">Images</label>
                 <input
                     type="file"
-                    id="image"
-                    name="image"
-                    accept="image/*"
                     className="form-control"
-                    onChange={handleChange}
+                    id="images"
+                    name="images"
+                    multiple
+                    onChange={handleFileChange}
                 />
                 </div>
+                
                 <button type="submit" className="btn btn-primary ">Edit Article</button>
             </form>
 

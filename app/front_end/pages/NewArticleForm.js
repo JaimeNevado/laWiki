@@ -1,11 +1,10 @@
 import { useState } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
 import { useRouter } from "next/router";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 export default function NewArticleForm() {
   const router = useRouter();
   const { wikiID } = router.query;
-  console.log("wikiID:", wikiID);
   const [formData, setFormData] = useState({
     name: "",
     text: "",
@@ -35,24 +34,43 @@ export default function NewArticleForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Convert image files to URLs if necessary
-    const imageUrls = images.map((file) => URL.createObjectURL(file));
-
-    const articleData = {
-      ...formData,
-      images: imageUrls,
-      versions: [
-        {
-          version: 1,
-          short_text: formData.short_text,
-          text: formData.text,
-          date: formData.date,
-        },
-      ],
-    };
+    // Crear un FormData para las imágenes
+    const imagesFormData = new FormData();
+    images.forEach((image, index) => {
+      imagesFormData.append(`files`, image);
+    });
 
     try {
-      const response = await fetch("http://127.0.0.1:13001/api/v1/articles", {
+      // Subir las imágenes y obtener las URLs
+      const uploadResponse = await fetch("http://127.0.0.1:13001/api/v1/upload_images", {
+        method: "POST",
+        body: imagesFormData,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error(`Failed to upload images: ${uploadResponse.statusText}`);
+      }
+
+      const uploadResult = await uploadResponse.json();
+      const imageUrls = uploadResult.urls;
+
+      // Crear los datos del artículo con las URLs de las imágenes
+      const articleData = {
+        ...formData,
+        images: imageUrls,
+        versions: [
+          {
+            version: 1,
+            short_text: formData.short_text,
+            text: formData.text,
+            date: formData.date,
+          },
+        ],
+      };
+      console.log("Article data to send:", articleData);
+
+      // Enviar los datos del artículo al servidor
+      const articleResponse = await fetch("http://127.0.0.1:13001/api/v1/articles", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -60,13 +78,13 @@ export default function NewArticleForm() {
         body: JSON.stringify(articleData),
       });
 
-      if (!response.ok) {
-        throw new Error(`Failed to submit article: ${response.statusText}`);
+      if (!articleResponse.ok) {
+        throw new Error(`Failed to submit article: ${articleResponse.statusText}`);
       }
 
-      const result = await response.json();
+      const articleResult = await articleResponse.json();
       setSuccess(true);
-      router.push(`/article_page?id=${result.inserted_id}`);
+      router.push(`/article_page?id=${articleResult.inserted_id}`);
     } catch (error) {
       console.error("Error submitting article:", error);
       setError(error.message);

@@ -5,10 +5,8 @@ from httpx import AsyncClient
 from wiki import Wiki
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
-
 import sys
 import os
-
 sys.path.append(os.path.abspath("../"))
 from database_connection import MongoDBAtlas
 from la_wiki_utils import serialize_document
