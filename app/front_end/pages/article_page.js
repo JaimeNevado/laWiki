@@ -17,6 +17,8 @@ export default function ArticlesListPage() {
   const [error, setError] = useState(null);
   const [comments, setComments] = useState([]); // State to hold comments
   const [newComment, setNewComment] = useState(""); // State for new comment input
+  const [selectedRating, setSelectedRating] = useState(null);
+
 
   useEffect(() => {
     if (id) {
@@ -71,35 +73,35 @@ export default function ArticlesListPage() {
   };
 
   //handle version
-    const handleRestoreVersion = async (version) =>{
-      const currentDate = new Date();  // Fecha y hora actual
-      const isoDate = currentDate.toISOString();
-      try {
-          const articleUpdated = {
-              ...article,
-              short_text : version.short_text,
-              text :  version.text,
-              date : "2024-12-05T19:54:48.911097+00:00",
-          }
-          
-          setArticle(articleUpdated);
-          const response = await fetch(`http://127.0.0.1:13001/api/v1/articles/${article._id}`, {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(articleUpdated), // Enviamos el artículo actualizado
-            });
-      }catch(error){
-          console.error("Error:", error);
-          alert("Hubo un problema al actualizar el artículo.");
+  const handleRestoreVersion = async (version) => {
+    const currentDate = new Date();  // Fecha y hora actual
+    const isoDate = currentDate.toISOString();
+    try {
+      const articleUpdated = {
+        ...article,
+        short_text: version.short_text,
+        text: version.text,
+        date: "2024-12-05T19:54:48.911097+00:00",
       }
+
+      setArticle(articleUpdated);
+      const response = await fetch(`http://127.0.0.1:13001/api/v1/articles/${article._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(articleUpdated), // Enviamos el artículo actualizado
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Hubo un problema al actualizar el artículo.");
+    }
   };
   // Handle comment submission
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
 
-    if (!newComment) return; // Do nothing if comment is empty
+    if (!newComment || !selectedRating) return; // Do nothing if comment is empty
 
     try {
       const response = await fetch("http://127.0.0.1:13002/api/v1/comments", {
@@ -112,6 +114,7 @@ export default function ArticlesListPage() {
           author_id: "default_user", // Replace with the actual user ID if available
           title: article?.title || "No Title",
           content: newComment,
+          rating: selectedRating,
         }),
       });
 
@@ -121,9 +124,10 @@ export default function ArticlesListPage() {
       const newCommentData = await response.json();
       setComments((prevComments) => [
         ...prevComments,
-        { content: newComment, author_id: "default_user", date: new Date() },
+        { content: newComment, author_id: "default_user", date: new Date(), rating: selectedRating, },
       ]);
       setNewComment(""); // Reset the comment input
+      setSelectedRating(null);
     } catch (error) {
       console.error("Error adding comment:", error);
       setError("Error adding comment");
@@ -147,7 +151,7 @@ export default function ArticlesListPage() {
       })
       .then(() => {
         // Redirigir a la página del wiki después de eliminar el comentario
-        router.push(`/wiki/ -${article.wikiID}`); // Cambia a la ruta deseada
+        router.push(`/wiki/${article.wikiID}`); // Cambia a la ruta deseada
       })
       .catch(error => {
         console.error("Error deleting comment:", error);
@@ -162,12 +166,12 @@ export default function ArticlesListPage() {
             <div className={`{styles.articleContent} `}>
 
               <button
-                className="btn btn-danger" 
+                className="btn btn-danger"
                 onClick={handleDelete}>
                 Eliminar
               </button>
               <LinkButton btn_type="btn-primary" button_text="Edit article" state="enabled" link={`/editArticleForm?article_id=${article._id}`} />
-          </div>
+            </div>
             <div>
               <Article article={article} />
             </div>
@@ -187,6 +191,7 @@ export default function ArticlesListPage() {
                     <li key={index}>
                       <p><strong>{comment.author_id}</strong>: {comment.content}</p>
                       <p>{new Date(comment.date).toLocaleString()}</p>
+                      <p>Rating: {"★".repeat(comment.rating)}</p>
                     </li>
                   ))
                 ) : (
@@ -207,38 +212,56 @@ export default function ArticlesListPage() {
                   placeholder="Write your comment..."
                 />
                 <br />
+                <select
+                  value={selectedRating || ""}
+                  onChange={(e) => setSelectedRating(Number(e.target.value))}
+                  className={styles.ratingDropdown}
+                >
+                  <option value="" disabled>
+                    Select Rating
+                  </option>
+                  {[1, 2, 3, 4, 5].map((num) => (
+                    <option key={num} value={num}>
+                      {num} {"★".repeat(num)}
+                    </option>
+                  ))}
+                </select>
+                <br />
+                <br></br>
                 <button type="submit">Submit Comment</button>
+                <br></br>
+                <br></br>
               </form>
             </div>
 
-           {/* Versiones  */}
+            {/* Versiones  */}
             <h2>Versiones:</h2>
             <div>
-            {article.versions.map((version, index) => (
+              {article.versions.map((version, index) => (
                 <>
-                <ArticlePreview key={index} previewVersion={version}>
-                </ArticlePreview>
-                <button onClick={() => handleRestoreVersion(version)}>
+                  <ArticlePreview key={index} previewVersion={version}>
+                  </ArticlePreview>
+                  <button onClick={() => handleRestoreVersion(version)}>
                     Restaurar versión {version.version}
-                </button>
+                  </button>
                 </>
-            ))}
+              ))}
             </div>
-            <div className="container mt-5 mb-5 ">
-                        <div className="row">
-                            {article.images.map((image, index) => (
-                                <div className="col-md-4" key={index}>
-                                    <Image
-                                        src={image}
-                                        width={250}
-                                        height={250}
-                                        className="img-fluid"
-                                        alt={`Image ${index + 1}`}
-                                    />
-                                </div>
-                            ))}
-                        </div> 
-               </div>
+            <div className="container mt-5 mb-5">
+              <div className="row">
+                {article.images.map((image, index) => (
+                  <div className="col-md-4" key={index}>
+                    <Image
+                      src={image}
+                      width={250}
+                      height={250}
+                      className="img-fluid"
+                      alt={`Image ${index + 1}`}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
           </>
         ) : (
           <div>Loading...</div>

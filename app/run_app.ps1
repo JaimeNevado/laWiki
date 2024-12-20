@@ -7,5 +7,8 @@ Start-Process powershell -ArgumentList "cd .\back_end\wiki; uvicorn wiki_control
 # Crear una nueva consola y ejecutar el backend - artículos
 Start-Process powershell -ArgumentList "cd .\back_end\articles; uvicorn article_controller:router --reload --port 13001"
 
-# Crear una nueva consola y ejecutar el backend - artículos
+# Crear una nueva consola y ejecutar el backend - comentarios
 Start-Process powershell -ArgumentList "cd .\back_end\comments; uvicorn comment_controller:api --reload --port 13002"
+
+# Crear una nueva consola y ejecutar el backend - notificaciones
+Start-Process powershell -ArgumentList "cd .\back_end\notifications; uvicorn notifications_controller:api --reload --port 13003"
