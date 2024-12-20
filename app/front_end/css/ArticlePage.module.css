@@ -1,37 +1,85 @@
 .container {
-    /* max-width: 800px; */
     margin: auto;
     padding: 20px;
-    font-family: 'Georgia', serif;
-    background-color: #fefefecc;
+    font-family: 'Arial', sans-serif;
+    background-color: #ffffffcc;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 1200px;
+    color: #333;
 }
 
 .title {
     text-align: center;
     font-size: 2.5rem;
     color: #2c3e50;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
-.articleContent {
-    line-height: 1.8;
-    color: #34495e;
-    font-size: 1.1rem;
-    margin-bottom: 30px;
+.subtitle {
+    font-size: 1.8rem;
+    color: #2980b9;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.commentsSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.commentCard {
+    width: 80%;
+    background-color: #f4f4f4;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 10px 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    font-size: 1rem;
+}
+
+.commentForm {
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 80%;
+}
+
+.commentInput, .ratingDropdown {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
 }
 
 .button {
     background-color: #3498db;
-    color: #fff;
-    border: none;
+    color: white;
     padding: 10px 20px;
+    border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s;
 }
 
 .button:hover {
     background-color: #2980b9;
 }
+
+.actionButtons {
+    display: flex;
+    gap: flex;
+    margin-bottom: flex;
+  }
+  
+  .deleteButton:hover {
+    background-color: #c82333 !important;
+  }
+  
+  .editButton:hover {
+    background-color: #0056b3 !important;
+  }

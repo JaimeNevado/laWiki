@@ -1,4 +1,4 @@
-const NOTIFICATIONS_URL = 'your-api-endpoint-here';
+const NOTIFICATIONS_URL = 'http://127.0.0.1:13003/api/v1/notifications';
 
 export const fetchNotificationCount = async () => {
   try {

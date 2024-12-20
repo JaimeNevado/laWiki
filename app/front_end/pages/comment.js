@@ -36,7 +36,7 @@ export default function Comments() {
 
   return (
     <div className={styles.commentsContainer}>
-      <h2 className={styles.title}>Comentarios</h2>
+      <h2 className={styles.title}>Comments</h2>
       {comments.length > 0 ? (
         comments.map((comment) => (
           <div key={comment._id} className={styles.commentCard}>
