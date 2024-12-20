@@ -1,0 +1,11 @@
+.cardWidth {
+  width: 25rem;
+}
+
+.imageStyle{
+    height: 25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}

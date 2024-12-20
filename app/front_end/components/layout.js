@@ -3,6 +3,7 @@ import Header from "./header";
 import Footer from "./footer";
 import { useRouter } from "next/router";
 import ParseQuery from './utils/parse_search_query'; 
+import styles from "../css/Layout.module.css";
 
 const Layout = ({ children }) => {
   const router = useRouter();
@@ -15,11 +16,11 @@ const Layout = ({ children }) => {
   };
 
   return (
-    <div id="main_wrapper" className="layoutWrapper">
-      <div className="layout">
+    <div id="main_wrapper" className={`${styles.layoutWrapper}`}>
+      <div className={`${styles.layout}`}>
         <Header />
         <Nav onSearch={handleSearch}/>
-        <main>{children}</main>
+        <main className={`${styles.mainDiv}`}>{children}</main>
         <Footer />
       </div>
     </div>

@@ -16,7 +16,7 @@
 }
   
   /* Grow main to take available space */
-  main {
+  .mainDiv {
     /* flex: 1;
     display: flex;
     flex-direction: row;

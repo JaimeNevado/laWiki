@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useMemo } from "react";
 import Image from "next/image";
+import styles from "../../css/WikiForm.module.css";
 
 
 function useWikiForm(initialState) {
@@ -65,12 +66,18 @@ function WikiForm() {
   const router = useRouter(); // Initialize router
   const { wikiID } = router.query;
   const [wiki, setWiki] = useState(null);
+  const [deleteButtonVisible, setDeleteButtonVisible] = useState(false);
+
   useEffect(() => {
     if (wikiID) {
       fetch(`http://127.0.0.1:13000/api/v1/wikis/${wikiID}`)
         .then((res) => res.json())
         .then((data) => setWiki(data))
         .catch((err) => console.error(err));
+      
+      setDeleteButtonVisible(true);
+    } else{
+      setDeleteButtonVisible(false);
     }
   }, [wikiID]);
   // console.log("from wikiform. id: ", wikiID, " wiki: ", wiki);
@@ -165,11 +172,11 @@ function WikiForm() {
 
   return (
     <>
-      <div className="row align-self-center">
+      <div className={`row mx-0 pt-3 mt-1 align-self-center ${styles.wikipage}`}>
         <div className="col-9 d-flex align-items-center" >
-          <form className="container mt-5 mx-0 wiki-form" onSubmit={handleSubmit} encType="multipart/form-data">
+          <form className={`container mt-5 mx-0 ${styles.wikiform}`} onSubmit={handleSubmit} encType="multipart/form-data">
             <div className="fs-2 fw-medium text-center">{wikiID ? (`Edit Wiki \"${initData.name}\"`) : ("Create New Wiki")}</div>
-            <div className="form-element">
+            <div className={`${styles.formelement}`}>
               <label htmlFor="name" className="form-label">Name:</label>
               <input
                 type="text"
@@ -181,20 +188,22 @@ function WikiForm() {
                 required
               />
             </div>
-            <div className="form-element">
+            <div className={`${styles.formelement}`}>
               <label htmlFor="description" className="form-label">Description:</label>
               <textarea
                 id="description"
                 name="description"
+                rows={10}
                 className="form-control"
                 value={formData.description}
                 onChange={handleInputChange}
                 required
               />
             </div>
-            <div className="form-element">
+            <div className={`${styles.formelement}`}>
               <label htmlFor="author" className="form-label">Author:</label>
-              <textarea
+              <input
+                type="text"
                 id="author"
                 name="author"
                 className="form-control"
@@ -203,7 +212,7 @@ function WikiForm() {
                 required
               />
             </div>
-            <div className="form-element">
+            <div className={`${styles.formelement}`}>
               <label htmlFor="logo" className="form-label">Logo:</label>
               <input
                 type="file"
@@ -214,7 +223,7 @@ function WikiForm() {
                 onChange={handleFileChange}
               />
             </div>
-            <div className="form-element">
+            <div className={`${styles.formelement}`}>
               <label htmlFor="bg_image" className="form-label">Background Image:</label>
               <input
                 type="file"
@@ -225,7 +234,7 @@ function WikiForm() {
                 onChange={handleFileChange}
               />
             </div>
-            <div className="form-element submit-button">
+            <div className={`${styles.formelement} ${styles.submitbutton}`}>
               <button type="submit" className="my-4 btn btn-primary">
                 Save Wiki
               </button>
@@ -282,20 +291,22 @@ function WikiForm() {
           </div>
         </div>
       </div>
-      <div className="row mt-2">
-        <div className="col-9 text-center">
-          <button
-            className="btn btn-danger"
-            onClick={() => {
-              if (window.confirm("Are you sure want to remove this Wiki?\nAll data will be lost!")) {
-                handleDelete();
-              }
-            }}
-          >
-            {`Delete Wiki \"${initData.name}\"`}
-          </button>
+      {deleteButtonVisible && (
+        <div className="row mt-2">
+          <div className="col-9 text-center">
+            <button
+              className="btn btn-danger"
+              onClick={() => {
+                if (window.confirm("Are you sure want to remove this Wiki?\nAll data will be lost!")) {
+                  handleDelete();
+                }
+              }}
+            >
+              {`Delete Wiki \"${initData.name}\"`}
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

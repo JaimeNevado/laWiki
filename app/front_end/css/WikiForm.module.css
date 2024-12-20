@@ -1,4 +1,8 @@
-.wiki-form{
+.wikipage{
+    background-color: #fefefecc;
+}
+
+.wikiform{
     max-width: 800px;
     margin: auto;
     padding: 20px;
@@ -10,9 +14,9 @@
 /* .wiki-form-title{
     font-family: Georgia, serif, 'Times New Roman', Times;
 } */
-.submit-button{
+.submitbutton{
     max-width: 7rem;
 }
-.form-element{
+.formelement{
     margin-top: 1rem;
 }

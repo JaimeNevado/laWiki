@@ -1,4 +1,4 @@
-import LikeButton from "../components/buttons/like_button";
+// import LikeButton from "../components/buttons/like_button";
 import LinkButton from '../components/buttons/button_with_link';
 import { useEffect, useState } from "react";
 import WikiList from "../components/wikis";
@@ -55,7 +55,7 @@ export default function HomePage() {
         </div>
       </div>
         <WikiList wikis={wikis} />
-      <LikeButton />
+      {/* <LikeButton /> */}
     </>
   );
 }

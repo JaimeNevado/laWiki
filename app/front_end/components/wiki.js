@@ -4,10 +4,12 @@ import ArticlePreview from './article_preview';
 import Image from 'next/image';
 import LinkButton from './buttons/button_with_link';
 
+import styles from "../css/Wiki.module.css";
+
 function WikiSkeleton({ wiki }) {
   const router = useRouter();
   return (
-    <div className="container mt-4">
+    <div className="container pt-3 mt-1">
       <div className='text-end'>
         <LinkButton btn_type={"btn-primary"} button_text="Edit Wiki" state="enabled" link="/wiki/wiki_form" func={() => router.push({
             pathname: "/wiki/wiki_form",
@@ -89,7 +91,7 @@ const Wiki = ({ wiki }) => {
 
   return (
     <>
-      <div className="wiki-page">
+      <div className={`${styles.wikipage}`}>
         <div>
           <WikiSkeleton wiki={wiki} />
         </div>
