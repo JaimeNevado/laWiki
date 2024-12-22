@@ -47,6 +47,7 @@ export default function ArticlesListPage() {
           author_id: "default_user",
           content: newComment,
           rating: selectedRating,
+          destination_id: article.author,
         }),
       });
 
