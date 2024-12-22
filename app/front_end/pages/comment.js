@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react"; // Asegúrate de que useState está importado
+import { useRouter } from "next/router";
 import styles from "../css/Comments.module.css"; // Archivo CSS
 
+// Componente para mostrar los comentarios
 export default function Comments() {
   const [comments, setComments] = useState([]); // Estado para almacenar los comentarios
   const [loading, setLoading] = useState(true); // Estado de carga
@@ -59,3 +61,5 @@ export default function Comments() {
     </div>
   );
 }
+
+  

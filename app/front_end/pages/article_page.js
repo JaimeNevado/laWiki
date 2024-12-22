@@ -79,6 +79,24 @@ export default function ArticlesListPage() {
     }
   };
 
+  const handleRestoreVersion = (version) => {
+    try {
+      // Actualizar el estado local del artículo con el contenido de la versión seleccionada
+      setArticle((prevArticle) => ({
+        ...prevArticle,
+        text: version.text, // Sobrescribe el texto del artículo con el de la versión seleccionada
+      }));
+  
+      alert(`Version ${version.version} restored locally!`);
+    } catch (err) {
+      console.error(err);
+      setError("Error restoring version locally");
+    }
+  };
+  
+  
+  
+
   if (error) return <p className="text-danger text-center">{error}</p>;
 
   return (
@@ -176,7 +194,8 @@ export default function ArticlesListPage() {
             <div className={styles.versionsSection}>
               {article.versions.map((version, index) => (
                 <div key={index} className={styles.versionCard} style={{ marginBottom: "20px" }}>
-                  <h4>Version {version.version}</h4>
+                  <h3>Version {version.version}</h3>
+                 
                   <p>{version.text}</p>
                   <button className={`${styles.button} ${styles.restoreButton}`} onClick={() => handleRestoreVersion(version)}>Restore Version</button>
                 </div>

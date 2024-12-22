@@ -208,3 +208,33 @@ async def get_wiki(article_id: str):
 async def upload_images(files: List[UploadFile] = File(...)):
     urls = await image_uploader.upload_images(files)
     return {"urls": urls}
+
+
+class RestoreVersionRequest(BaseModel):
+    version_number: int
+
+@router.put("/articles/{id}/restore")
+async def restore_version(id: str, version_number: int):
+    # Busca el artículo por su ID
+    article = collection.find_one({"_id": ObjectId(id)})
+    if not article:
+        raise HTTPException(status_code=404, detail="Article not found")
+    
+    # Encuentra la versión solicitada en la lista de versiones
+    version_to_restore = next((v for v in article.get("versions", []) if v["version"] == version_number), None)
+    if not version_to_restore:
+        raise HTTPException(status_code=404, detail="Version not found")
+    
+    # Validar que la versión tenga el campo 'text'
+    if "text" not in version_to_restore:
+        raise HTTPException(status_code=400, detail="The version does not contain 'text'")
+    
+    # Actualizar el campo `text` del artículo principal con la versión seleccionada
+    updated = collection.find_one_and_update(
+        {"_id": ObjectId(id)},
+        {"$set": {"text": version_to_restore["text"], "short_text": version_to_restore.get("short_text", "")}}
+    )
+    if not updated:
+        raise HTTPException(status_code=500, detail="Failed to restore version")
+    
+    return {"message": "Version restored successfully"}

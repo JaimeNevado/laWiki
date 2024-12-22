@@ -63,13 +63,13 @@ class Article(BaseModel):
                     "wikiID": "67535bf515ff0bae8398d4b2",
                      "versions": [
                         {
-                            "version": 1,
+                            "version_number": 1,
                             "short_text" : "Katana is a Japanese Sword used by samurai",
                             "text" : "A katana is a Japanese sword characterized by a curved, single-edged blade with a circular or squared guard and long grip to accommodate two hands. Developed later than the tachi, it was used by samurai in feudal Japan and worn with the edge facing upward",
                             "date" : "2024-11-15T22:27:54+0000",
                         },
                            {
-                            "version": 2,
+                            "version_number": 2,
                             "short_text" : "Katana is a Japanese Sword used by samurai",
                             "text" : "A katana(Name in japanese) is a Japanese sword characterized by a curved, single-edged blade with a circular or squared guard and long grip to accommodate two hands. Developed later than the tachi, it was used by samurai in feudal Japan and worn with the edge facing upward",
                             "date" : "2024-11-15T22:27:54+0000",
