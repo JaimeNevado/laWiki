@@ -16,6 +16,13 @@ function Article({ article }) {
           </div>
         </div>
 
+        {/* Subtitle - Short Text */}
+        <div className="row mb-4">
+          <div className="col-12">
+            <h5 className="text-muted text-center">{article.short_text}</h5>
+          </div>
+        </div>
+        
         {/* Author and Date */}
         <div className="row">
           <div className="col-12 text-end">
@@ -41,7 +48,7 @@ function Article({ article }) {
               />
             </div>
             <div className="px-10 py-10" style={{ backgroundColor: "lightblue" }}>
-              Map placeholder
+              {article.googleMaps}
             </div>
           </div>
 

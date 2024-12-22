@@ -86,6 +86,11 @@ export default function ArticlesListPage() {
       setArticle((prevArticle) => ({
         ...prevArticle,
         text: version.text, // Sobrescribe el texto del artículo con el de la versión seleccionada
+        images: version.images,
+        author: version.author,
+        googleMaps: version.googleMaps,
+        date: version.date,
+        short_text: version.short_text,
       }));
   
       alert(`Version ${version.version} restored locally!`);
