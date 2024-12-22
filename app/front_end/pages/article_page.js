@@ -14,6 +14,8 @@ export default function ArticlesListPage() {
   const [newComment, setNewComment] = useState("");
   const [selectedRating, setSelectedRating] = useState(null);
   const [error, setError] = useState(null);
+  const [notification, setNotification] = useState(null); // Estado para las notificaciones
+
 
   useEffect(() => {
     if (id) {
@@ -32,12 +34,12 @@ export default function ArticlesListPage() {
     }
   }, [id]);
 
+
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
-    if (!newComment || !selectedRating) return;
 
     try {
-      const response = await fetch("http://127.0.0.1:13002/api/v1/comments", {
+      const commentResponse = await fetch("http://127.0.0.1:13002/api/v1/comments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -48,7 +50,24 @@ export default function ArticlesListPage() {
         }),
       });
 
-      if (!response.ok) throw new Error("Failed to add comment");
+      if (!commentResponse.ok) throw new Error("Failed to add comment");
+
+      const notification = {
+        date: new Date().toISOString(), // Formato ISO 8601 para datetime
+        title: "New Comment Added",
+        body: `A new comment has been added to the article "${article.name}".`,
+        opened: false,
+        user_id: article.author, // Reemplaza con el ID del usuario receptor
+      
+      };
+    
+      const notificationResponse = await fetch("http://127.0.0.1:13003/api/v1/notifications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(notification),
+      });
+    
+      if (!notificationResponse.ok) throw new Error("Failed to send notification");
 
       setComments((prev) => [
         ...prev,
@@ -56,8 +75,9 @@ export default function ArticlesListPage() {
       ]);
       setNewComment("");
       setSelectedRating(null);
+      setNotification({ type: "success", message: "Comment added and notification sent successfully!" });
     } catch (error) {
-      setError("Error adding comment");
+      setError("Error adding comment or sending notification");
     }
   };
 
