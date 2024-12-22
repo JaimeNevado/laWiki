@@ -227,8 +227,8 @@ class RestoreVersionRequest(BaseModel):
     version_number: int
 
 
-@router.put("/articles/{id}/restore")
-async def restore_version(id: str, version_number: int):
+@router.put(path + "articles/{id}/restore")
+async def restore_version(id: str, request: RestoreVersionRequest):
     # Busca el artículo por su ID
     article = collection.find_one({"_id": ObjectId(id)})
     if not article:
@@ -236,26 +236,22 @@ async def restore_version(id: str, version_number: int):
 
     # Encuentra la versión solicitada en la lista de versiones
     version_to_restore = next(
-        (v for v in article.get("versions", []) if v["version"] == version_number), None
+        (v for v in article.get("versions", []) if v["version"] == request.version_number), None
     )
     if not version_to_restore:
         raise HTTPException(status_code=404, detail="Version not found")
 
-    # Validar que la versión tenga el campo 'text'
-    if "text" not in version_to_restore:
-        raise HTTPException(
-            status_code=400, detail="The version does not contain 'text'"
-        )
-
-    # Actualizar el campo `text` del artículo principal con la versión seleccionada
+    # Actualiza los campos del artículo con los datos de la versión seleccionada
+    update_fields = {
+        "text": version_to_restore.get("text"),
+        "short_text": version_to_restore.get("short_text", ""),
+        "images": version_to_restore.get("images", []),
+        "author": version_to_restore.get("author", ""),
+        "googleMaps": version_to_restore.get("googleMaps", ""),
+        "date": datetime.now(timezone.utc),
+    }
     updated = collection.find_one_and_update(
-        {"_id": ObjectId(id)},
-        {
-            "$set": {
-                "text": version_to_restore["text"],
-                "short_text": version_to_restore.get("short_text", ""),
-            }
-        },
+        {"_id": ObjectId(id)}, {"$set": update_fields}
     )
     if not updated:
         raise HTTPException(status_code=500, detail="Failed to restore version")

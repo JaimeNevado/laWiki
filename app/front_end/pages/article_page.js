@@ -80,29 +80,41 @@ export default function ArticlesListPage() {
     }
   };
 
-  const handleRestoreVersion = (version) => {
+  const handleRestoreVersion = async (version) => {
     try {
-      // Actualizar el estado local del artículo con el contenido de la versión seleccionada
+      // Llamada al backend para restaurar la versión seleccionada
+      const response = await fetch(
+        `http://127.0.0.1:13001/api/v1/articles/${article._id}/restore`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ version_number: version.version }),
+        }
+      );
+  
+      if (!response.ok) {
+        throw new Error("Failed to restore version");
+      }
+  
+      const data = await response.json();
       setArticle((prevArticle) => ({
         ...prevArticle,
-        text: version.text, // Sobrescribe el texto del artículo con el de la versión seleccionada
+        text: version.text,
+        short_text: version.short_text,
         images: version.images,
         author: version.author,
-        googleMaps: version.googleMaps,
-        date: version.date,
-        short_text: version.short_text,
       }));
-  
-      alert(`Version ${version.version} restored locally!`);
+      alert(`Version ${version.version} restored successfully!`);
     } catch (err) {
       console.error(err);
-      setError("Error restoring version locally");
+      setError("Error restoring version");
     }
   };
   
   
   
-
   if (error) return <p className="text-danger text-center">{error}</p>;
 
   return (
@@ -198,15 +210,20 @@ export default function ArticlesListPage() {
           <div style={{ marginBottom: "40px" }}>
             <h2>Versions</h2>
             <div className={styles.versionsSection}>
-              {article.versions.map((version, index) => (
-                <ArticleVersion 
-                  version={version} 
-                  index={index}
-                  onRestoreVersion={handleRestoreVersion} // Pass the handler as a prop
-                />
-              ))}
-            </div>
-          </div>
+            {article.versions && article.versions.length > 0 ? (
+            article.versions.map((version, index) => (
+              <ArticleVersion
+                key={index}
+                version={version}
+                index={index}
+                onRestoreVersion={handleRestoreVersion} // Pasamos la función de restauración
+              />
+            ))
+          ) : (
+            <p>No versions available.</p>
+          )}
+        </div>
+      </div>
         </>
       ) : (
         <div>Loading...</div>
