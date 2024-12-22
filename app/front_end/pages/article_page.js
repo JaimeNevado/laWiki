@@ -63,7 +63,7 @@ export default function ArticlesListPage() {
 
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this article?")) return;
-    
+
     try {
       const response = await fetch(`http://127.0.0.1:13001/api/v1/articles/${article._id}`, {
         method: "DELETE",
@@ -71,9 +71,9 @@ export default function ArticlesListPage() {
           "Content-Type": "application/json",
         },
       });
-      
+
       if (!response.ok) throw new Error("Failed to delete article");
-      
+
       router.push(`/wiki/${article.wikiID}`);
     } catch (err) {
       setError("Error deleting article");
@@ -93,11 +93,11 @@ export default function ArticlesListPage() {
           body: JSON.stringify({ version_number: version.version }),
         }
       );
-  
+
       if (!response.ok) {
         throw new Error("Failed to restore version");
       }
-  
+
       const data = await response.json();
       setArticle((prevArticle) => ({
         ...prevArticle,
@@ -105,6 +105,7 @@ export default function ArticlesListPage() {
         short_text: version.short_text,
         images: version.images,
         author: version.author,
+        date: version.date,
       }));
       alert(`Version ${version.version} restored successfully!`);
     } catch (err) {
@@ -112,9 +113,9 @@ export default function ArticlesListPage() {
       setError("Error restoring version");
     }
   };
-  
-  
-  
+
+
+
   if (error) return <p className="text-danger text-center">{error}</p>;
 
   return (
@@ -124,44 +125,44 @@ export default function ArticlesListPage() {
           <h1 className={styles.title}>{wikiName}</h1>
           <div style={{ marginBottom: "40px" }}>
             <h2 className={styles.subtitle}>{article.name}</h2>
-            
+
             {/* Action Buttons */}
-<div className={styles.actionButtons} style={{ 
-  marginBottom: "2rem", 
-  display: "flex", 
-  justifyContent: "center", 
-  alignItems: "center" 
-}}>
-  <button
-    onClick={() => router.push(`/editArticleForm?article_id=${article._id}`)}
-    className={`${styles.button} ${styles.editButton}`}
-    style={{
-      backgroundColor: "#3498db",
-      color: "#fff",
-      padding: "0.5rem 1rem",
-      border: "none",
-      borderRadius: "5px",
-      marginRight: "1rem"
-    }}
-  >
-    Edit Article
-  </button>
-  <button
-    onClick={handleDelete}
-    className={`${styles.button} ${styles.deleteButton}`}
-    style={{
-      backgroundColor: "#3498db", // Red color for delete
-      color: "#fff",
-      padding: "0.5rem 1rem",
-      border: "none",
-      borderRadius: "5px",
-     
-    }}
-  >
-    Delete Article
-  </button>
-  
-</div>
+            <div className={styles.actionButtons} style={{
+              marginBottom: "2rem",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center"
+            }}>
+              <button
+                onClick={() => router.push(`/editArticleForm?article_id=${article._id}`)}
+                className={`${styles.button} ${styles.editButton}`}
+                style={{
+                  backgroundColor: "#3498db",
+                  color: "#fff",
+                  padding: "0.5rem 1rem",
+                  border: "none",
+                  borderRadius: "5px",
+                  marginRight: "1rem"
+                }}
+              >
+                Edit Article
+              </button>
+              <button
+                onClick={handleDelete}
+                className={`${styles.button} ${styles.deleteButton}`}
+                style={{
+                  backgroundColor: "#3498db", // Red color for delete
+                  color: "#fff",
+                  padding: "0.5rem 1rem",
+                  border: "none",
+                  borderRadius: "5px",
+
+                }}
+              >
+                Delete Article
+              </button>
+
+            </div>
 
 
             <Article article={article} />
@@ -210,20 +211,20 @@ export default function ArticlesListPage() {
           <div style={{ marginBottom: "40px" }}>
             <h2>Versions</h2>
             <div className={styles.versionsSection}>
-            {article.versions && article.versions.length > 0 ? (
-            article.versions.map((version, index) => (
-              <ArticleVersion
-                key={index}
-                version={version}
-                index={index}
-                onRestoreVersion={handleRestoreVersion} // Pasamos la función de restauración
-              />
-            ))
-          ) : (
-            <p>No versions available.</p>
-          )}
-        </div>
-      </div>
+              {article.versions && article.versions.length > 0 ? (
+                article.versions.map((version, index) => (
+                  <ArticleVersion
+                    key={index}
+                    version={version}
+                    index={index}
+                    onRestoreVersion={handleRestoreVersion} // Pasamos la función de restauración
+                  />
+                ))
+              ) : (
+                <p>No versions available.</p>
+              )}
+            </div>
+          </div>
         </>
       ) : (
         <div>Loading...</div>

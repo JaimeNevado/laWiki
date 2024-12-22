@@ -28,7 +28,7 @@ class Version(BaseModel):
     version: Optional[int]
     short_text: Optional[str] = None
     text: Optional[str] = None
-    date: Optional[str] = None
+    date: Optional[datetime] = None
 
     author: Optional[str] = None
     googleMaps: Optional[str] = None

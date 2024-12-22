@@ -236,7 +236,12 @@ async def restore_version(id: str, request: RestoreVersionRequest):
 
     # Encuentra la versión solicitada en la lista de versiones
     version_to_restore = next(
-        (v for v in article.get("versions", []) if v["version"] == request.version_number), None
+        (
+            v
+            for v in article.get("versions", [])
+            if v["version"] == request.version_number
+        ),
+        None,
     )
     if not version_to_restore:
         raise HTTPException(status_code=404, detail="Version not found")
@@ -248,7 +253,7 @@ async def restore_version(id: str, request: RestoreVersionRequest):
         "images": version_to_restore.get("images", []),
         "author": version_to_restore.get("author", ""),
         "googleMaps": version_to_restore.get("googleMaps", ""),
-        "date": datetime.now(timezone.utc),
+        "date": version_to_restore.get("date", datetime.now(timezone.utc)),
     }
     updated = collection.find_one_and_update(
         {"_id": ObjectId(id)}, {"$set": update_fields}
