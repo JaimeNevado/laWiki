@@ -107,7 +107,12 @@ export default function ArticlesListPage() {
         author: version.author,
         date: version.date,
       }));
+<<<<<<< HEAD
       alert(`Version ${version.version} restored successfully!`);
+=======
+
+      alert(`Version ${version.version} restored locally!`);
+>>>>>>> dev
     } catch (err) {
       console.error(err);
       setError("Error restoring version");
@@ -115,11 +120,15 @@ export default function ArticlesListPage() {
   };
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> dev
 
   if (error) return <p className="text-danger text-center">{error}</p>;
 
   return (
-    <div id="main_wrapper" className={`${styles.container}`}>
+    <div id="main_wrapper" className={`${styles.container} mt-1`}>
       {article ? (
         <>
           <h1 className={styles.title}>{wikiName}</h1>
@@ -211,6 +220,7 @@ export default function ArticlesListPage() {
           <div style={{ marginBottom: "40px" }}>
             <h2>Versions</h2>
             <div className={styles.versionsSection}>
+<<<<<<< HEAD
               {article.versions && article.versions.length > 0 ? (
                 article.versions.map((version, index) => (
                   <ArticleVersion
@@ -223,6 +233,15 @@ export default function ArticlesListPage() {
               ) : (
                 <p>No versions available.</p>
               )}
+=======
+              {article.versions.map((version, index) => (
+                <ArticleVersion
+                  version={version}
+                  index={index}
+                  onRestoreVersion={handleRestoreVersion} // Pass the handler as a prop
+                />
+              ))}
+>>>>>>> dev
             </div>
           </div>
         </>
