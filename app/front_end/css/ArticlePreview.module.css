@@ -1,4 +1,25 @@
 .shorttext {
-    height: 15vh;
+    height: 5rem;
     overflow-y: hidden;
+}
+
+.cardMainDiv {
+    width: 18rem;;
+}
+
+.cardImageDiv {
+    height: 15rem;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cardTitle {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    height: 2rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

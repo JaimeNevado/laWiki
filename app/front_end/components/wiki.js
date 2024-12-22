@@ -12,9 +12,9 @@ function WikiSkeleton({ wiki }) {
     <div className="container pt-3 mt-1">
       <div className='text-end'>
         <LinkButton btn_type={"btn-primary"} button_text="Edit Wiki" state="enabled" link="/wiki/wiki_form" func={() => router.push({
-            pathname: "/wiki/wiki_form",
-            query: { wikiID: wiki._id },
-          })
+          pathname: "/wiki/wiki_form",
+          query: { wikiID: wiki._id },
+        })
         } />
       </div>
       {/* Article Header */}
@@ -95,8 +95,12 @@ const Wiki = ({ wiki }) => {
         <div>
           <WikiSkeleton wiki={wiki} />
         </div>
+        {/* Correct link for creating article */}
         <div className='fw-medium fs-4 text-center'>
           Some articles to read:
+        </div>
+        <div className='text-center my-2'>
+          <LinkButton btn_type={"btn-primary"} button_text="Write New Article" state="enabled" link={`/NewArticleForm?wikiID=${wiki._id}`} />
         </div>
         <div className="card-group d-flex justify-content-evenly">
           {articles.length > 0 ? (
@@ -108,10 +112,6 @@ const Wiki = ({ wiki }) => {
           ) : (
             <p>{articles.length === 0 ? "No hay artículos disponibles." : "Loading articles..."}</p>
           )}
-          {/* Correct link for creating article */}
-          <div className='text-end me-2'>
-            <LinkButton btn_type={"btn-primary"} button_text="Create Article" state="enabled" link={`/NewArticleForm?wikiID=${wiki._id}`} />
-          </div>
         </div>
       </div>
     </>

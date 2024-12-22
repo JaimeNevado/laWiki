@@ -1,12 +1,12 @@
 .container {
-    margin: auto;
+    /* margin: auto; */
     padding: 20px;
     font-family: 'Arial', sans-serif;
     background-color: #ffffffcc;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    width: 90%;
-    max-width: 1200px;
+    /* width: 90%; */
+    /* max-width: 1200px; */
     color: #333;
 }
 
