@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Article from "../components/article";
+import ArticleVersion from "../components/articles/version";
 import styles from "../css/ArticlePage.module.css";
 import fetchData from "../components/utils/fetchData";
 
@@ -193,12 +194,11 @@ export default function ArticlesListPage() {
             <h2>Versions</h2>
             <div className={styles.versionsSection}>
               {article.versions.map((version, index) => (
-                <div key={index} className={styles.versionCard} style={{ marginBottom: "20px" }}>
-                  <h3>Version {version.version}</h3>
-                 
-                  <p>{version.text}</p>
-                  <button className={`${styles.button} ${styles.restoreButton}`} onClick={() => handleRestoreVersion(version)}>Restore Version</button>
-                </div>
+                <ArticleVersion 
+                  version={version} 
+                  index={index}
+                  onRestoreVersion={handleRestoreVersion} // Pass the handler as a prop
+                />
               ))}
             </div>
           </div>

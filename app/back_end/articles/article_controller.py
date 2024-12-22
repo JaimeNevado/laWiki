@@ -7,11 +7,13 @@ from datetime import datetime, timezone
 from httpx import AsyncClient
 import sys
 import os
-from articles import Article;
+from articles import Article
+
 sys.path.append(os.path.abspath("../"))
 from database_connection import MongoDBAtlas
 from la_wiki_utils import serialize_document, isostr_to_date
 from image_upload import ImageUploader
+
 sys.path.append(os.path.abspath("../comments"))
 from comments import Comment
 from typing import List, Optional, Union
@@ -45,7 +47,7 @@ router.add_middleware(
 
 # Base path
 path = "/api/v1/"
-#investigación de imagenes
+# investigación de imagenes
 path2 = "/api/v2/"
 
 # Article model
@@ -56,6 +58,7 @@ path2 = "/api/v2/"
 #     images: Optional[List[str]] = Field(default=[], description="List of image URLs")
 #     wikiID: str = Field(..., description="Wiki ID associated with the article")
 #     short_text: Optional[str] = Field(default=None, max_length=500, description="Short summary of the article")
+
 
 # GET all articles
 @router.get(path + "articles")
@@ -74,6 +77,7 @@ async def get_articles_by_wikiID(
     articles = collection.find(query).sort("wikiID", order_type)
     serialized_articles = [serialize_document(article) for article in articles]
     return serialized_articles
+
 
 # GET articles with preview
 @router.get(path + "articles/preview")
@@ -119,6 +123,7 @@ async def get_articles_preview(
     serialized_articles = [serialize_document(article) for article in articles]
     return serialized_articles
 
+
 # GET one article by ID
 @router.get(path + "articles/{article_id}")
 async def get_article_by_id(article_id: str):
@@ -128,6 +133,7 @@ async def get_article_by_id(article_id: str):
 
     serialized_article = serialize_document(article)
     return isostr_to_date(serialized_article)
+
 
 # POST create an article
 @router.post(path + "articles")
@@ -144,6 +150,7 @@ async def post_article(article: Article):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create article: {e}")
 
+
 # PUT update an article
 @router.put(path + "articles/{id}")
 async def update_article(id: str, article: Article):
@@ -154,6 +161,7 @@ async def update_article(id: str, article: Article):
         raise HTTPException(status_code=404, detail="Article not found")
     return {"message": "Article was updated successfully"}
 
+
 # DELETE an article
 @router.delete(path + "articles/{id}")
 async def delete_article(id: str):
@@ -162,21 +170,25 @@ async def delete_article(id: str):
         raise HTTPException(status_code=404, detail="Article not found")
     return {"message": "Article was deleted successfully"}
 
+
 # DELETE articles by wikiID
 @router.delete(path + "articles/wiki/{id}")
 async def delete_articles_by_wiki(id: str):
     result = collection.delete_many({"wikiID": id})
     return {"msg": f"Removed {result.deleted_count} articles"}
 
+
 # GET comments for an article
 @router.get(path + "articles/{article_id}/comments")
 async def get_comments(article_id: str, date_order: int = 1):
     async with AsyncClient() as client:
         response = await client.get(
-            f"{COMMENTS_URL}{path}comments", params={"article_id": article_id, "date_order": date_order}
+            f"{COMMENTS_URL}{path}comments",
+            params={"article_id": article_id, "date_order": date_order},
         )
         response.raise_for_status()
         return response.json()
+
 
 # POST comment for an article
 @router.post(path + "articles/{article_id}/comments")
@@ -188,6 +200,7 @@ async def create_comment(article_id: str, comment: Comment):
         response = await client.post(f"{COMMENTS_URL}{path}comments", json=comment_data)
         response.raise_for_status()
         return response.json()
+
 
 # GET wiki for an article
 @router.get(path + "articles/{article_id}/wiki")
@@ -204,7 +217,7 @@ async def get_wiki(article_id: str):
 
 
 ####v2
-@router.post(path+ "upload_images")
+@router.post(path + "upload_images")
 async def upload_images(files: List[UploadFile] = File(...)):
     urls = await image_uploader.upload_images(files)
     return {"urls": urls}
@@ -213,28 +226,38 @@ async def upload_images(files: List[UploadFile] = File(...)):
 class RestoreVersionRequest(BaseModel):
     version_number: int
 
+
 @router.put("/articles/{id}/restore")
 async def restore_version(id: str, version_number: int):
     # Busca el artículo por su ID
     article = collection.find_one({"_id": ObjectId(id)})
     if not article:
         raise HTTPException(status_code=404, detail="Article not found")
-    
+
     # Encuentra la versión solicitada en la lista de versiones
-    version_to_restore = next((v for v in article.get("versions", []) if v["version"] == version_number), None)
+    version_to_restore = next(
+        (v for v in article.get("versions", []) if v["version"] == version_number), None
+    )
     if not version_to_restore:
         raise HTTPException(status_code=404, detail="Version not found")
-    
+
     # Validar que la versión tenga el campo 'text'
     if "text" not in version_to_restore:
-        raise HTTPException(status_code=400, detail="The version does not contain 'text'")
-    
+        raise HTTPException(
+            status_code=400, detail="The version does not contain 'text'"
+        )
+
     # Actualizar el campo `text` del artículo principal con la versión seleccionada
     updated = collection.find_one_and_update(
         {"_id": ObjectId(id)},
-        {"$set": {"text": version_to_restore["text"], "short_text": version_to_restore.get("short_text", "")}}
+        {
+            "$set": {
+                "text": version_to_restore["text"],
+                "short_text": version_to_restore.get("short_text", ""),
+            }
+        },
     )
     if not updated:
         raise HTTPException(status_code=500, detail="Failed to restore version")
-    
+
     return {"message": "Version restored successfully"}

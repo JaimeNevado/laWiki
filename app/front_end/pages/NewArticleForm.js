@@ -64,6 +64,9 @@ export default function NewArticleForm() {
             short_text: formData.short_text,
             text: formData.text,
             date: formData.date,
+            author: formData.author,
+            googleMaps: formData.googleMaps,
+            images: imageUrls,
           },
         ],
       };
@@ -92,7 +95,7 @@ export default function NewArticleForm() {
   };
 
   return (
-    <div className="container mt-5">
+    <div className="container mt-5" style={{backgroundColor: "#fefefecc"}}>
       <h2>Create a New Article</h2>
       {success && <div className="alert alert-success">Article created successfully!</div>}
       {error && <div className="alert alert-danger">{error}</div>}

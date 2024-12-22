@@ -5,7 +5,7 @@ import Image from "next/image";
 export default function EditArticleForm() {
     const router = useRouter();
     const { article_id } = router.query; // Get article_id from the URL query parameters
-    const [formData, setFormData] = useState({ short_text: '', text: '', googleMaps: ''});
+    const [formData, setFormData] = useState({ short_text: '', text: '', googleMaps: '', author: '' });
     const [success, setSuccess] = useState(false);
     const [currentArticle, setCurrentArticle] = useState(null); // Usamos el estado para currentArticle
     const [images, setImages] = useState([]);
@@ -40,7 +40,8 @@ export default function EditArticleForm() {
             setFormData({
                 googleMaps: currentArticle.googleMaps || '',
                 text: currentArticle.text || '',
-                short_text: currentArticle.short_text|| '',
+                short_text: currentArticle.short_text || '',
+                author: currentArticle.author || ''
             });
         }
     }, [currentArticle]); // Se ejecuta cada vez que se actualiza currentArticle
@@ -55,26 +56,35 @@ export default function EditArticleForm() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const imagesFormData = new FormData();
-    images.forEach((image, index) => {
-      imagesFormData.append(`files`, image);
-    });
+        images.forEach((image, index) => {
+            imagesFormData.append(`files`, image);
+        });
 
-  
-      // Subir las imágenes y obtener las URLs
-      const uploadResponse = await fetch("http://127.0.0.1:13001/api/v1/upload_images", {
-        method: "POST",
-        body: imagesFormData,
-      });
+        // Prossesing images
+        let imageUrls = [];
+        if (images.length > 0) {
+            console.log("ImagesFormData:", imagesFormData);
+            // Subir las imágenes y obtener las URLs
+            const uploadResponse = await fetch("http://127.0.0.1:13001/api/v1/upload_images", {
+                method: "POST",
+                body: imagesFormData,
+            });
 
-      if (!uploadResponse.ok) {
-        throw new Error(`Failed to upload images: ${uploadResponse.statusText}`);
-      }
-    
-      const uploadResult = await uploadResponse.json();
-      const imageUrls = uploadResult.urls;
+            if (!uploadResponse.ok) {
+                throw new Error(`Failed to upload images: ${uploadResponse.statusText}`);
+            }
+            const uploadResult = await uploadResponse.json();
+            imageUrls = uploadResult.urls;
+        }
         console.log("ImageUrls:", imageUrls);
-        const articuloEditado = { ...currentArticle, ...formData, date : "2024-11-15T22:27:54+0000",
-            images: images?[...(currentArticle.images || []), ...imageUrls] : currentArticle.images};
+        const articuloEditado = {
+            ...currentArticle,
+            ...formData,
+            date: new Date().toISOString(),
+            images: imageUrls.length > 0 ? imageUrls : currentArticle.images
+        };
+
+
         console.log("Articulo editado", articuloEditado);
         const articuloEditadoVersiones = actualizarVersion(articuloEditado);
         console.log("Articulo editado con versiones:", articuloEditado);
@@ -109,7 +119,10 @@ export default function EditArticleForm() {
             version: versions.length > 0 ? versions[versions.length - 1].version + 1 : 1, // Sumar 1 a la última versión
             short_text: currentArticle.short_text,
             text: currentArticle.text,
-            date: "2024-11-15T22:27:54+0000"
+            googleMaps: currentArticle.googleMaps,
+            author: currentArticle.author,
+            date: new Date().toISOString(),
+            images: currentArticle.images
         };
         console.log("VersionAMeter :", versionAMeter);
         const nuevoArticulo = { ...currentArticle, versions: [...versions, versionAMeter] };
@@ -119,14 +132,14 @@ export default function EditArticleForm() {
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
         setImages(files);
-      };
+    };
     // Si el artículo no ha sido cargado, mostramos un mensaje de carga
     if (!currentArticle) {
         return <div>Cargando...</div>;
     }
 
     return (
-        <div className="container mt-5">
+        <div className="container mt-5" style={{backgroundColor: "#fefefecc"}}>
             <h2>Edit Article {formData.short_text}</h2>
             {success && <div className="alert alert-success">Article updated successfully!</div>}
             <form onSubmit={handleSubmit}>
@@ -163,38 +176,50 @@ export default function EditArticleForm() {
                         name="googleMaps"
                         value={formData.googleMaps} // Usamos formData para el valor
                         onChange={handleChange}
-                   />
+                    />
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="author" className="form-label">Author: </label>
+                    <input
+                        className="form-control"
+                        type="text"
+                        id="author"
+                        name="author"
+                        value={formData.author} // Usamos formData para el valor
+                        onChange={handleChange}
+                    />
                 </div>
                 <div className="form-group">
-                <label htmlFor="images">Images</label>
-                <input
-                    type="file"
-                    className="form-control"
-                    id="images"
-                    name="images"
-                    multiple
-                    onChange={handleFileChange}
-                />
+                    <label htmlFor="images">Images</label>
+                    <input
+                        type="file"
+                        className="form-control"
+                        id="images"
+                        name="images"
+                        accept="image/*"
+                        multiple
+                        onChange={handleFileChange}
+                    />
                 </div>
-                
+
                 <button type="submit" className="btn btn-primary ">Edit Article</button>
             </form>
 
-        <div className="container mt-5 mb-5">
-            <div className="row">
-                {currentArticle.images.map((image, index) => (
-                    <div className="col-md-4" key={index}>
-                        <Image
-                            src={image}
-                            width={250}
-                            height={250}
-                            className="img-fluid"
-                            alt={`Image ${index + 1}`}
-                        />
-                    </div>
-                ))}
+            <div className="container mt-5 mb-5">
+                <div className="row">
+                    {currentArticle.images.map((image, index) => (
+                        <div className="col-md-4" key={index}>
+                            <Image
+                                src={image}
+                                width={250}
+                                height={250}
+                                className="img-fluid"
+                                alt={`Image ${index + 1}`}
+                            />
+                        </div>
+                    ))}
+                </div>
             </div>
-        </div>
         </div>
     );
 }

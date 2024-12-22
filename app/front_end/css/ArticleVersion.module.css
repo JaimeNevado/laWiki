@@ -1,0 +1,68 @@
+.versionCard {
+    display: flex;
+    padding: 1rem;
+    margin: 1rem 0;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.versionCard:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.versionThumbnail {
+    flex-shrink: 0;
+    margin-right: 1rem;
+    width: 100px;
+    height: 100px;
+    position: relative;
+    overflow: hidden;
+}
+
+.versionThumbnail img {
+    border-radius: 4px;
+}
+
+.versionInfo {
+    flex: 1;
+}
+
+.versionInfo h3 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.versionDate {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.versionPreview {
+    color: #444;
+    margin-bottom: 1rem;
+    font-style: italic;
+}
+
+.versionText {
+    color: #333;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.restoreButton {
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.restoreButton:hover {
+    background-color: #1976d2;
+}
