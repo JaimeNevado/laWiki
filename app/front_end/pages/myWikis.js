@@ -4,9 +4,33 @@ import WikiList from "../components/wikis";
 
 export default function HomePage() {
   const [wikis, setWikis] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [author, setAuthor] = useState(''); // Estado para el nombre del autor
+
+  const fetchWikis = (author = '') => {
+    setLoading(true); // Inicia la carga
+    let url = "http://127.0.0.1:13000/api/v1/wikis";
+    if (author) {
+      url += `?author=${author}`;
+    }
+
+    fetch(url)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch wikis");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setWikis(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        setError(error.message);
+        setLoading(false);
+      });
+  };
 
   useEffect(() => {
     // Personalización del fondo
@@ -17,41 +41,15 @@ export default function HomePage() {
     }
 
     // Fetch inicial sin autor
-    const fetchWikis = (author = '') => {
-      let url = "http://127.0.0.1:13000/api/v1/wikis";
-      if (author) {
-        url += `?author=${author}`; // Si hay autor, agregar como parámetro de búsqueda
-      }
-
-      fetch(url)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Failed to fetch wikis");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          setWikis(data);
-          setLoading(false);
-        })
-        .catch((error) => {
-          setError(error.message);
-          setLoading(false);
-        });
-    };
-
-    // Llamar a la función de fetch al montar el componente o cuando cambie el autor
-    fetchWikis(author);
-  }, [author]); // Dependencia para recargar cuando cambie el autor
+    fetchWikis();
+  }, []); // Se ejecuta solo al montar el componente
 
   const handleAuthorChange = (event) => {
     setAuthor(event.target.value); // Actualiza el autor cuando el usuario escribe
   };
 
   const handleSearchClick = () => {
-    setLoading(true); // Establece loading en true antes de hacer el fetch
-    // Realiza el fetch con el autor como parámetro
-    // La lógica de fetch se maneja dentro del useEffect ya
+    fetchWikis(author); // Llama al fetch con el autor actual
   };
 
   if (loading) return <div className="text-center">Loading...</div>;
@@ -94,7 +92,6 @@ export default function HomePage() {
       </div>
       
       <WikiList wikis={wikis} />
-      
     </>
   );
 }
