@@ -19,6 +19,7 @@ export default function ArticlesListPage() {
 
 
   useEffect(() => {
+    refreshNotifications();
     if (id) {
       fetchData(`http://127.0.0.1:13001/api/v1/articles/${id}`, (data) => {
         setArticle(data);

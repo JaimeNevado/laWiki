@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Wiki from "../../components/wiki";
+import { refreshNotifications } from '../../components/notifications/notifications_bell';
 
 function WikiPage() {
     const router = useRouter();
@@ -10,6 +11,7 @@ function WikiPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        refreshNotifications();
         if (wikiID) {
             setLoading(true);
             fetch(`http://127.0.0.1:13000/api/v1/wikis/${wikiID}`)

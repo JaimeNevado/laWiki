@@ -2,12 +2,15 @@
 import LinkButton from '../components/buttons/button_with_link';
 import { useEffect, useState } from "react";
 import WikiList from "../components/wikis";
+import { refreshNotifications } from '../components/notifications/notifications_bell';
+
 export default function HomePage() {
   const [wikis, setWikis] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    refreshNotifications();
     // Personalización del fondo
     const myDiv = document.getElementById('main_wrapper');
     if (myDiv) {
