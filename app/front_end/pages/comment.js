@@ -51,7 +51,7 @@ export default function Comments() {
               {comment.date ? new Date(comment.date).toLocaleString() : "No date"}
             </p>
             <p className={styles.commentBody}>
-              {comment.body || "No content for this comment."}
+              {comment.content || "No content for this comment."}
             </p>
           </div>
         ))
@@ -62,4 +62,3 @@ export default function Comments() {
   );
 }
 
-  
