@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
+import { refreshNotifications } from '../components/notifications/notifications_bell';
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -30,6 +31,7 @@ const Notifications = () => {
     } catch (error) {
       console.error('There was an error marking the notification as read!', error);
     }
+    refreshNotifications();
   };
 
   const deleteNotification = (id) => {
@@ -40,6 +42,7 @@ const Notifications = () => {
       .catch(error => {
         console.error('There was an error deleting the notification!', error);
       });
+      refreshNotifications();
   };
 
   return (

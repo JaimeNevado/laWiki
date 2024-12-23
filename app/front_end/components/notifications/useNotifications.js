@@ -1,20 +1,20 @@
 import { useState, useEffect } from 'react';
-import { fetchNotificationCount } from './notificationService';
+import { fetchNotificationCount } from './notificationService.js';
 
 export const useNotifications = () => {
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const getNotifications = async () => {
-      setLoading(true);
-      const count = await fetchNotificationCount();
-      setCount(count);
-      setLoading(false);
-    };
+  const refresh = async () => {
+    setLoading(true);
+    const newCount = await fetchNotificationCount();
+    setCount(newCount);
+    setLoading(false);
+  };
 
-    getNotifications();
+  useEffect(() => {
+    refresh();
   }, []);
 
-  return { count, loading };
+  return { count, loading, refresh };
 };

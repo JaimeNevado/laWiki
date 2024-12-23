@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { refreshNotifications } from '../components/notifications/notifications_bell';
 import Article from "../components/article";
 import ArticleVersion from "../components/articles/version";
 import styles from "../css/ArticlePage.module.css";
@@ -69,6 +70,8 @@ export default function ArticlesListPage() {
       });
     
       if (!notificationResponse.ok) throw new Error("Failed to send notification");
+
+      refreshNotifications();
 
       setComments((prev) => [
         ...prev,

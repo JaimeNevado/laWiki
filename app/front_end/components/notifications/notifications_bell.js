@@ -1,7 +1,12 @@
 import { useNotifications } from './useNotifications';
 
+let refreshNotifications = () => {}; // Global refresh function
+
 function NotificationBell() {
-    const { count, loading } = useNotifications();
+    const { count, loading, refresh } = useNotifications();
+    
+    // Store refresh function in global variable
+    refreshNotifications = refresh;
 
     return (
         <button className="btn nav-link position-relative">
@@ -15,4 +20,5 @@ function NotificationBell() {
     );
 }
 
+export { refreshNotifications };
 export default NotificationBell;
