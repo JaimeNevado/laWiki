@@ -12,7 +12,7 @@ export default function NewArticleForm() {
     attachedFiles: "",
     author: "",
     googleMaps: "",
-    date: "2024-11-15T22:27:54",
+    date: new Date(),
     wikiID: wikiID || "",
     images: [],
     versions: [],
@@ -165,6 +165,7 @@ export default function NewArticleForm() {
             className="form-control"
             id="images"
             name="images"
+            accept="image/*"
             multiple
             onChange={handleFileChange}
           />

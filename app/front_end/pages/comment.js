@@ -29,11 +29,11 @@ export default function Comments() {
   }, []); // Ejecutar solo al montar el componente
 
   if (loading) {
-    return <p className={styles.loading}>Cargando comentarios...</p>;
+    return <p className={styles.loading}>Loading comments...</p>;
   }
 
   if (error) {
-    return <p className={styles.error}>Error al cargar comentarios: {error}</p>;
+    return <p className={styles.error}>Error loading comments: {error}</p>;
   }
 
   return (
@@ -44,22 +44,21 @@ export default function Comments() {
           <div key={comment._id} className={styles.commentCard}>
             <h3 className={styles.commentTitle}>{comment.title}</h3>
             <p className={styles.commentAuthor}>
-              <strong>Autor:</strong> {comment.author_id || "Desconocido"}
+              <strong>Author:</strong> {comment.author_id || "Unknown"}
             </p>
             <p className={styles.commentDate}>
-              <strong>Fecha:</strong>{" "}
-              {comment.date ? new Date(comment.date).toLocaleString() : "Sin fecha"}
+              <strong>Date:</strong>{" "}
+              {comment.date ? new Date(comment.date).toLocaleString() : "No date"}
             </p>
             <p className={styles.commentBody}>
-              {comment.body || "No hay contenido para este comentario."}
+              {comment.content || "No content for this comment."}
             </p>
           </div>
         ))
       ) : (
-        <p className={styles.noComments}>No hay comentarios disponibles.</p>
+        <p className={styles.noComments}>No comments available.</p>
       )}
     </div>
   );
 }
 
-  

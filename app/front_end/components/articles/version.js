@@ -6,20 +6,31 @@ function ArticleVersion({ version, index, onRestoreVersion }) {
         <div key={index} className={styles.versionCard}>
             <div className={styles.versionThumbnail}>
                 <Image
-                    src={version.images[0] || 'https://raw.githubusercontent.com/ijsto/reactnextjssnippets/master/images/logo02.png'}
+                    src={
+                        version.images && version.images.length > 0
+                            ? version.images[0]
+                            : "https://raw.githubusercontent.com/ijsto/reactnextjssnippets/master/images/logo02.png"
+                    }
                     alt={`Version ${version.version}`}
-                    width={0}
-                    height={0}
-                    sizes="100px"
+                    layout="responsive"
+                    width={100}
+                    height={100}
                     objectFit="cover"
-                    style={{ width: "100%", height: "auto" }}
                 />
             </div>
             <div className={styles.versionInfo}>
                 <h3>Version {version.version}</h3>
-                <p className={styles.versionDate}>{new Date(version.date).toLocaleString()}</p>
-                <p className={styles.versionPreview}>{version.short_text}</p>
-                <p className={styles.versionText}>{version.text}</p>
+                <p className={styles.versionDate}>
+                    {version.date
+                        ? new Date(version.date).toLocaleString()
+                        : "Date not available"}
+                </p>
+                <p className={styles.versionPreview}>
+                    {version.short_text || "No summary available"}
+                </p>
+                <p className={styles.versionText}>
+                    {version.text || "No additional details provided"}
+                </p>
                 <button
                     className={styles.restoreButton}
                     onClick={() => onRestoreVersion(version)}

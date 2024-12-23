@@ -121,7 +121,7 @@ export default function EditArticleForm() {
             text: currentArticle.text,
             googleMaps: currentArticle.googleMaps,
             author: currentArticle.author,
-            date: new Date().toISOString(),
+            date: new Date(),
             images: currentArticle.images
         };
         console.log("VersionAMeter :", versionAMeter);

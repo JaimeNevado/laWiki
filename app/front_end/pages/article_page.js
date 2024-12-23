@@ -14,6 +14,8 @@ export default function ArticlesListPage() {
   const [newComment, setNewComment] = useState("");
   const [selectedRating, setSelectedRating] = useState(null);
   const [error, setError] = useState(null);
+  const [notification, setNotification] = useState(null); // Estado para las notificaciones
+
 
   useEffect(() => {
     if (id) {
@@ -32,12 +34,12 @@ export default function ArticlesListPage() {
     }
   }, [id]);
 
+
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
-    if (!newComment || !selectedRating) return;
 
     try {
-      const response = await fetch("http://127.0.0.1:13002/api/v1/comments", {
+      const commentResponse = await fetch("http://127.0.0.1:13002/api/v1/comments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -45,10 +47,28 @@ export default function ArticlesListPage() {
           author_id: "default_user",
           content: newComment,
           rating: selectedRating,
+          destination_id: article.author,
         }),
       });
 
-      if (!response.ok) throw new Error("Failed to add comment");
+      if (!commentResponse.ok) throw new Error("Failed to add comment");
+
+      const notification = {
+        date: new Date().toISOString(), // Formato ISO 8601 para datetime
+        title: "New Comment Added",
+        body: `A new comment has been added to the article "${article.name}".`,
+        opened: false,
+        user_id: article.author, // Reemplaza con el ID del usuario receptor
+      
+      };
+    
+      const notificationResponse = await fetch("http://127.0.0.1:13003/api/v1/notifications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(notification),
+      });
+    
+      if (!notificationResponse.ok) throw new Error("Failed to send notification");
 
       setComments((prev) => [
         ...prev,
@@ -56,14 +76,15 @@ export default function ArticlesListPage() {
       ]);
       setNewComment("");
       setSelectedRating(null);
+      setNotification({ type: "success", message: "Comment added and notification sent successfully!" });
     } catch (error) {
-      setError("Error adding comment");
+      setError("Error adding comment or sending notification");
     }
   };
 
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this article?")) return;
-    
+
     try {
       const response = await fetch(`http://127.0.0.1:13001/api/v1/articles/${article._id}`, {
         method: "DELETE",
@@ -71,85 +92,98 @@ export default function ArticlesListPage() {
           "Content-Type": "application/json",
         },
       });
-      
+
       if (!response.ok) throw new Error("Failed to delete article");
-      
+
       router.push(`/wiki/${article.wikiID}`);
     } catch (err) {
       setError("Error deleting article");
     }
   };
 
-  const handleRestoreVersion = (version) => {
+  const handleRestoreVersion = async (version) => {
     try {
-      // Actualizar el estado local del artículo con el contenido de la versión seleccionada
+      // Llamada al backend para restaurar la versión seleccionada
+      const response = await fetch(
+        `http://127.0.0.1:13001/api/v1/articles/${article._id}/restore`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ version_number: version.version }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to restore version");
+      }
+
+      const data = await response.json();
       setArticle((prevArticle) => ({
         ...prevArticle,
-        text: version.text, // Sobrescribe el texto del artículo con el de la versión seleccionada
+        text: version.text,
+        short_text: version.short_text,
         images: version.images,
         author: version.author,
-        googleMaps: version.googleMaps,
         date: version.date,
-        short_text: version.short_text,
       }));
-  
-      alert(`Version ${version.version} restored locally!`);
+      alert(`Version ${version.version} restored successfully!`);
     } catch (err) {
       console.error(err);
-      setError("Error restoring version locally");
+      setError("Error restoring version");
     }
   };
-  
-  
-  
+
+
 
   if (error) return <p className="text-danger text-center">{error}</p>;
 
   return (
-    <div id="main_wrapper" className={`${styles.container}`}>
+    <div id="main_wrapper" className={`${styles.container} mt-1`}>
       {article ? (
         <>
           <h1 className={styles.title}>{wikiName}</h1>
           <div style={{ marginBottom: "40px" }}>
             <h2 className={styles.subtitle}>{article.name}</h2>
-            
+
             {/* Action Buttons */}
-<div className={styles.actionButtons} style={{ 
-  marginBottom: "2rem", 
-  display: "flex", 
-  justifyContent: "center", 
-  alignItems: "center" 
-}}>
-  <button
-    onClick={() => router.push(`/editArticleForm?article_id=${article._id}`)}
-    className={`${styles.button} ${styles.editButton}`}
-    style={{
-      backgroundColor: "#3498db",
-      color: "#fff",
-      padding: "0.5rem 1rem",
-      border: "none",
-      borderRadius: "5px",
-      marginRight: "1rem"
-    }}
-  >
-    Edit Article
-  </button>
-  <button
-    onClick={handleDelete}
-    className={`${styles.button} ${styles.deleteButton}`}
-    style={{
-      backgroundColor: "#3498db", // Red color for delete
-      color: "#fff",
-      padding: "0.5rem 1rem",
-      border: "none",
-      borderRadius: "5px",
-     
-    }}
-  >
-    Delete Article
-  </button>
-  
-</div>
+            <div className={styles.actionButtons} style={{
+              marginBottom: "2rem",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center"
+            }}>
+              <button
+                onClick={() => router.push(`/editArticleForm?article_id=${article._id}`)}
+                className={`${styles.button} ${styles.editButton}`}
+                style={{
+                  backgroundColor: "#3498db",
+                  color: "#fff",
+                  padding: "0.5rem 1rem",
+                  border: "none",
+                  borderRadius: "5px",
+                  marginRight: "1rem"
+                }}
+              >
+                Edit Article
+              </button>
+              <button
+                onClick={handleDelete}
+                className={`${styles.button} ${styles.deleteButton}`}
+                style={{
+                  backgroundColor: "#3498db", // Red color for delete
+                  color: "#fff",
+                  padding: "0.5rem 1rem",
+                  border: "none",
+                  borderRadius: "5px",
+
+                }}
+              >
+                Delete Article
+              </button>
+
+            </div>
 
 
             <Article article={article} />
@@ -198,13 +232,18 @@ export default function ArticlesListPage() {
           <div style={{ marginBottom: "40px" }}>
             <h2>Versions</h2>
             <div className={styles.versionsSection}>
-              {article.versions.map((version, index) => (
-                <ArticleVersion 
-                  version={version} 
-                  index={index}
-                  onRestoreVersion={handleRestoreVersion} // Pass the handler as a prop
-                />
-              ))}
+              {article.versions && article.versions.length > 0 ? (
+                article.versions.map((version, index) => (
+                  <ArticleVersion
+                    key={index}
+                    version={version}
+                    index={index}
+                    onRestoreVersion={handleRestoreVersion} // Pasamos la función de restauración
+                  />
+                ))
+              ) : (
+                <p>No versions available.</p>
+              )}
             </div>
           </div>
         </>
