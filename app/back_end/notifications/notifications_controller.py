@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from bson import ObjectId
 from typing import Optional
@@ -89,15 +89,19 @@ def add_notification(notification: Notification, status_code=201):
     return {"notification_id": str(notification_id)}
 
 
-@api.put(path + "set_notification_as_read")
+@api.put(path + "notifications/{notification_id}/read")
 def set_notification_as_read(notification_id: str):
     query = {"_id": ObjectId(notification_id)}
-    collection.update_one(query, {"$set": {"opened": True}})
+    update_result = collection.update_one(query, {"$set": {"opened": True}})
+    if update_result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Notification not found")
     return {"message": "Notification updated"}
 
 
 @api.delete(path + "notifications/{notification_id}")
 def delete_notification(notification_id: str):
     query = {"_id": ObjectId(notification_id)}
-    collection.delete_one(query)
+    delete_result = collection.delete_one(query)
+    if delete_result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Notification not found")
     return {"message": "Notification deleted"}

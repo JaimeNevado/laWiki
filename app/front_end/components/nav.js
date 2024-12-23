@@ -47,7 +47,9 @@ function Nav({ onSearch}) {
             <SearchPanel onSearch={onSearch} />
           </div>
           <div className="ms-3 position-relative">
-            <NotificationBell />
+            <Link className="nav-link" href="/notification">
+              <NotificationBell />
+            </Link>
           </div>
         </div>
       </div>
