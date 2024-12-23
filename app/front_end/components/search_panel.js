@@ -27,7 +27,7 @@ const SearchPanel = ({ onSearch }) => {
     };
     return (
         <div>
-            <button onClick={togglePanel} className="btn btn-outline-success">
+            <button onClick={togglePanel} className="btn btn-outline-success fs-5">
                 Tools
             </button>
 

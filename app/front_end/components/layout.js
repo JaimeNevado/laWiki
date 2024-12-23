@@ -2,7 +2,7 @@ import Nav from "./nav";
 import Header from "./header";
 import Footer from "./footer";
 import { useRouter } from "next/router";
-import ParseQuery from './utils/parse_search_query'; 
+import ParseQuery from './utils/parse_search_query';
 import styles from "../css/Layout.module.css";
 
 const Layout = ({ children }) => {
@@ -19,7 +19,9 @@ const Layout = ({ children }) => {
     <div id="main_wrapper" className={`${styles.layoutWrapper}`}>
       <div className={`${styles.layout}`}>
         <Header />
-        <Nav onSearch={handleSearch}/>
+        <div className={`${styles.stickyNav}`}>
+          <Nav onSearch={handleSearch} />
+        </div>
         <main className={`${styles.mainDiv}`}>{children}</main>
         <Footer />
       </div>

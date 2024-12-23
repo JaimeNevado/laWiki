@@ -13,7 +13,7 @@ function Nav({ onSearch}) {
   }
 
   return (
-    <nav style={{ width: "100%" }} className="navbar navbar-expand-lg bg-body-tertiary">
+    <nav style={{ width: "100%" }} className="navbar navbar-expand-lg bg-body-subtle">
       <div className="container-fluid">
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span className="navbar-toggler-icon"></span>
@@ -21,27 +21,27 @@ function Nav({ onSearch}) {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
-              <Link className="nav-link active" aria-current="page" href="/">Home</Link>
+              <Link className="nav-link active fs-5 me-1" aria-current="page" href="/">Home</Link>
             </li>
             {/* <li className="nav-item">
               <Link className="nav-link" href="/NewArticleForm">My Articles</Link>
             </li> */}
             <li className="nav-item">
-              <Link className="nav-link" href="/articles">Article</Link>
+              <Link className="nav-link fs-5 me-1" href="/articles">Article</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" href="/myWikis">My Wikis</Link>
+              <Link className="nav-link fs-5 me-1" href="/myWikis">My Wikis</Link>
             </li>
             {/* <li className="nav-item">
               <Link className="nav-link" href="/profile">My Profile</Link>
             </li> */}
             <li className="nav-item">
-              <Link className="nav-link" href="/comment">Comment</Link>
+              <Link className="nav-link fs-5 me-1" href="/comment">Comment</Link>
             </li>
           </ul>
           <form className="d-flex" role="search" onSubmit={handleSubmit}>
             <input name="search" className="form-control me-2" type="search" placeholder="Search article" aria-label="Search" />
-            <button className="btn btn-outline-success" type="submit">Search</button>
+            <button className="btn btn-outline-success fs-5" type="submit">Search</button>
           </form>
           <div className='ms-2'>
             <SearchPanel onSearch={onSearch} />
