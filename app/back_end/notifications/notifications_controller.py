@@ -2,7 +2,6 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from bson import ObjectId
 from typing import Optional
-from httpx import AsyncClient
 from notification import Notification
 from datetime import datetime, timezone
 import sys

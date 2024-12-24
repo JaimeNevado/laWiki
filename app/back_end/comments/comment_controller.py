@@ -91,13 +91,14 @@ async def create_comment(comment: Comment, status_code=201):
     try:
         comment_dict = comment.dict()
         comment_dict["date"] = datetime.now(timezone.utc)
-        if (comment_dict["rating"] is not None) and (comment_dict["rating"] > 5 or comment_dict["rating"] < 0):
+        if (comment_dict["rating"] is not None) and (
+            comment_dict["rating"] > 5 or comment_dict["rating"] < 0
+        ):
             return {"message": "Rating must be between 0 and 5"}
         collection.insert_one(comment_dict)
         return {"message": "Comment was created successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create comment: {e}")
-    
 
 
 @api.delete(path + "comments/{comment_id}")
@@ -132,7 +133,7 @@ async def get_article_of_the_comment(comment_id: str):
 
     client = AsyncClient()
 
-    response = await client.get(ARTICLE_URL + path + "articles/" + article_id)
+    response = await client.get(ARTICLE_URL_DOCKER + path + "articles/" + article_id)
     response.raise_for_status()  # Raise an error for HTTP errors
 
     return response.json()
@@ -145,7 +146,9 @@ async def get_wiki_of_the_comment(comment_id: str):
     article_id = dict(article).get("_id")
 
     client = AsyncClient()
-    response = await client.get(ARTICLE_URL + path + "articles/" + article_id + "/wiki")
+    response = await client.get(
+        ARTICLE_URL_DOCKER + path + "articles/" + article_id + "/wiki"
+    )
     response.raise_for_status()
 
     return response.json()

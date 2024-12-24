@@ -20,7 +20,11 @@ from typing import List, Optional, Union
 
 # URLs for microservices
 COMMENTS_URL = "http://127.0.0.1:13002"
+COMMENTS_URL_DOCKER = "http://comments-1"
+
 WIKI_URL = "http://127.0.0.1:13000"
+WIKI_URL_DOCKER = "http://wikis-1"
+
 image_uploader = ImageUploader()
 # Database connection
 db = MongoDBAtlas()
@@ -183,7 +187,7 @@ async def delete_articles_by_wiki(id: str):
 async def get_comments(article_id: str, date_order: int = 1):
     async with AsyncClient() as client:
         response = await client.get(
-            f"{COMMENTS_URL}{path}comments",
+            f"{COMMENTS_URL_DOCKER}{path}comments",
             params={"article_id": article_id, "date_order": date_order},
         )
         response.raise_for_status()
@@ -197,7 +201,9 @@ async def create_comment(article_id: str, comment: Comment):
         comment_data = comment.dict()
         comment_data["article_id"] = article_id
 
-        response = await client.post(f"{COMMENTS_URL}{path}comments", json=comment_data)
+        response = await client.post(
+            f"{COMMENTS_URL_DOCKER}{path}comments", json=comment_data
+        )
         response.raise_for_status()
         return response.json()
 
@@ -211,7 +217,7 @@ async def get_wiki(article_id: str):
         raise HTTPException(status_code=404, detail="Wiki not found for this article")
 
     async with AsyncClient() as client:
-        response = await client.get(f"{WIKI_URL}{path}wikis/{wiki_id}")
+        response = await client.get(f"{WIKI_URL_DOCKER}{path}wikis/{wiki_id}")
         response.raise_for_status()
         return response.json()
 

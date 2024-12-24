@@ -2,7 +2,6 @@ uvicorn
 fastApi
 pydantic
 pymongo
-motor
 httpx
 python-dotenv
 fastapi-cors

@@ -1,12 +1,12 @@
-from fastapi import FastAPI, File, Form, Request, UploadFile
+from fastapi import FastAPI, File, Form, UploadFile
 from bson import ObjectId
 from typing import Union
 from httpx import AsyncClient
 from wiki import Wiki
 from fastapi.middleware.cors import CORSMiddleware
-from datetime import datetime
 import sys
 import os
+
 sys.path.append(os.path.abspath("../"))
 from database_connection import MongoDBAtlas
 from la_wiki_utils import serialize_document
@@ -109,7 +109,9 @@ async def create_article_for_wiki(wiki_id: str, article: Article):
     article_data["wikiID"] = wiki_id
 
     # Send a POST request to the articles microservice to create the article
-    response = await client.post(ARTICLE_URL + path + "articles", json=article_data)
+    response = await client.post(
+        ARTICLE_URL_DOCKER + path + "articles", json=article_data
+    )
     response.raise_for_status()  # Raise an error for HTTP errors
 
     # Assuming the article service returns a JSON list of articles
@@ -120,7 +122,7 @@ async def create_article_for_wiki(wiki_id: str, article: Article):
 @api.get(path + "wikis/{wiki_id}/articles")
 async def get_articles_for_wiki(wiki_id: str):
     client = AsyncClient()
-    url = f"{ARTICLE_URL}{path}articles"
+    url = f"{ARTICLE_URL_DOCKER}{path}articles"
     params = "?wikiID={}".format(wiki_id)
     response = await client.get(url + params)
     return response.json()
@@ -130,7 +132,7 @@ async def get_articles_for_wiki(wiki_id: str):
 @api.get(path + "wikis/{wiki_id}/previewArticles")
 async def get_articles_for_wiki(wiki_id: str, num_of_article: int = 10, random=True):
     client = AsyncClient()
-    url = f"{ARTICLE_URL}{path}articles/preview"
+    url = f"{ARTICLE_URL_DOCKER}{path}articles/preview"
     params = "?wikiID={}&num_of_article={}&random={}".format(
         wiki_id, num_of_article, random
     )

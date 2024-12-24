@@ -1,0 +1,65 @@
+services:
+  front:
+    container_name: front-1
+    build:
+      context: ./front_end
+      # dockerfile: front_end/Dockerfile
+    # env_file:
+    #   - .env
+    ports:
+      - "3000:3000"
+    networks:
+      - la_wiki
+  
+  wikis:
+    container_name: wikis-1
+    build:
+      context: ./
+      dockerfile: back_end/wiki/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "13000:80"
+    networks: 
+      - la_wiki
+
+  articles:
+    container_name: articles-1
+    build:
+      context: ./
+      dockerfile: back_end/articles/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "13001:80"
+    networks:
+      - la_wiki
+
+  comments:
+    container_name: comments-1
+    build:
+      context: ./
+      dockerfile: back_end/comments/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "13002:80"
+    networks:
+      - la_wiki
+
+  notifications:
+    container_name: notifications-1
+    build:
+      context: ./
+      dockerfile: back_end/notifications/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "13003:80"
+    networks:
+      - la_wiki
+
+     
+networks:
+  la_wiki:
+    driver: bridge
