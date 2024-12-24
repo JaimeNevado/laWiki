@@ -5,6 +5,7 @@ import Article from "../components/article";
 import ArticleVersion from "../components/articles/version";
 import styles from "../css/ArticlePage.module.css";
 import fetchData from "../components/utils/fetchData";
+import Link from "next/link";
 
 export default function ArticlesListPage() {
   const router = useRouter();
@@ -61,15 +62,15 @@ export default function ArticlesListPage() {
         body: `A new comment has been added to the article "${article.name}".`,
         opened: false,
         user_id: article.author, // Reemplaza con el ID del usuario receptor
-      
+
       };
-    
+
       const notificationResponse = await fetch("http://127.0.0.1:13003/api/v1/notifications", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(notification),
       });
-    
+
       if (!notificationResponse.ok) throw new Error("Failed to send notification");
 
       refreshNotifications();
@@ -146,7 +147,8 @@ export default function ArticlesListPage() {
       const response = await fetch(url);
       if (!response.ok) throw new Error("Failed to fetch location");
       const data = await response.json();
-      router.push(`https://www.openstreetmap.org/?mlat=${data[0].lat}&mlon=${data[0].lon}#map=14/${data[0].lat}/${data[0].lon}`);
+      const mapUrl = `https://www.openstreetmap.org/?mlat=${data[0].lat}&mlon=${data[0].lon}#map=14/${data[0].lat}/${data[0].lon}`;
+      window.open(mapUrl, '_blank', 'noopener,noreferrer');
     } catch (err) {
       console.error("Error fetching location:", err);
       setError("Error fetching location");
@@ -205,10 +207,19 @@ export default function ArticlesListPage() {
 
             <Article article={article} />
             <div>
-              <p>
-                <a href="#" onClick={(e) => { e.preventDefault(); getMessage(); }}>
-                  {article?.googleMaps || "Google Maps data not available"}
-                </a>
+              <p className="ms-4 ps-2 d-flex align-items-center">
+                <i className="fas fa-map-marker-alt me-2 text-primary"></i>
+                <span className="fw-bold me-2">Location:</span>
+                <Link
+                  href="#"
+                  onClick={(e) => { e.preventDefault(); getMessage(); }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-decoration-none hover-underline"
+                >
+                  {article?.googleMaps || "Maps data not available"}
+                  <i className="fas fa-external-link-alt ms-1 small"></i>
+                </Link>
               </p>
             </div>
           </div>

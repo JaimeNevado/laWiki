@@ -47,9 +47,6 @@ function Article({ article }) {
                 layout="intrinsic"
               />
             </div>
-            <div className="px-10 py-10" style={{ backgroundColor: "lightblue" }}>
-              {article.googleMaps}
-            </div>
           </div>
 
           {/* Text Section */}
