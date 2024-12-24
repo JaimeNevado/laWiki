@@ -139,6 +139,19 @@ export default function ArticlesListPage() {
     }
   };
 
+  const getMessage = async () => {
+    const lugar = article?.googleMaps || "defaultLocation";
+    const url = `http://nominatim.openstreetmap.org/search?q=${lugar}&format=json&addressdetails=1`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Failed to fetch location");
+      const data = await response.json();
+      router.push(`https://www.openstreetmap.org/?mlat=${data[0].lat}&mlon=${data[0].lon}#map=14/${data[0].lat}/${data[0].lon}`);
+    } catch (err) {
+      console.error("Error fetching location:", err);
+      setError("Error fetching location");
+    }
+  };
 
 
   if (error) return <p className="text-danger text-center">{error}</p>;
@@ -191,6 +204,13 @@ export default function ArticlesListPage() {
 
 
             <Article article={article} />
+            <div>
+              <p>
+                <a href="#" onClick={(e) => { e.preventDefault(); getMessage(); }}>
+                  {article?.googleMaps || "Google Maps data not available"}
+                </a>
+              </p>
+            </div>
           </div>
 
           <div style={{ marginBottom: "40px" }}>
