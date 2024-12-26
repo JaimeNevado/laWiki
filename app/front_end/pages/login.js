@@ -1,26 +1,31 @@
 import { useState } from "react";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { useRouter } from "next/router";
-import jwt_decode from "jwt-decode";
 
 const LoginPage = () => {
   const [user, setUser] = useState(null);
-  const router = useRouter(); // Usamos useRouter de Next.js para navegar
+  const router = useRouter();
 
   const clientID = "77417357586-4foh6oip5s2d43mse15ni2e03agjbq21.apps.googleusercontent.com";
 
-  const onSuccess = (credentialResponse) => {
-    console.log(credentialResponse);
-    if (credentialResponse && credentialResponse.tokenId) {
-      const decoded = jwt_decode(credentialResponse.tokenId);
-      console.log(decoded);
-      setUser(decoded);
-      // Guarda el usuario en el localStorage
-      localStorage.setItem("user", JSON.stringify(decoded));
-      // Redirige a la página de inicio
-      router.push("/home");
-    } else {
-      console.log("No tokenId found in response");
+  const onSuccess = async (credentialResponse) => {
+    if (credentialResponse && credentialResponse.credential) {
+      try {
+        const response = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${credentialResponse.credential}`);
+        const userData = await response.json();
+        
+        if (userData.error) {
+          console.log("Token verification failed:", userData.error);
+          return;
+        }
+
+        console.log("Verified user data:", userData);
+        setUser(userData);
+        localStorage.setItem("user", JSON.stringify(userData));
+        router.push("http://localhost:3000/");
+      } catch (error) {
+        console.error("Token verification error:", error);
+      }
     }
   };
 
@@ -35,6 +40,8 @@ const LoginPage = () => {
         <GoogleLogin
           onSuccess={onSuccess}
           onError={onError}
+          useOneTap
+          theme="filled_black"
         />
       </div>
     </GoogleOAuthProvider>
