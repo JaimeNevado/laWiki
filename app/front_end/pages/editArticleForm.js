@@ -67,6 +67,9 @@ export default function EditArticleForm() {
             // Subir las imágenes y obtener las URLs
             const uploadResponse = await fetch("http://127.0.0.1:13001/api/v1/upload_images", {
                 method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                },
                 body: imagesFormData,
             });
 
@@ -92,7 +95,8 @@ export default function EditArticleForm() {
         fetch(url, {
             method: "PUT",
             headers: {
-                "Content-Type": "application/json" // Indicamos que enviamos JSON
+                "Content-Type": "application/json", // Indicamos que enviamos JSON
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
             },
             body: JSON.stringify(articuloEditadoVersiones) // Esto es lo que se actualizará
         })

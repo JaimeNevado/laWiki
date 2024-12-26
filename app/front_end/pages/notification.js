@@ -10,7 +10,11 @@ const Notifications = () => {
     // Fetch notifications from the server
     const fetchNotifications = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:13003/api/v1/notifications');
+        const response = await axios.get('http://127.0.0.1:13003/api/v1/notifications', {
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          }
+        });
         setNotifications(response.data);
         setLoading(false);
       } catch (error) {
@@ -24,8 +28,12 @@ const Notifications = () => {
 
   const markAsRead = async (id) => {
     try {
-      await axios.put(`http://127.0.0.1:13003/api/v1/notifications/${id}/read`);
-      setNotifications(notifications.map(notification => 
+      await axios.put(`http://127.0.0.1:13003/api/v1/notifications/${id}/read`, {}, {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        }
+      });
+      setNotifications(notifications.map(notification =>
         notification._id === id ? { ...notification, opened: true } : notification
       ));
     } catch (error) {
@@ -35,14 +43,18 @@ const Notifications = () => {
   };
 
   const deleteNotification = (id) => {
-    axios.delete(`http://127.0.0.1:13003/api/v1/notifications/${id}`)
+    axios.delete(`http://127.0.0.1:13003/api/v1/notifications/${id}`, {
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+      }
+    })
       .then(response => {
         setNotifications(notifications.filter(notification => notification._id !== id));
       })
       .catch(error => {
         console.error('There was an error deleting the notification!', error);
       });
-      refreshNotifications();
+    refreshNotifications();
   };
 
   return (

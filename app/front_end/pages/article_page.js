@@ -44,7 +44,10 @@ export default function ArticlesListPage() {
     try {
       const commentResponse = await fetch("http://127.0.0.1:13002/api/v1/comments", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`, 
+        },
         body: JSON.stringify({
           article_id: id,
           author_id: "default_user",
@@ -67,7 +70,10 @@ export default function ArticlesListPage() {
 
       const notificationResponse = await fetch("http://127.0.0.1:13003/api/v1/notifications", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
         body: JSON.stringify(notification),
       });
 
@@ -95,6 +101,7 @@ export default function ArticlesListPage() {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
       });
 
@@ -115,6 +122,7 @@ export default function ArticlesListPage() {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify({ version_number: version.version }),
         }

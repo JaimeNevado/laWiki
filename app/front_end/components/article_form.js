@@ -50,7 +50,8 @@ export default async function  NewArticleForm(article_id) {
         fetch(url, {
             method: "PUT",
             headers: {
-                "Content-Type": "application/json" // Indicamos que enviamos JSON
+                "Content-Type": "application/json", // Indicamos que enviamos JSON
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
             },
             body: JSON.stringify(articuloEditadoVersiones) //Esto es lo que se actualizará 
         })
