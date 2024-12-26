@@ -3,6 +3,7 @@ import SearchPanel from "../components/search_panel";
 import NotificationBell from './notifications/notifications_bell';
 
 function Nav({ onSearch}) {
+  const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -46,11 +47,13 @@ function Nav({ onSearch}) {
           <div className='ms-2'>
             <SearchPanel onSearch={onSearch} />
           </div>
-          <div className="ms-3 position-relative">
-            <Link className="nav-link" href="/notification">
-              <NotificationBell />
-            </Link>
-          </div>
+          {token && (
+            <div className="ms-3 position-relative">
+              <Link className="nav-link" href="/notification">
+                <NotificationBell />
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </nav>

@@ -56,35 +56,41 @@ const Notifications = () => {
       });
     refreshNotifications();
   };
+  
+  const token = localStorage.getItem("token");
 
   return (
     <div className="container">
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <ul className="list-group">
-          {notifications.map(notification => (
-            <li key={notification._id} className="list-group-item d-flex justify-content-between align-items-center">
-              <div>
-                <h5 className="mb-1">{notification.title}</h5>
-                <small className="text-muted">{new Date(notification.date).toLocaleDateString()}</small>
-                <p className="mb-1">{notification.body}</p>
-              </div>
-              <div>
-                {notification.opened ? (
-                  <span style={{ marginRight: '10px' }}>Readed</span>
-                ) : (
-                  <button className="btn btn-primary mr-3" style={{ marginRight: '10px' }} onClick={() => markAsRead(notification._id)}>
-                    Mark as Read
+      {token ? (
+        loading ? (
+          <p>Loading...</p>
+        ) : (
+          <ul className="list-group">
+            {notifications.map(notification => (
+              <li key={notification._id} className="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <h5 className="mb-1">{notification.title}</h5>
+                  <small className="text-muted">{new Date(notification.date).toLocaleDateString()}</small>
+                  <p className="mb-1">{notification.body}</p>
+                </div>
+                <div>
+                  {notification.opened ? (
+                    <span style={{ marginRight: '10px' }}>Read</span>
+                  ) : (
+                    <button className="btn btn-primary mr-3" style={{ marginRight: '10px' }} onClick={() => markAsRead(notification._id)}>
+                      Mark as Read
+                    </button>
+                  )}
+                  <button className="btn btn-danger" onClick={() => deleteNotification(notification._id)}>
+                    Delete
                   </button>
-                )}
-                <button className="btn btn-danger" onClick={() => deleteNotification(notification._id)}>
-                  Delete
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )
+      ) : (
+        <p>Please log in to view notifications.</p>
       )}
     </div>
   );

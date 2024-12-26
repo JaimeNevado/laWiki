@@ -7,3 +7,4 @@ fastapi-cors
 environs
 pytz
 google-auth
+requests

@@ -10,3 +10,4 @@ cloudinary
 environs
 python-multipart
 google-auth
+requests
