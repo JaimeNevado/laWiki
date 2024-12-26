@@ -187,7 +187,7 @@ async def delete_articles_by_wiki(id: str):
 async def get_comments(article_id: str, date_order: int = 1):
     async with AsyncClient() as client:
         response = await client.get(
-            f"{COMMENTS_URL_DOCKER}{path}comments",
+            f"{COMMENTS_URL}{path}comments",
             params={"article_id": article_id, "date_order": date_order},
         )
         response.raise_for_status()
@@ -202,7 +202,7 @@ async def create_comment(article_id: str, comment: Comment):
         comment_data["article_id"] = article_id
 
         response = await client.post(
-            f"{COMMENTS_URL_DOCKER}{path}comments", json=comment_data
+            f"{COMMENTS_URL}{path}comments", json=comment_data
         )
         response.raise_for_status()
         return response.json()

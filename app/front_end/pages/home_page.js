@@ -2,12 +2,24 @@
 import LinkButton from '../components/buttons/button_with_link';
 import { useEffect, useState } from "react";
 import WikiList from "../components/wikis";
+import { useRouter } from "next/router";
 import { refreshNotifications } from '../components/notifications/notifications_bell';
 
 export default function HomePage() {
   const [wikis, setWikis] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [user, setUser] = useState(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const userFromLocalStorage = JSON.parse(localStorage.getItem("user"));
+    if (!userFromLocalStorage) {
+      router.push("/login"); // Redirige al login si no hay usuario
+    } else {
+      setUser(userFromLocalStorage);
+    }
+  }, [router]);
 
   useEffect(() => {
     refreshNotifications();
@@ -44,6 +56,14 @@ export default function HomePage() {
       {/* Bienvenida */}
       <div className="container text-center mt-4">
         <h1>Welcome to Wiki!</h1>
+      </div>
+      <div className="profile">
+        {user && (
+          <>
+            <img src={user.picture} alt={user.name} />
+            <h3>{user.name}</h3>
+          </>
+        )}
       </div>
 
       <div className="container mt-5">
