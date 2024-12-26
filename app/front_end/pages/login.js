@@ -21,6 +21,7 @@ const LoginPage = () => {
 
         console.log("Verified user data:", userData);
         setUser(userData);
+        localStorage.setItem("token", credentialResponse.credential);
         localStorage.setItem("user", JSON.stringify(userData));
         router.push("http://localhost:3000/");
       } catch (error) {

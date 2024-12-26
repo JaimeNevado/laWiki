@@ -12,6 +12,7 @@ sys.path.append(os.path.abspath("../"))
 from database_connection import MongoDBAtlas
 from la_wiki_utils import serialize_document
 from image_upload import ImageUploader
+from authentication import Authentication
 
 sys.path.append(os.path.abspath("../articles"))
 from articles import Article
@@ -28,6 +29,9 @@ collection = db.get_collection("Wikis")
 
 # initializing image uploader
 image_uploader = ImageUploader()
+
+# Initializing authentication
+auth = Authentication()
 
 api = FastAPI()
 
@@ -71,7 +75,9 @@ async def get_wiki_by_id(wiki_id: str):
 
 # Create new Wiki
 @api.post(path + "wikis")
-def create_wiki(wiki: Wiki, status_code=201):
+def create_wiki(
+    wiki: Wiki, user_info: dict = Depends(auth.verify_token), status_code=201
+):
     wiki_dict = wiki.dict()
     result = collection.insert_one(wiki_dict)
 
@@ -83,7 +89,7 @@ def create_wiki(wiki: Wiki, status_code=201):
 
 # Edit wiki
 @api.put(path + "wikis/{item_id}")
-def update(item_id: str, wiki: Wiki):
+def update(item_id: str, wiki: Wiki, user_info: dict = Depends(auth.verify_token)):
     wiki_updated = collection.find_one_and_update(
         {"_id": ObjectId(item_id)}, {"$set": dict(wiki)}
     )
@@ -96,23 +102,23 @@ def update(item_id: str, wiki: Wiki):
 
 # Removes wiki from database
 @api.delete(path + "wikis/{item_id}")
-def delete(item_id: str):
+def delete(item_id: str, user_info: dict = Depends(auth.verify_token), status_code=204):
     collection.delete_one({"_id": ObjectId(item_id)})
     return {"message": "Wiki was deleted successfully"}
 
 
 # Create new article for the given wiki
 @api.post(path + "wikis/{wiki_id}/articles/")
-async def create_article_for_wiki(wiki_id: str, article: Article):
+async def create_article_for_wiki(
+    wiki_id: str, article: Article, user_info: dict = Depends(auth.verify_token)
+):
     # Using an asynchronous HTTP client to call the article microservice
     client = AsyncClient()
     article_data = dict(article)
     article_data["wikiID"] = wiki_id
 
     # Send a POST request to the articles microservice to create the article
-    response = await client.post(
-        ARTICLE_URL + path + "articles", json=article_data
-    )
+    response = await client.post(ARTICLE_URL + path + "articles", json=article_data)
     response.raise_for_status()  # Raise an error for HTTP errors
 
     # Assuming the article service returns a JSON list of articles
@@ -148,10 +154,10 @@ async def create_wiki2(
     author: str = Form(..., alias="author"),
     logo: UploadFile = File(None, alias="logo"),
     bg_image: UploadFile = File(None, alias="bg_image"),
+    user_info: dict = Depends(auth.verify_token),
     status_code=201,
 ):
     wiki = Wiki(name=title, description=content, author=author)
-
     if logo is not None:
         logo_url = await image_uploader.upload_image_from_form(logo)
         wiki.logo = logo_url
@@ -175,6 +181,7 @@ async def update_wiki2(
     author: str = Form(..., alias="author"),
     logo: UploadFile = File(None, alias="logo"),
     bg_image: UploadFile = File(None, alias="bg_image"),
+    user_info: dict = Depends(auth.verify_token),
 ):
     wiki = {
         "name": title,

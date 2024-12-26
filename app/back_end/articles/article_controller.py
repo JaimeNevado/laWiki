@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, File, UploadFile
+from fastapi import Depends, FastAPI, HTTPException, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Optional, Union
@@ -13,6 +13,7 @@ sys.path.append(os.path.abspath("../"))
 from database_connection import MongoDBAtlas
 from la_wiki_utils import serialize_document, isostr_to_date
 from image_upload import ImageUploader
+from authentication import Authentication
 
 sys.path.append(os.path.abspath("../comments"))
 from comments import Comment
@@ -30,6 +31,9 @@ image_uploader = ImageUploader()
 db = MongoDBAtlas()
 db.connect()
 collection = db.get_collection("Articles")
+
+# Initializing authentication
+auth = Authentication()
 
 # FastAPI router
 router = FastAPI()
@@ -141,7 +145,7 @@ async def get_article_by_id(article_id: str):
 
 # POST create an article
 @router.post(path + "articles")
-async def post_article(article: Article):
+async def post_article(article: Article, user_info: dict = Depends(auth.verify_token)):
     try:
         article_dict = article.dict()
         article_dict["date"] = datetime.now(timezone.utc)
@@ -157,7 +161,9 @@ async def post_article(article: Article):
 
 # PUT update an article
 @router.put(path + "articles/{id}")
-async def update_article(id: str, article: Article):
+async def update_article(
+    id: str, article: Article, user_info: dict = Depends(auth.verify_token)
+):
     updated = collection.find_one_and_update(
         {"_id": ObjectId(id)}, {"$set": article.to_dict()}
     )
@@ -168,7 +174,7 @@ async def update_article(id: str, article: Article):
 
 # DELETE an article
 @router.delete(path + "articles/{id}")
-async def delete_article(id: str):
+async def delete_article(id: str, user_info: dict = Depends(auth.verify_token)):
     deleted = collection.find_one_and_delete({"_id": ObjectId(id)})
     if not deleted:
         raise HTTPException(status_code=404, detail="Article not found")
@@ -177,7 +183,9 @@ async def delete_article(id: str):
 
 # DELETE articles by wikiID
 @router.delete(path + "articles/wiki/{id}")
-async def delete_articles_by_wiki(id: str):
+async def delete_articles_by_wiki(
+    id: str, user_info: dict = Depends(auth.verify_token)
+):
     result = collection.delete_many({"wikiID": id})
     return {"msg": f"Removed {result.deleted_count} articles"}
 
@@ -196,14 +204,14 @@ async def get_comments(article_id: str, date_order: int = 1):
 
 # POST comment for an article
 @router.post(path + "articles/{article_id}/comments")
-async def create_comment(article_id: str, comment: Comment):
+async def create_comment(
+    article_id: str, comment: Comment, user_info: dict = Depends(auth.verify_token)
+):
     async with AsyncClient() as client:
         comment_data = comment.dict()
         comment_data["article_id"] = article_id
 
-        response = await client.post(
-            f"{COMMENTS_URL}{path}comments", json=comment_data
-        )
+        response = await client.post(f"{COMMENTS_URL}{path}comments", json=comment_data)
         response.raise_for_status()
         return response.json()
 
@@ -224,7 +232,9 @@ async def get_wiki(article_id: str):
 
 ####v2
 @router.post(path + "upload_images")
-async def upload_images(files: List[UploadFile] = File(...)):
+async def upload_images(
+    files: List[UploadFile] = File(...), user_info: dict = Depends(auth.verify_token)
+):
     urls = await image_uploader.upload_images(files)
     return {"urls": urls}
 
@@ -234,7 +244,11 @@ class RestoreVersionRequest(BaseModel):
 
 
 @router.put(path + "articles/{id}/restore")
-async def restore_version(id: str, request: RestoreVersionRequest):
+async def restore_version(
+    id: str,
+    request: RestoreVersionRequest,
+    user_info: dict = Depends(auth.verify_token),
+):
     # Busca el artículo por su ID
     article = collection.find_one({"_id": ObjectId(id)})
     if not article:

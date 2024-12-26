@@ -40,6 +40,7 @@ async function submitWiki({ wikiID, payload } = {}) {
       response = await fetch("http://127.0.0.1:13000/api/v2/wikis", {
         method: "POST",
         headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
         body: payload, // Send FormData directly, don't stringify
       });
@@ -48,6 +49,9 @@ async function submitWiki({ wikiID, payload } = {}) {
       console.log("from submitWiki. id: ", wikiID, " payload: ", Array.from(payload.entries()));
       response = await fetch(`http://127.0.0.1:13000/api/v2/wikis/${wikiID}`, {
         method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
         body: payload, // Send FormData directly, don't stringify
       });
     }
@@ -146,6 +150,7 @@ function WikiForm() {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
       });
       if (!response.ok) {
@@ -157,6 +162,7 @@ function WikiForm() {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
       });
       if (!response_art.ok) {

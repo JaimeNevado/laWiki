@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from bson import ObjectId
 from typing import Optional
@@ -10,11 +10,15 @@ import os
 sys.path.append(os.path.abspath("../"))
 from database_connection import MongoDBAtlas
 from la_wiki_utils import serialize_document
+from authentication import Authentication
 
 # Database connection
 db = MongoDBAtlas()
 db.connect()
 collection = db.get_collection("Notifications")
+
+# Initializing authentication
+auth = Authentication()
 
 api = FastAPI()
 
@@ -38,7 +42,11 @@ path = "/api/v1/"
 
 # Get Notifications
 @api.get(path + "notifications")
-def get_notifications(user_id: Optional[str] = None, read: bool = None):
+def get_notifications(
+    user_id: Optional[str] = None,
+    read: bool = None,
+    user_info: dict = Depends(auth.verify_token),
+):
 
     query = {}
     if user_id is not None:
@@ -81,7 +89,11 @@ def get_notifications_count(user_id: Optional[str] = None, read: bool = False):
 
 # Add notification to the system
 @api.post(path + "notifications")
-def add_notification(notification: Notification, status_code=201):
+def add_notification(
+    notification: Notification,
+    user_info: dict = Depends(auth.verify_token),
+    status_code=201,
+):
     notification = dict(notification)
     notification["date"] = datetime.now(timezone.utc)
     notification_id = collection.insert_one(notification).inserted_id
@@ -89,7 +101,9 @@ def add_notification(notification: Notification, status_code=201):
 
 
 @api.put(path + "notifications/{notification_id}/read")
-def set_notification_as_read(notification_id: str):
+def set_notification_as_read(
+    notification_id: str, user_info: dict = Depends(auth.verify_token)
+):
     query = {"_id": ObjectId(notification_id)}
     update_result = collection.update_one(query, {"$set": {"opened": True}})
     if update_result.matched_count == 0:
@@ -98,7 +112,9 @@ def set_notification_as_read(notification_id: str):
 
 
 @api.delete(path + "notifications/{notification_id}")
-def delete_notification(notification_id: str):
+def delete_notification(
+    notification_id: str, user_info: dict = Depends(auth.verify_token)
+):
     query = {"_id": ObjectId(notification_id)}
     delete_result = collection.delete_one(query)
     if delete_result.deleted_count == 0:

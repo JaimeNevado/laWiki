@@ -9,3 +9,4 @@ pytz
 cloudinary
 environs
 python-multipart
+google-auth

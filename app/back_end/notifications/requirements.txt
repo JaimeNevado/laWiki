@@ -6,3 +6,4 @@ python-dotenv
 fastapi-cors
 environs
 pytz
+google-auth

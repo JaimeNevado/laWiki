@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from bson import ObjectId
 from typing import Union
@@ -11,7 +11,7 @@ import os
 sys.path.append(os.path.abspath("../"))
 from database_connection import MongoDBAtlas
 from la_wiki_utils import serialize_document
-
+from authentication import Authentication
 
 ARTICLE_URL = "http://127.0.0.1:13001"
 ARTICLE_URL_DOCKER = "http://articles-1"
@@ -21,6 +21,9 @@ ARTICLE_URL_DOCKER = "http://articles-1"
 db = MongoDBAtlas()
 db.connect()
 collection = db.get_collection("Comments")
+
+# Initializing authentication
+auth = Authentication()
 
 api = FastAPI()
 
@@ -87,7 +90,9 @@ async def get_comment_by_id(comment_id: str):
 
 # add new comment
 @api.post(path + "comments")
-async def create_comment(comment: Comment, status_code=201):
+async def create_comment(
+    comment: Comment, user_info: dict = Depends(auth.verify_token), status_code=201
+):
     try:
         comment_dict = comment.dict()
         comment_dict["date"] = datetime.now(timezone.utc)
@@ -102,14 +107,16 @@ async def create_comment(comment: Comment, status_code=201):
 
 
 @api.delete(path + "comments/{comment_id}")
-def delete(comment_id: str):
+def delete(comment_id: str, user_info: dict = Depends(auth.verify_token)):
     collection.delete_one({"_id": ObjectId(comment_id)})
     return {"message": "Comment was deleted successfully"}
 
 
 # Edit comment
 @api.put(path + "comments/{comment_id}")
-def update(comment_id: str, comment: Comment):
+def update(
+    comment_id: str, comment: Comment, user_info: dict = Depends(auth.verify_token)
+):
     comment_updated = collection.find_one_and_update(
         {"_id": ObjectId(comment_id)}, {"$set": dict(comment)}
     )
@@ -146,9 +153,7 @@ async def get_wiki_of_the_comment(comment_id: str):
     article_id = dict(article).get("_id")
 
     client = AsyncClient()
-    response = await client.get(
-        ARTICLE_URL + path + "articles/" + article_id + "/wiki"
-    )
+    response = await client.get(ARTICLE_URL + path + "articles/" + article_id + "/wiki")
     response.raise_for_status()
 
     return response.json()
