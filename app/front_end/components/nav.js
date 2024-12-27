@@ -33,9 +33,9 @@ function Nav({ onSearch}) {
             <li className="nav-item">
               <Link className="nav-link fs-5 me-1" href="/myWikis">My Wikis</Link>
             </li>
-            {/* <li className="nav-item">
-              <Link className="nav-link" href="/profile">My Profile</Link>
-            </li> */}
+            { <li className="nav-item">
+              <Link className="nav-link fs-5 me-1" href="/profile">My Profile</Link>
+            </li> }
             <li className="nav-item">
               <Link className="nav-link fs-5 me-1" href="/comment">Comment</Link>
             </li>
