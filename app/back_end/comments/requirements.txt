@@ -10,3 +10,4 @@ cloudinary
 environs
 google-auth
 requests
+pydantic[email]

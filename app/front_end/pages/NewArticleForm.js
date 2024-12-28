@@ -24,7 +24,7 @@ export default function NewArticleForm() {
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser?.name) {
-      setFormData((prev) => ({ ...prev, author: storedUser.name }));
+      setFormData((prev) => ({ ...prev, author: storedUser.name, email: storedUser.email }));
     }
   }, []);
   
@@ -75,6 +75,7 @@ export default function NewArticleForm() {
             text: formData.text,
             date: formData.date,
             author: formData.author,
+            email: formData.email,
             googleMaps: formData.googleMaps,
             images: imageUrls,
           },

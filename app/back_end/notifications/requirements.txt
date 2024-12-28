@@ -8,3 +8,4 @@ environs
 pytz
 google-auth
 requests
+pydantic[email]

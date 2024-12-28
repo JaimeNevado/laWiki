@@ -11,3 +11,5 @@ environs
 python-multipart
 google-auth
 requests
+pydantic[email]
+

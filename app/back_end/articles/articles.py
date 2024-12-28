@@ -1,5 +1,5 @@
 from sqlite3 import Date
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import List, Union, Optional
 from datetime import datetime
 
@@ -31,6 +31,7 @@ class Version(BaseModel):
     date: Optional[datetime] = None
 
     author: Optional[str] = None
+    email: Optional[EmailStr] = None  # Añadido el campo email
     googleMaps: Optional[str] = None
     images: Optional[List[str]] = None
 
@@ -45,6 +46,7 @@ class Article(BaseModel):
     text: Union[str, None] = None
     attachedFiles: Union[str, None] = None
     author: Union[str, None] = None
+    email: Optional[EmailStr] = None  # Añadido el campo email
     images: Optional[List[str]] = None
     # images: Union[List[Image], None] = None
     googleMaps: Union[str, None] = None
@@ -60,6 +62,7 @@ class Article(BaseModel):
                     "short_text": "Katana is a Japanese Sword used by samurai",
                     "attachedFiles": "https://example.url",
                     "author": "illya",
+                    "email": "illya@example.com",  # Ejemplo de email
                     "images": [
                         "https://raw.githubusercontent.com/ijsto/reactnextjssnippets/master/images/logo02.png",
                         "https://raw.githubusercontent.com/ijsto/reactnextjssnippets/master/images/logo02.png",
@@ -73,12 +76,14 @@ class Article(BaseModel):
                             "short_text": "Katana is a Japanese Sword used by samurai",
                             "text": "A katana is a Japanese sword characterized by a curved, single-edged blade with a circular or squared guard and long grip to accommodate two hands. Developed later than the tachi, it was used by samurai in feudal Japan and worn with the edge facing upward",
                             "date": "2024-11-15T22:27:54+0000",
+                            "email": "author1@example.com",  # Ejemplo de email en versión
                         },
                         {
                             "version_number": 2,
                             "short_text": "Katana is a Japanese Sword used by samurai",
                             "text": "A katana(Name in japanese) is a Japanese sword characterized by a curved, single-edged blade with a circular or squared guard and long grip to accommodate two hands. Developed later than the tachi, it was used by samurai in feudal Japan and worn with the edge facing upward",
                             "date": "2024-11-15T22:27:54+0000",
+                            "email": "author2@example.com",  # Ejemplo de email en versión
                         },
                     ],
                 }
