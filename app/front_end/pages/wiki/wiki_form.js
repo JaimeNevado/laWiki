@@ -5,7 +5,6 @@ import { useMemo } from "react";
 import Image from "next/image";
 import styles from "../../css/WikiForm.module.css";
 
-
 function useWikiForm(initialState) {
   const [formData, setFormData] = useState(initialState);
 
@@ -67,7 +66,7 @@ async function submitWiki({ wikiID, payload } = {}) {
 }
 
 function WikiForm() {
-  const router = useRouter(); // Initialize router
+  const router = useRouter();
   const { wikiID } = router.query;
   const [wiki, setWiki] = useState(null);
   const [deleteButtonVisible, setDeleteButtonVisible] = useState(false);
@@ -78,32 +77,33 @@ function WikiForm() {
         .then((res) => res.json())
         .then((data) => setWiki(data))
         .catch((err) => console.error(err));
-      
+
       setDeleteButtonVisible(true);
-    } else{
+    } else {
       setDeleteButtonVisible(false);
     }
   }, [wikiID]);
-  // console.log("from wikiform. id: ", wikiID, " wiki: ", wiki);
+
   const initData = useMemo(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
     return wiki
       ? {
-        _id: wiki._id,
-        name: wiki.name || "",
-        description: wiki.description || "",
-        author: wiki.author || "",
-        bg_image: null,
-        bg_image_url: wiki.bg_image || "",
-        logo: null,
-        logo_url: wiki.logo || "",
-      }
+          _id: wiki._id,
+          name: wiki.name || "",
+          description: wiki.description || "",
+          author: storedUser?.name || wiki.author || "",
+          bg_image: null,
+          bg_image_url: wiki.bg_image || "",
+          logo: null,
+          logo_url: wiki.logo || "",
+        }
       : {
-        name: "",
-        description: "",
-        author: "",
-        bg_image: null,
-        logo: null,
-      };
+          name: "",
+          description: "",
+          author: storedUser?.name || "",
+          bg_image: null,
+          logo: null,
+        };
   }, [wiki]);
 
   const { formData, handleInputChange, handleFileChange } = useWikiForm(initData);
@@ -114,23 +114,22 @@ function WikiForm() {
       const formDataToSend = new FormData();
 
       // Append text fields
-      formDataToSend.append('wikiID', wikiID);
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('description', formData.description);
-      formDataToSend.append('author', formData.author);
+      formDataToSend.append("wikiID", wikiID);
+      formDataToSend.append("name", formData.name);
+      formDataToSend.append("description", formData.description);
+      formDataToSend.append("author", formData.author);
 
       // Append files if they exist
       if (formData.bg_image) {
-        formDataToSend.append('bg_image', formData.bg_image);
+        formDataToSend.append("bg_image", formData.bg_image);
       }
       if (formData.logo) {
-        formDataToSend.append('logo', formData.logo);
+        formDataToSend.append("logo", formData.logo);
       }
 
       // Submit the form
       const result = await submitWiki({ wikiID: wikiID, payload: formDataToSend });
       if (result.inserted_id) {
-        // Show success message and navigate to the wiki page
         if (window.confirm("Wiki saved successfully! Click OK to view it.")) {
           router.push(`/wiki/${result.inserted_id}`);
         }
@@ -138,7 +137,7 @@ function WikiForm() {
         throw new Error("Invalid response from server");
       }
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error("Error submitting form:", error);
       alert("Error saving wiki.");
     }
   };
@@ -179,11 +178,19 @@ function WikiForm() {
   return (
     <>
       <div className={`row mx-0 pt-3 mt-1 align-self-center ${styles.wikipage}`}>
-        <div className="col-9 d-flex align-items-center" >
-          <form className={`container mt-5 mx-0 ${styles.wikiform}`} onSubmit={handleSubmit} encType="multipart/form-data">
-            <div className="fs-2 fw-medium text-center">{wikiID ? (`Edit Wiki \"${initData.name}\"`) : ("Create New Wiki")}</div>
+        <div className="col-9 d-flex align-items-center">
+          <form
+            className={`container mt-5 mx-0 ${styles.wikiform}`}
+            onSubmit={handleSubmit}
+            encType="multipart/form-data"
+          >
+            <div className="fs-2 fw-medium text-center">
+              {wikiID ? `Edit Wiki \"${initData.name}\"` : "Create New Wiki"}
+            </div>
             <div className={`${styles.formelement}`}>
-              <label htmlFor="name" className="form-label">Name:</label>
+              <label htmlFor="name" className="form-label">
+                Name:
+              </label>
               <input
                 type="text"
                 id="name"
@@ -195,7 +202,9 @@ function WikiForm() {
               />
             </div>
             <div className={`${styles.formelement}`}>
-              <label htmlFor="description" className="form-label">Description:</label>
+              <label htmlFor="description" className="form-label">
+                Description:
+              </label>
               <textarea
                 id="description"
                 name="description"
@@ -207,19 +216,22 @@ function WikiForm() {
               />
             </div>
             <div className={`${styles.formelement}`}>
-              <label htmlFor="author" className="form-label">Author:</label>
+              <label htmlFor="author" className="form-label">
+                Author:
+              </label>
               <input
                 type="text"
                 id="author"
                 name="author"
                 className="form-control"
                 value={formData.author}
-                onChange={handleInputChange}
-                required
+                readOnly
               />
             </div>
             <div className={`${styles.formelement}`}>
-              <label htmlFor="logo" className="form-label">Logo:</label>
+              <label htmlFor="logo" className="form-label">
+                Logo:
+              </label>
               <input
                 type="file"
                 id="logo"
@@ -230,7 +242,9 @@ function WikiForm() {
               />
             </div>
             <div className={`${styles.formelement}`}>
-              <label htmlFor="bg_image" className="form-label">Background Image:</label>
+              <label htmlFor="bg_image" className="form-label">
+                Background Image:
+              </label>
               <input
                 type="file"
                 id="bg_image"
@@ -247,51 +261,42 @@ function WikiForm() {
             </div>
           </form>
         </div>
-        {/* Current Images */}
         <div className="col-3 d-flex align-items-center">
           <div className="col">
             <div className="row text-center mb-5">
-              {formData.logo_url ? (
+              {formData.logo_url && (
                 <>
-                  <div className="fs-6">
-                    Current Wiki Logo:
-                  </div>
+                  <div className="fs-6">Current Wiki Logo:</div>
                   <div className="mx-auto d-block" style={{ maxWidth: "250px" }}>
                     <Image
                       src={formData.logo_url}
                       className="img-fluid"
                       width={0}
                       height={0}
-                      sizes='25vw'
+                      sizes="25vw"
                       alt="Current wiki logo"
                       style={{ width: "100%", height: "auto" }}
                     />
                   </div>
                 </>
-              ) : (
-                <></>
               )}
             </div>
             <div className="row">
-              {formData.bg_image_url ? (
+              {formData.bg_image_url && (
                 <>
-                  <div className="fs-6 text-center">
-                    Current Wiki Background:
-                  </div>
+                  <div className="fs-6 text-center">Current Wiki Background:</div>
                   <div className="mx-auto d-block" style={{ maxWidth: "250px" }}>
                     <Image
                       src={formData.bg_image_url}
                       className="img-fluid"
                       width={0}
                       height={0}
-                      sizes='25vw'
+                      sizes="25vw"
                       alt="Current wiki background"
                       style={{ width: "100%", height: "auto" }}
                     />
                   </div>
                 </>
-              ) : (
-                <></>
               )}
             </div>
           </div>
@@ -303,7 +308,7 @@ function WikiForm() {
             <button
               className="btn btn-danger"
               onClick={() => {
-                if (window.confirm("Are you sure want to remove this Wiki?\nAll data will be lost!")) {
+                if (window.confirm("Are you sure you want to remove this Wiki?\nAll data will be lost!")) {
                   handleDelete();
                 }
               }}
