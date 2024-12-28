@@ -52,8 +52,8 @@ export default function ArticlesListPage() {
     e.preventDefault();
   
     const storedUser = JSON.parse(localStorage.getItem("user")); // Obtener datos del usuario del localStorage
-    const author = storedUser?.name || "default_user";  // Si no hay nombre, asigna un nombre por defecto
-    const authorEmail = storedUser?.email || "";  // Si no hay email, asigna un string vacío
+    const author = storedUser?.name;  // Si no hay nombre, asigna un nombre por defecto
+    const authorEmail = storedUser?.email;  // Si no hay email, asigna un string vacío
   
     try {
       const commentResponse = await fetch("http://127.0.0.1:13002/api/v1/comments", {

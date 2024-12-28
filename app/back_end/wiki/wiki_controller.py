@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, Form, UploadFile, Depends, HTTPException, Request
+from fastapi import FastAPI, File, Form, UploadFile, Depends, HTTPException, Request, Query
 from bson import ObjectId
 from typing import Union
 from httpx import AsyncClient
@@ -13,6 +13,9 @@ from database_connection import MongoDBAtlas
 from la_wiki_utils import serialize_document
 from image_upload import ImageUploader
 from authentication import Authentication
+
+from pydantic import BaseModel
+from translate import translate_text
 
 sys.path.append(os.path.abspath("../articles"))
 from articles import Article
@@ -35,6 +38,12 @@ auth = Authentication()
 
 api = FastAPI()
 
+
+class WikiEntry(BaseModel):
+    title: str
+    content: str
+    language: str
+
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -51,6 +60,11 @@ api.add_middleware(
 
 path = "/api/v1/"
 path_v2 = "/api/v2/"
+
+@api.post("/translate/")
+async def translate_entry(entry: WikiEntry, target_language: str = Query(...)):
+    translated_content = translate_text(entry.content, target_language)
+    return {"title": entry.title, "content": translated_content, "language": target_language}
 
 
 # sirve tanto para wikis como para wiki
