@@ -1,9 +1,38 @@
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import SearchPanel from "../components/search_panel";
 import NotificationBell from './notifications/notifications_bell';
 
 function Nav({ onSearch}) {
-  const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedToken = localStorage.getItem("token");
+      setToken(storedToken);
+      setLoading(false);
+
+      const handleStorageChange = (event) => {
+        if (event.key === "token") {
+          setToken(event.newValue);
+        }
+      };
+
+      const handleTokenUpdated = () => {
+        const updatedToken = localStorage.getItem("token");
+        setToken(updatedToken);
+      };
+
+      window.addEventListener('storage', handleStorageChange);
+      window.addEventListener('tokenUpdated', handleTokenUpdated);
+
+      return () => {
+        window.removeEventListener('storage', handleStorageChange);
+        window.removeEventListener('tokenUpdated', handleTokenUpdated);
+      };
+    }
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -11,6 +40,10 @@ function Nav({ onSearch}) {
     const searchQuery = formData.get('search');
     const simpleQuery = {"name": searchQuery};
     onSearch(simpleQuery);
+  }
+  
+  if (loading) {
+    return <div>Loading...</div>;  // Show loading state while waiting for the token
   }
 
   return (

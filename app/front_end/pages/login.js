@@ -23,6 +23,7 @@ const LoginPage = () => {
         setUser(userData);
         localStorage.setItem("token", credentialResponse.credential);
         localStorage.setItem("user", JSON.stringify(userData));
+        window.dispatchEvent(new Event('tokenUpdated'));
         router.push("http://localhost:3000/");
       } catch (error) {
         console.error("Token verification error:", error);

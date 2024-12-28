@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -21,6 +21,13 @@ export default function NewArticleForm() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
 
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser?.name) {
+      setFormData((prev) => ({ ...prev, author: storedUser.name, email: storedUser.email }));
+    }
+  }, []);
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -68,6 +75,7 @@ export default function NewArticleForm() {
             text: formData.text,
             date: formData.date,
             author: formData.author,
+            email: formData.email,
             googleMaps: formData.googleMaps,
             images: imageUrls,
           },
@@ -124,8 +132,7 @@ export default function NewArticleForm() {
             id="author"
             name="author"
             value={formData.author}
-            onChange={handleChange}
-            required
+            readOnly
           />
         </div>
         <div className="form-group">
@@ -159,7 +166,7 @@ export default function NewArticleForm() {
             id="attachedFiles"
             name="attachedFiles"
             value={formData.attachedFiles}
-            onChange={handleChange}
+            onChange={handleFileChange}
           />
         </div>
         <div className="form-group">

@@ -1,15 +1,16 @@
-// import LikeButton from "../components/buttons/like_button";
-import LinkButton from '../components/buttons/button_with_link';
+import LinkButton from "../components/buttons/button_with_link";
 import { useEffect, useState } from "react";
 import WikiList from "../components/wikis";
 import { useRouter } from "next/router";
-import { refreshNotifications } from '../components/notifications/notifications_bell';
+import { refreshNotifications } from "../components/notifications/notifications_bell";
 
 export default function HomePage() {
   const [wikis, setWikis] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
+  const [language, setLanguage] = useState("en"); // Idioma por defecto
+  const [translatedContent, setTranslatedContent] = useState({}); // Traducción de contenido
   const router = useRouter();
 
   useEffect(() => {
@@ -18,13 +19,14 @@ export default function HomePage() {
       router.push("/login"); // Redirige al login si no hay usuario
     } else {
       setUser(userFromLocalStorage);
+      refreshNotifications();
     }
   }, [router]);
 
   useEffect(() => {
     refreshNotifications();
     // Personalización del fondo
-    const myDiv = document.getElementById('main_wrapper');
+    const myDiv = document.getElementById("main_wrapper");
     if (myDiv) {
       myDiv.style.backgroundImage = "none";
       myDiv.style.backgroundColor = "#fcfcfc";
@@ -48,14 +50,53 @@ export default function HomePage() {
       });
   }, []);
 
+  useEffect(() => {
+    // Traduce contenido al cambiar el idioma
+    const fetchTranslations = async () => {
+      const response = await fetch("http://127.0.0.1:13000/translate/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: "Welcome to Wiki!",
+          language: "en",
+        }),
+        params: {
+          target_language: language,
+        },
+      });
+      const result = await response.json();
+      setTranslatedContent(result);
+    };
+
+    fetchTranslations();
+  }, [language]);
+
+  const handleLanguageChange = (e) => {
+    setLanguage(e.target.value);
+  };
+
   if (loading) return <div className="text-center">Loading...</div>;
   if (error) return <div className="text-center text-danger">{error}</div>;
 
   return (
     <>
-      {/* Bienvenida */}
+      <nav className="navbar">
+        <div className="container">
+          <h1>Wiki App</h1>
+          <select
+            value={language}
+            onChange={handleLanguageChange}
+            className="form-select"
+          >
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+          </select>
+        </div>
+      </nav>
+
       <div className="container text-center mt-4">
-        <h1>Welcome to Wiki!</h1>
+        <h1>{translatedContent.title || "Welcome to Wiki!"}</h1>
       </div>
       <div className="profile">
         {user && (
@@ -70,7 +111,7 @@ export default function HomePage() {
         <div className="text-end me-2 mb-4">
           <LinkButton
             btn_type={"btn-primary"}
-            button_text="Create Wiki"
+            button_text={translatedContent.createWiki || "Create Wiki"}
             state="enabled"
             link="/wiki/wiki_form"
           />
@@ -89,7 +130,7 @@ export default function HomePage() {
                   <h5 className="card-title">{wiki.name}</h5>
                   <LinkButton
                     btn_type={"btn-primary"}
-                    button_text="View Wiki"
+                    button_text={translatedContent.viewWiki || "View Wiki"}
                     state="enabled"
                     link={`/wiki/${wiki._id}`}
                   />
@@ -100,8 +141,7 @@ export default function HomePage() {
         </div>
       </div>
 
-        <WikiList wikis={wikis} />
-
+      <WikiList wikis={wikis} />
     </>
   );
 }
