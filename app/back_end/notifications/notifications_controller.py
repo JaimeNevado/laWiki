@@ -4,6 +4,7 @@ from bson import ObjectId
 from typing import Optional
 from notification import Notification
 from datetime import datetime, timezone
+from mailjet_rest import Client
 import sys
 import os
 
@@ -39,6 +40,7 @@ api.add_middleware(
 
 path = "/api/v1/"
 
+mailjet = Client(auth=("10a2095833caf92998676630a3a59ea1", "229d7a05b82512777585884382b5bf1a"))
 
 # Get Notifications
 @api.get(path + "notifications")
@@ -47,7 +49,6 @@ def get_notifications(
     read: bool = None,
     user_info: dict = Depends(auth.verify_token),
 ):
-
     query = {}
     if user_id is not None:
         query["user_id"] = user_id
@@ -82,7 +83,6 @@ def get_notifications_count(user_id: Optional[str] = None, read: bool = False):
 
     if query == {}:
         query = None
-    # query = {"user_id": user_id, "opened": False}
     count = collection.count_documents(query)
     return {"count": count}
 
@@ -97,7 +97,22 @@ def add_notification(
     notification = dict(notification)
     notification["date"] = datetime.now(timezone.utc)
     notification_id = collection.insert_one(notification).inserted_id
+
+    data = {
+	'FromEmail': 'yaelmartin@uma.es',
+	'FromName': 'laWiki',
+	'Subject': notification["title"],
+	'Text-part': notification["body"],
+	'Html-part': '',
+	'Recipients': [{'Email': notification["user_id"]}]
+    }
+
+    result = mailjet.send.create(data=data)
+    print(result.status_code)
+    print(result.json())
+
     return {"notification_id": str(notification_id)}
+
 
 
 @api.put(path + "notifications/{notification_id}/read")
@@ -106,17 +121,8 @@ def set_notification_as_read(
 ):
     query = {"_id": ObjectId(notification_id)}
     update_result = collection.update_one(query, {"$set": {"opened": True}})
-    if update_result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Notification not found")
-    return {"message": "Notification updated"}
-
-
-@api.delete(path + "notifications/{notification_id}")
-def delete_notification(
-    notification_id: str, user_info: dict = Depends(auth.verify_token)
-):
-    query = {"_id": ObjectId(notification_id)}
-    delete_result = collection.delete_one(query)
-    if delete_result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Notification not found")
-    return {"message": "Notification deleted"}
+    
+    if update_result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Notification not found or already marked as read.")
+    
+    return {"message": "Notification marked as read"}

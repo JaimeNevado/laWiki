@@ -12,4 +12,5 @@ python-multipart
 google-auth
 requests
 pydantic[email]
-
+mailjet-rest
+mailjet_rest
