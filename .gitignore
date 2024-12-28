@@ -5,6 +5,11 @@
 # Environment Variables
 # .env
 
+# Custom Scripts
+**/aws.sh
+**/xfce_run_dev_app.sh
+**/xfce_run_prod_app.sh
+
 # Log Files
 *.log
 
