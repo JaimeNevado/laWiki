@@ -18,7 +18,17 @@ export default function ArticlesListPage() {
   const [error, setError] = useState(null);
   const [notification, setNotification] = useState(null); // Estado para las notificaciones
 
-
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser?.name) {
+      setNewComment((prev) => ({
+        ...prev,
+        author: storedUser.name,
+        email: storedUser.email,
+      }));
+    }
+  }, []);
+  
   useEffect(() => {
     refreshNotifications();
     if (id) {
@@ -40,7 +50,11 @@ export default function ArticlesListPage() {
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
-
+  
+    const storedUser = JSON.parse(localStorage.getItem("user")); // Obtener datos del usuario del localStorage
+    const author = storedUser?.name || "default_user";  // Si no hay nombre, asigna un nombre por defecto
+    const authorEmail = storedUser?.email || "";  // Si no hay email, asigna un string vacío
+  
     try {
       const commentResponse = await fetch("http://127.0.0.1:13002/api/v1/comments", {
         method: "POST",
@@ -50,24 +64,23 @@ export default function ArticlesListPage() {
         },
         body: JSON.stringify({
           article_id: id,
-          author_id: "default_user",
+          author_id: author,  // Usamos el nombre del autor recuperado
           content: newComment,
           rating: selectedRating,
-          destination_id: article.author,
+          destination_id: article.email,  // Usamos el email del artículo como destino
         }),
       });
-
+  
       if (!commentResponse.ok) throw new Error("Failed to add comment");
-
+  
       const notification = {
         date: new Date().toISOString(), // Formato ISO 8601 para datetime
         title: "New Comment Added",
         body: `A new comment has been added to the article "${article.name}".`,
         opened: false,
         user_id: article.author, // Reemplaza con el ID del usuario receptor
-
       };
-
+  
       const notificationResponse = await fetch("http://127.0.0.1:13003/api/v1/notifications", {
         method: "POST",
         headers: { 
@@ -76,14 +89,14 @@ export default function ArticlesListPage() {
         },
         body: JSON.stringify(notification),
       });
-
+  
       if (!notificationResponse.ok) throw new Error("Failed to send notification");
-
+  
       refreshNotifications();
-
+  
       setComments((prev) => [
         ...prev,
-        { content: newComment, author_id: "default_user", date: new Date(), rating: selectedRating },
+        { content: newComment, author_id: author, date: new Date(), rating: selectedRating },
       ]);
       setNewComment("");
       setSelectedRating(null);
@@ -92,6 +105,7 @@ export default function ArticlesListPage() {
       setError("Error adding comment or sending notification");
     }
   };
+  
 
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this article?")) return;
