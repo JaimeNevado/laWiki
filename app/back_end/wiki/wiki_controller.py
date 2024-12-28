@@ -1,4 +1,13 @@
-from fastapi import FastAPI, File, Form, UploadFile, Depends, HTTPException, Request, Query
+from fastapi import (
+    FastAPI,
+    File,
+    Form,
+    UploadFile,
+    Depends,
+    HTTPException,
+    Request,
+    Query,
+)
 from bson import ObjectId
 from typing import Union
 from httpx import AsyncClient
@@ -44,6 +53,7 @@ class WikiEntry(BaseModel):
     content: str
     language: str
 
+
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -61,10 +71,15 @@ api.add_middleware(
 path = "/api/v1/"
 path_v2 = "/api/v2/"
 
+
 @api.post("/translate/")
 async def translate_entry(entry: WikiEntry, target_language: str = Query(...)):
     translated_content = translate_text(entry.content, target_language)
-    return {"title": entry.title, "content": translated_content, "language": target_language}
+    return {
+        "title": entry.title,
+        "content": translated_content,
+        "language": target_language,
+    }
 
 
 # sirve tanto para wikis como para wiki
@@ -72,7 +87,7 @@ async def translate_entry(entry: WikiEntry, target_language: str = Query(...)):
 def get_wikis(author: Union[str, None] = None, order_type: int = 1):
     query = None
     if author is not None:
-        query = {"author": author}
+        query = {"author": {"$regex": f".*{author}.*", "$options": "i"}}
     wikis = collection.find(query).sort("name", order_type)
     serialized_wikis = [serialize_document(wiki) for wiki in wikis]
     return serialized_wikis

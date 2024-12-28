@@ -70,6 +70,8 @@ function WikiForm() {
   const { wikiID } = router.query;
   const [wiki, setWiki] = useState(null);
   const [deleteButtonVisible, setDeleteButtonVisible] = useState(false);
+  const [storedUser, setStoredUser] = useState(null);
+  const [canEdit, setCanEdit] = useState(false);
 
   useEffect(() => {
     if (wikiID) {
@@ -79,31 +81,37 @@ function WikiForm() {
         .catch((err) => console.error(err));
 
       setDeleteButtonVisible(true);
+      setCanEdit(storedUser && wiki && storedUser.name === wiki.author);
+      // console.log("from WikiForm. wiki.author: ", wiki?.author, " storedUser.name: ", storedUser?.name, " canEdit: ", canEdit);
     } else {
       setDeleteButtonVisible(false);
+      setCanEdit(true);
     }
-  }, [wikiID]);
+    setStoredUser(JSON.parse(localStorage.getItem("user")));
+
+  }, [wikiID, storedUser]);
+
 
   const initData = useMemo(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
+    // const storedUser = JSON.parse(localStorage.getItem("user"));
     return wiki
       ? {
-          _id: wiki._id,
-          name: wiki.name || "",
-          description: wiki.description || "",
-          author: storedUser?.name || wiki.author || "",
-          bg_image: null,
-          bg_image_url: wiki.bg_image || "",
-          logo: null,
-          logo_url: wiki.logo || "",
-        }
+        _id: wiki._id,
+        name: wiki.name || "",
+        description: wiki.description || "",
+        author: storedUser?.name || wiki.author || "",
+        bg_image: null,
+        bg_image_url: wiki.bg_image || "",
+        logo: null,
+        logo_url: wiki.logo || "",
+      }
       : {
-          name: "",
-          description: "",
-          author: storedUser?.name || "",
-          bg_image: null,
-          logo: null,
-        };
+        name: "",
+        description: "",
+        author: storedUser?.name || "",
+        bg_image: null,
+        logo: null,
+      };
   }, [wiki]);
 
   const { formData, handleInputChange, handleFileChange } = useWikiForm(initData);
@@ -184,6 +192,7 @@ function WikiForm() {
             onSubmit={handleSubmit}
             encType="multipart/form-data"
           >
+            {/* Form title */}
             <div className="fs-2 fw-medium text-center">
               {wikiID ? `Edit Wiki \"${initData.name}\"` : "Create New Wiki"}
             </div>
@@ -254,11 +263,13 @@ function WikiForm() {
                 onChange={handleFileChange}
               />
             </div>
-            <div className={`${styles.formelement} ${styles.submitbutton}`}>
-              <button type="submit" className="my-4 btn btn-primary">
-                Save Wiki
-              </button>
-            </div>
+            {canEdit && (
+              <div className={`${styles.formelement} ${styles.submitbutton}`}>
+                <button type="submit" className="my-4 btn btn-primary">
+                  Save Wiki
+                </button>
+              </div>
+            )}
           </form>
         </div>
         <div className="col-3 d-flex align-items-center">
@@ -305,16 +316,18 @@ function WikiForm() {
       {deleteButtonVisible && (
         <div className="row mt-2">
           <div className="col-9 text-center">
-            <button
-              className="btn btn-danger"
-              onClick={() => {
-                if (window.confirm("Are you sure you want to remove this Wiki?\nAll data will be lost!")) {
-                  handleDelete();
-                }
-              }}
-            >
-              {`Delete Wiki \"${initData.name}\"`}
-            </button>
+            {canEdit && (
+              <button
+                className="btn btn-danger"
+                onClick={() => {
+                  if (window.confirm("Are you sure you want to remove this Wiki?\nAll data will be lost!")) {
+                    handleDelete();
+                  }
+                }}
+              >
+                {`Delete Wiki \"${initData.name}\"`}
+              </button>
+            )}
           </div>
         </div>
       )}

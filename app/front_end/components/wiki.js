@@ -8,14 +8,24 @@ import styles from "../css/Wiki.module.css";
 
 function WikiSkeleton({ wiki }) {
   const router = useRouter();
+  const [storedUser, setStoredUser] = useState(null);
+  const [canEdit, setCanEdit] = useState(false);
+
+  useEffect(() => {
+    setStoredUser(JSON.parse(localStorage.getItem("user")));
+    setCanEdit(storedUser && storedUser.name === wiki.author);
+  },[wiki]);
+
   return (
     <div className="container pt-3 mt-1">
       <div className='text-end'>
+        {canEdit && (
         <LinkButton btn_type={"btn-primary"} button_text="Edit Wiki" state="enabled" link="/wiki/wiki_form" func={() => router.push({
           pathname: "/wiki/wiki_form",
           query: { wikiID: wiki._id },
         })
         } />
+        )}
       </div>
       {/* Article Header */}
       <div className="row">

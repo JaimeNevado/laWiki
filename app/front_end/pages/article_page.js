@@ -17,9 +17,11 @@ export default function ArticlesListPage() {
   const [selectedRating, setSelectedRating] = useState(null);
   const [error, setError] = useState(null);
   const [notification, setNotification] = useState(null); // Estado para las notificaciones
+  const [storedUser, setStoredUser] = useState(null);
+  const [canEdit, setCanEdit] = useState(false);
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
+    setStoredUser(JSON.parse(localStorage.getItem("user")));
     if (storedUser?.name) {
       setNewComment((prev) => ({
         ...prev,
@@ -28,7 +30,7 @@ export default function ArticlesListPage() {
       }));
     }
   }, []);
-  
+
   useEffect(() => {
     refreshNotifications();
     if (id) {
@@ -44,23 +46,28 @@ export default function ArticlesListPage() {
       fetchData(`http://127.0.0.1:13001/api/v1/articles/${id}/comments/`, (data) => {
         setComments(Array.isArray(data) ? data : []);
       }, setError);
-    }
+    };
   }, [id]);
+
+  useEffect(() => {
+    setCanEdit(storedUser && article && storedUser.name === article.author);
+    console.log("author: ", article?.author, "storedUser: ", storedUser?.name);
+  }, [storedUser, article]);
 
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
-  
+
     const storedUser = JSON.parse(localStorage.getItem("user")); // Obtener datos del usuario del localStorage
     const author = storedUser?.name;  // Si no hay nombre, asigna un nombre por defecto
     const authorEmail = storedUser?.email;  // Si no hay email, asigna un string vacío
-  
+
     try {
       const commentResponse = await fetch("http://127.0.0.1:13002/api/v1/comments", {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`, 
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
           article_id: id,
@@ -70,9 +77,9 @@ export default function ArticlesListPage() {
           destination_id: article.email,  // Usamos el email del artículo como destino
         }),
       });
-  
+
       if (!commentResponse.ok) throw new Error("Failed to add comment");
-  
+
       const notification = {
         date: new Date().toISOString(), // Formato ISO 8601 para datetime
         title: "New Comment Added",
@@ -80,20 +87,20 @@ export default function ArticlesListPage() {
         opened: false,
         user_id: article.email, // Reemplaza con el ID del usuario receptor
       };
-  
+
       const notificationResponse = await fetch("http://127.0.0.1:13003/api/v1/notifications", {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify(notification),
       });
-  
+
       if (!notificationResponse.ok) throw new Error("Failed to send notification");
-  
+
       refreshNotifications();
-  
+
       setComments((prev) => [
         ...prev,
         { content: newComment, author_id: author, date: new Date(), rating: selectedRating },
@@ -105,7 +112,7 @@ export default function ArticlesListPage() {
       setError("Error adding comment or sending notification");
     }
   };
-  
+
 
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this article?")) return;
@@ -195,35 +202,37 @@ export default function ArticlesListPage() {
               justifyContent: "center",
               alignItems: "center"
             }}>
-              <button
-                onClick={() => router.push(`/editArticleForm?article_id=${article._id}`)}
-                className={`${styles.button} ${styles.editButton}`}
-                style={{
-                  backgroundColor: "#3498db",
-                  color: "#fff",
-                  padding: "0.5rem 1rem",
-                  border: "none",
-                  borderRadius: "5px",
-                  marginRight: "1rem"
-                }}
-              >
-                Edit Article
-              </button>
-              <button
-                onClick={handleDelete}
-                className={`${styles.button} ${styles.deleteButton}`}
-                style={{
-                  backgroundColor: "#3498db", // Red color for delete
-                  color: "#fff",
-                  padding: "0.5rem 1rem",
-                  border: "none",
-                  borderRadius: "5px",
+              {canEdit && (<>
+                <button
+                  onClick={() => router.push(`/editArticleForm?article_id=${article._id}`)}
+                  className={`${styles.button} ${styles.editButton}`}
+                  style={{
+                    backgroundColor: "#3498db",
+                    color: "#fff",
+                    padding: "0.5rem 1rem",
+                    border: "none",
+                    borderRadius: "5px",
+                    marginRight: "1rem"
+                  }}
+                >
+                  Edit Article
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className={`${styles.button} ${styles.deleteButton}`}
+                  style={{
+                    backgroundColor: "#3498db", // Red color for delete
+                    color: "#fff",
+                    padding: "0.5rem 1rem",
+                    border: "none",
+                    borderRadius: "5px",
 
-                }}
-              >
-                Delete Article
-              </button>
-
+                  }}
+                >
+                  Delete Article
+                </button>
+              </>
+              )}
             </div>
 
 
@@ -286,23 +295,25 @@ export default function ArticlesListPage() {
             <button type="submit" className={styles.button}>Submit Comment</button>
           </form>
 
-          <div style={{ marginBottom: "40px" }}>
-            <h2>Versions</h2>
-            <div className={styles.versionsSection}>
-              {article.versions && article.versions.length > 0 ? (
-                article.versions.map((version, index) => (
-                  <ArticleVersion
-                    key={index}
-                    version={version}
-                    index={index}
-                    onRestoreVersion={handleRestoreVersion} // Pasamos la función de restauración
-                  />
-                ))
-              ) : (
-                <p>No versions available.</p>
-              )}
+          {!!storedUser && (
+            <div style={{ marginBottom: "40px" }}>
+              <h2>Versions</h2>
+              <div className={styles.versionsSection}>
+                {article.versions && article.versions.length > 0 ? (
+                  article.versions.map((version, index) => (
+                    <ArticleVersion
+                      key={index}
+                      version={version}
+                      index={index}
+                      onRestoreVersion={handleRestoreVersion} // Pasamos la función de restauración
+                    />
+                  ))
+                ) : (
+                  <p>No versions available.</p>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </>
       ) : (
         <div>Loading...</div>
