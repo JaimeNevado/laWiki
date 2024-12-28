@@ -78,7 +78,7 @@ export default function ArticlesListPage() {
         title: "New Comment Added",
         body: `A new comment has been added to the article "${article.name}".`,
         opened: false,
-        user_id: article.author, // Reemplaza con el ID del usuario receptor
+        user_id: article.email, // Reemplaza con el ID del usuario receptor
       };
   
       const notificationResponse = await fetch("http://127.0.0.1:13003/api/v1/notifications", {
