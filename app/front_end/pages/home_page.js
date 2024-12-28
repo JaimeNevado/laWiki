@@ -18,6 +18,7 @@ export default function HomePage() {
       router.push("/login"); // Redirige al login si no hay usuario
     } else {
       setUser(userFromLocalStorage);
+      refreshNotifications();
     }
   }, [router]);
 

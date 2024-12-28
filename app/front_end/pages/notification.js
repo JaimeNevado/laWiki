@@ -5,32 +5,42 @@ import { refreshNotifications } from '../components/notifications/notifications_
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
-    // Fetch notifications from the server
-    const fetchNotifications = async () => {
-      try {
-        const response = await axios.get('http://127.0.0.1:13003/api/v1/notifications', {
-          headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`,
-          }
-        });
-        setNotifications(response.data);
-        setLoading(false);
-      } catch (error) {
-        console.error('There was an error fetching the notifications!', error);
-        setLoading(false);
-      }
-    };
+    // Only access localStorage on the client-side
+    if (typeof window !== 'undefined') {
+      const storedToken = localStorage.getItem("token");
+      setToken(storedToken);  // Set token state
+    }
+  }, []); // This will run once when the component mounts
 
-    fetchNotifications();
-  }, []);
+  useEffect(() => {
+    if (token) {
+      const fetchNotifications = async () => {
+        try {
+          const response = await axios.get('http://127.0.0.1:13003/api/v1/notifications', {
+            headers: {
+              "Authorization": `Bearer ${token}`,
+            }
+          });
+          setNotifications(response.data);
+          setLoading(false);
+        } catch (error) {
+          console.error('There was an error fetching the notifications!', error);
+          setLoading(false);
+        }
+      };
+
+      fetchNotifications();
+    }
+  }, [token]); // Re-fetch notifications if token changes
 
   const markAsRead = async (id) => {
     try {
       await axios.put(`http://127.0.0.1:13003/api/v1/notifications/${id}/read`, {}, {
         headers: {
-          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          "Authorization": `Bearer ${token}`,
         }
       });
       setNotifications(notifications.map(notification =>
@@ -45,7 +55,7 @@ const Notifications = () => {
   const deleteNotification = (id) => {
     axios.delete(`http://127.0.0.1:13003/api/v1/notifications/${id}`, {
       headers: {
-        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        "Authorization": `Bearer ${token}`,
       }
     })
       .then(response => {
@@ -56,8 +66,6 @@ const Notifications = () => {
       });
     refreshNotifications();
   };
-  
-  const token = localStorage.getItem("token");
 
   return (
     <div className="container">
@@ -66,27 +74,31 @@ const Notifications = () => {
           <p>Loading...</p>
         ) : (
           <ul className="list-group">
-            {notifications.map(notification => (
-              <li key={notification._id} className="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                  <h5 className="mb-1">{notification.title}</h5>
-                  <small className="text-muted">{new Date(notification.date).toLocaleDateString()}</small>
-                  <p className="mb-1">{notification.body}</p>
-                </div>
-                <div>
-                  {notification.opened ? (
-                    <span style={{ marginRight: '10px' }}>Read</span>
-                  ) : (
-                    <button className="btn btn-primary mr-3" style={{ marginRight: '10px' }} onClick={() => markAsRead(notification._id)}>
-                      Mark as Read
+            {notifications.length > 0 ? (
+              notifications.map(notification => (
+                <li key={notification._id} className="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <h5 className="mb-1">{notification.title}</h5>
+                    <small className="text-muted">{new Date(notification.date).toLocaleDateString()}</small>
+                    <p className="mb-1">{notification.body}</p>
+                  </div>
+                  <div>
+                    {notification.opened ? (
+                      <span style={{ marginRight: '10px' }}>Read</span>
+                    ) : (
+                      <button className="btn btn-primary mr-3" style={{ marginRight: '10px' }} onClick={() => markAsRead(notification._id)}>
+                        Mark as Read
+                      </button>
+                    )}
+                    <button className="btn btn-danger" onClick={() => deleteNotification(notification._id)}>
+                      Delete
                     </button>
-                  )}
-                  <button className="btn btn-danger" onClick={() => deleteNotification(notification._id)}>
-                    Delete
-                  </button>
-                </div>
-              </li>
-            ))}
+                  </div>
+                </li>
+              ))
+            ) : (
+              <p>No notifications available.</p>
+            )}
           </ul>
         )
       ) : (
@@ -97,3 +109,4 @@ const Notifications = () => {
 };
 
 export default Notifications;
+
