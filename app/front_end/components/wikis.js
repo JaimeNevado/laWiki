@@ -1,7 +1,4 @@
 import React from "react";
-import LinkButton from '../components/buttons/button_with_link';
-import Image from "next/image";
-import style from "../css/Wikis.module.css";
 
 const WikiList = ({ wikis }) => {
   // Elimina duplicados si es necesario

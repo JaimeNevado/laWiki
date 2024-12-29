@@ -10,7 +10,7 @@ export default function HomePage() {
 
   const fetchWikis = (author = '') => {
     setLoading(true); // Inicia la carga
-    let url = "http://127.0.0.1:13000/api/v1/wikis";
+    let url = `${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v1/wikis`;
     if (author) {
       url += `?author=${author}`;
     }

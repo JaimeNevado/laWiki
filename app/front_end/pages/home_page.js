@@ -33,7 +33,7 @@ export default function HomePage() {
     }
 
     // Fetch de las wikis desde el backend
-    fetch("http://127.0.0.1:13000/api/v1/wikis")
+    fetch(`${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v1/wikis`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch wikis");
@@ -53,7 +53,7 @@ export default function HomePage() {
   useEffect(() => {
     // Traduce contenido al cambiar el idioma
     const fetchTranslations = async () => {
-      const response = await fetch("http://127.0.0.1:13000/translate/", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_WIKI_API_URL}/translate/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

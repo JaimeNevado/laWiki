@@ -7,7 +7,7 @@ export default function ArticlesListPage() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:13001/api/v1/articles")
+    fetch(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/articles`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch articles");

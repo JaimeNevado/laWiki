@@ -49,7 +49,7 @@ export default function NewArticleForm() {
 
     try {
       // Subir las imágenes y obtener las URLs
-      const uploadResponse = await fetch("http://127.0.0.1:13001/api/v1/upload_images", {
+      const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/upload_images`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`,
@@ -84,7 +84,7 @@ export default function NewArticleForm() {
       console.log("Article data to send:", articleData);
 
       // Enviar los datos del artículo al servidor
-      const articleResponse = await fetch("http://127.0.0.1:13001/api/v1/articles", {
+      const articleResponse = await fetch(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/articles`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

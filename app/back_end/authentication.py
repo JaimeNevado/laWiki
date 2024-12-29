@@ -11,6 +11,7 @@ class Authentication:
         env = Env()
         env.read_env()
         self.client_id = env("GOOGLE_CLIENT_ID")
+        print("Authentication service initialized")
 
     def verify_token(self, authorization: Optional[str] = Header(None)):
         token = None
@@ -29,7 +30,9 @@ class Authentication:
             id_info = id_token.verify_oauth2_token(
                 token, google_requests.Request(), self.client_id
             )
-            if id_info["exp"] < datetime.now().timestamp():
+            print("decoded token: ", id_info)
+            if datetime.fromtimestamp(id_info["exp"]) < datetime.now():
+                print("Token is expired")
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Token is expired",

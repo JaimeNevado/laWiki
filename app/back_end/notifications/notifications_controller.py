@@ -13,6 +13,13 @@ from database_connection import MongoDBAtlas
 from la_wiki_utils import serialize_document
 from authentication import Authentication
 
+from environs import Env
+
+env = Env()
+env.read_env()
+ORIGINS = env.list("ORIGINS_URL")
+print("Allowed Origins: ", ORIGINS)
+
 # Database connection
 db = MongoDBAtlas()
 db.connect()
@@ -20,19 +27,12 @@ collection = db.get_collection("Notifications")
 
 # Initializing authentication
 auth = Authentication()
-
 api = FastAPI()
 
 # CORS configuration
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:3001",
-    "http://127.0.0.1:3001",
-]
 api.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -40,7 +40,10 @@ api.add_middleware(
 
 path = "/api/v1/"
 
-mailjet = Client(auth=("10a2095833caf92998676630a3a59ea1", "229d7a05b82512777585884382b5bf1a"))
+mailjet = Client(
+    auth=("10a2095833caf92998676630a3a59ea1", "229d7a05b82512777585884382b5bf1a")
+)
+
 
 # Get Notifications
 @api.get(path + "notifications")
@@ -99,12 +102,12 @@ def add_notification(
     notification_id = collection.insert_one(notification).inserted_id
 
     data = {
-	'FromEmail': 'yaelmartin@uma.es',
-	'FromName': 'laWiki',
-	'Subject': notification["title"],
-	'Text-part': notification["body"],
-	'Html-part': '',
-	'Recipients': [{'Email': notification["user_id"]}]
+        "FromEmail": "yaelmartin@uma.es",
+        "FromName": "laWiki",
+        "Subject": notification["title"],
+        "Text-part": notification["body"],
+        "Html-part": "",
+        "Recipients": [{"Email": notification["user_id"]}],
     }
 
     result = mailjet.send.create(data=data)
@@ -114,15 +117,26 @@ def add_notification(
     return {"notification_id": str(notification_id)}
 
 
-
 @api.put(path + "notifications/{notification_id}/read")
 def set_notification_as_read(
     notification_id: str, user_info: dict = Depends(auth.verify_token)
 ):
     query = {"_id": ObjectId(notification_id)}
     update_result = collection.update_one(query, {"$set": {"opened": True}})
-    
+
     if update_result.modified_count == 0:
-        raise HTTPException(status_code=404, detail="Notification not found or already marked as read.")
-    
+        raise HTTPException(
+            status_code=404, detail="Notification not found or already marked as read."
+        )
     return {"message": "Notification marked as read"}
+
+
+@api.delete(path + "notifications/{notification_id}")
+def delete_notification(
+    notification_id: str, user_info: dict = Depends(auth.verify_token)
+):
+    query = {"_id": ObjectId(notification_id)}
+    delete_result = collection.delete_one(query)
+    if delete_result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    return {"message": "Notification deleted"}

@@ -6,9 +6,13 @@
 # .env
 
 # Custom Scripts
-**/aws.sh
+**/aws_start.sh
+**/aws_stop.sh
 **/xfce_run_dev_app.sh
 **/xfce_run_prod_app.sh
+
+# Keys
+**/Illya.pem
 
 # Log Files
 *.log

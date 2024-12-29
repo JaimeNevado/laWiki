@@ -4,6 +4,7 @@ from environs import Env
 from io import BytesIO
 from datetime import datetime
 from typing import List
+
 # import os
 # from cloudinary.utils import cloudinary_url
 # from dotenv import load_dotenv
@@ -20,6 +21,7 @@ class ImageUploader:
             api_secret=env("API_SECRET"),
             secure=True,
         )
+        print("Cloudinary configured")
 
     def save_image(self, img):
         in_memory_file = BytesIO()
@@ -48,6 +50,8 @@ class ImageUploader:
             url = await self.upload_image_from_form(form_image)
             urls.append(url)
         return urls
+
+
 # script_dir = os.path.dirname(os.path.abspath(__file__))
 # file_path = os.path.join(script_dir, "img", "test.png")
 # with open(file_path, "rb") as file:

@@ -6,6 +6,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY ./back_end/database_connection.py /app
 COPY ./back_end/la_wiki_utils.py /app
+COPY ./back_end/authentication.py /app
 COPY ./back_end/comments/* /app
 
 EXPOSE 80

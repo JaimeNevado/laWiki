@@ -34,16 +34,16 @@ export default function ArticlesListPage() {
   useEffect(() => {
     refreshNotifications();
     if (id) {
-      fetchData(`http://127.0.0.1:13001/api/v1/articles/${id}`, (data) => {
+      fetchData(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/articles/${id}`, (data) => {
         setArticle(data);
         if (data.wikiID) {
-          fetchData(`http://127.0.0.1:13000/api/v1/wikis/${data.wikiID}`, (wikiData) => {
+          fetchData(`${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v1/wikis/${data.wikiID}`, (wikiData) => {
             setWikiName(wikiData.name || "Wiki Not Found");
           }, setError);
         }
       }, setError);
 
-      fetchData(`http://127.0.0.1:13001/api/v1/articles/${id}/comments/`, (data) => {
+      fetchData(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/articles/${id}/comments/`, (data) => {
         setComments(Array.isArray(data) ? data : []);
       }, setError);
     };
@@ -63,7 +63,7 @@ export default function ArticlesListPage() {
     const authorEmail = storedUser?.email;  // Si no hay email, asigna un string vacío
 
     try {
-      const commentResponse = await fetch("http://127.0.0.1:13002/api/v1/comments", {
+      const commentResponse = await fetch(`${process.env.NEXT_PUBLIC_COMMENTS_API_URL}/api/v1/comments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -88,7 +88,7 @@ export default function ArticlesListPage() {
         user_id: article.email, // Reemplaza con el ID del usuario receptor
       };
 
-      const notificationResponse = await fetch("http://127.0.0.1:13003/api/v1/notifications", {
+      const notificationResponse = await fetch(`${process.env.NEXT_PUBLIC_NOTIFICATIONS_API_URL}/api/v1/notifications`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -118,7 +118,7 @@ export default function ArticlesListPage() {
     if (!confirm("Are you sure you want to delete this article?")) return;
 
     try {
-      const response = await fetch(`http://127.0.0.1:13001/api/v1/articles/${article._id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/articles/${article._id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -138,7 +138,7 @@ export default function ArticlesListPage() {
     try {
       // Llamada al backend para restaurar la versión seleccionada
       const response = await fetch(
-        `http://127.0.0.1:13001/api/v1/articles/${article._id}/restore`,
+        `${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/articles/${article._id}/restore`,
         {
           method: "PUT",
           headers: {

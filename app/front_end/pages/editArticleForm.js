@@ -11,7 +11,7 @@ export default function EditArticleForm() {
     const [images, setImages] = useState([]);
     useEffect(() => {
         if (article_id) {
-            const url = `http://localhost:13001/api/v1/articles/${article_id}`;
+            const url = `${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/articles/${article_id}`;
             const fetchArticle = async () => {
                 try {
                     const response = await fetch(url, {
@@ -65,7 +65,7 @@ export default function EditArticleForm() {
         if (images.length > 0) {
             console.log("ImagesFormData:", imagesFormData);
             // Subir las imágenes y obtener las URLs
-            const uploadResponse = await fetch("http://127.0.0.1:13001/api/v1/upload_images", {
+            const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/upload_images`, {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${localStorage.getItem("token")}`
@@ -91,7 +91,7 @@ export default function EditArticleForm() {
         console.log("Articulo editado", articuloEditado);
         const articuloEditadoVersiones = actualizarVersion(articuloEditado);
         console.log("Articulo editado con versiones:", articuloEditado);
-        const url = `http://localhost:13001/api/v1/articles/${article_id}`;
+        const url = `${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/articles/${article_id}`;
         fetch(url, {
             method: "PUT",
             headers: {

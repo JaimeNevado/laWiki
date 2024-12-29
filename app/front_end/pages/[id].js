@@ -9,7 +9,7 @@ export default function ArticleDetailsPage() {
 // hello
   useEffect(() => {
     if (id) {
-      fetch(`http://127.0.0.1:13001/api/v1/articles/${id}`)
+      fetch(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/articles/${id}`)
         .then((response) => {
           if (!response.ok) {
             throw new Error("Failed to fetch article details");

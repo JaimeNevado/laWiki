@@ -14,7 +14,7 @@ function WikiPage() {
         refreshNotifications();
         if (wikiID) {
             setLoading(true);
-            fetch(`http://127.0.0.1:13000/api/v1/wikis/${wikiID}`)
+            fetch(`${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v1/wikis/${wikiID}`)
                 .then((response) => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);

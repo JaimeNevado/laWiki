@@ -29,10 +29,15 @@ from translate import translate_text
 sys.path.append(os.path.abspath("../articles"))
 from articles import Article
 
+from environs import Env
 
-ARTICLE_URL = "http://127.0.0.1:13001"
-ARTICLE_URL_DOCKER = "http://articles-1"
+env = Env()
+env.read_env()
+ARTICLE_URL = env("ARTICLE_URL")
+ORIGINS = env.list("ORIGINS_URL")
 
+print("Article URL: ", ARTICLE_URL)
+print("Allowed Origins: ", ORIGINS)
 
 # Initializing database
 db = MongoDBAtlas()
@@ -54,15 +59,9 @@ class WikiEntry(BaseModel):
     language: str
 
 
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:3001",
-    "http://127.0.0.1:3001",
-]
 api.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

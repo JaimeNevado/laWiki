@@ -1,32 +1,30 @@
 import { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-export default async function  NewArticleForm(article_id) {
-    const [formData, setFormData] = useState({ name: '', text: '', googleMaps: ''});
+export default async function NewArticleForm(article_id) {
+    const [formData, setFormData] = useState({ name: '', text: '', googleMaps: '' });
     const [success, setSuccess] = useState(false);
 
-    const url = "http://localhost:13001/api/v1/articles/{article_id}";
-   
-
-     let currentArticle = null;
-     currentArticle =  await fetch(url, {
+    const url = `${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/articles/{article_id}`;
+    let currentArticle = null;
+    currentArticle = await fetch(url, {
         method: "GET",
         headers: {
             "Content-Type": "application/json"
         },
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Error en la petición: ${response.status}`);
-        }
-        return response.json(); // Convertimos la respuesta a JSON
-    })
-    .then(data => {
-        console.log("Artículo recibido:", data); // Aquí obtienes el artículo en JSON
-    })
-    .catch(error => {
-        console.error("Error al obtener el artículo:", error.message);
-    });
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error en la petición: ${response.status}`);
+            }
+            return response.json(); // Convertimos la respuesta a JSON
+        })
+        .then(data => {
+            console.log("Artículo recibido:", data); // Aquí obtienes el artículo en JSON
+        })
+        .catch(error => {
+            console.error("Error al obtener el artículo:", error.message);
+        });
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
@@ -36,7 +34,7 @@ export default async function  NewArticleForm(article_id) {
         if (currentArticle) {
             setFormData({
                 googleMaps: currentArticle.googleMaps,
-                text: currentArticle.text ,
+                text: currentArticle.text,
                 name: currentArticle.name,
             });
         }
@@ -44,7 +42,7 @@ export default async function  NewArticleForm(article_id) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const articuloEditado = {...currentArticle,...formData}
+        const articuloEditado = { ...currentArticle, ...formData }
         const articuloEditadoVersiones = actualizarVersion(articuloEditado);
 
         fetch(url, {
@@ -55,32 +53,32 @@ export default async function  NewArticleForm(article_id) {
             },
             body: JSON.stringify(articuloEditadoVersiones) //Esto es lo que se actualizará 
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Error en la petición: ${response.status}`);
-            }
-            return response.json(); // Parseamos la respuesta como JSON
-        })
-        .then(result => {
-            console.log("Éxito:", result); // Mostramos el resultado en consola
-        })
-        .catch(error => {
-            console.error("Error al realizar la petición PUT:", error.message);
-        });
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error en la petición: ${response.status}`);
+                }
+                return response.json(); // Parseamos la respuesta como JSON
+            })
+            .then(result => {
+                console.log("Éxito:", result); // Mostramos el resultado en consola
+            })
+            .catch(error => {
+                console.error("Error al realizar la petición PUT:", error.message);
+            });
 
-       
+
     };
 
-    function actualizarVersion(currentArticle){
+    function actualizarVersion(currentArticle) {
         const versionAMeter = {
             version: versions.length > 0 ? versions[versions.length - 1].version + 1 : 1, // Suma 1 a la última versión
             shortText: currentArticle.shortText,
             text: currentArticle.text,
             date: "",
         };
-        const nuevoArticulo = {...currentArticle, versions: [...currentArticle.versions, versionAMeter]};
-         currentArticle = nuevoArticulo;
-       
+        const nuevoArticulo = { ...currentArticle, versions: [...currentArticle.versions, versionAMeter] };
+        currentArticle = nuevoArticulo;
+
         return currentArticle;
     }
 

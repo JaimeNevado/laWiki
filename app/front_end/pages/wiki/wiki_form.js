@@ -36,7 +36,7 @@ async function submitWiki({ wikiID, payload } = {}) {
     if (!wikiID) {
       // Create new Wiki
       console.log("from submitWiki. id: ", wikiID, " payload: ", Array.from(payload.entries()));
-      response = await fetch("http://127.0.0.1:13000/api/v2/wikis", {
+      response = await fetch(`${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v2/wikis`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`,
@@ -46,7 +46,7 @@ async function submitWiki({ wikiID, payload } = {}) {
     } else {
       // Update existing Wiki
       console.log("from submitWiki. id: ", wikiID, " payload: ", Array.from(payload.entries()));
-      response = await fetch(`http://127.0.0.1:13000/api/v2/wikis/${wikiID}`, {
+      response = await fetch(`${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v2/wikis/${wikiID}`, {
         method: "PUT",
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`,
@@ -75,7 +75,7 @@ function WikiForm() {
 
   useEffect(() => {
     if (wikiID) {
-      fetch(`http://127.0.0.1:13000/api/v1/wikis/${wikiID}`)
+      fetch(`${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v1/wikis/${wikiID}`)
         .then((res) => res.json())
         .then((data) => setWiki(data))
         .catch((err) => console.error(err));
@@ -153,7 +153,7 @@ function WikiForm() {
   const handleDelete = async () => {
     try {
       // removing wiki itself
-      const response = await fetch(`http://127.0.0.1:13000/api/v1/wikis/${wikiID}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v1/wikis/${wikiID}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -165,7 +165,7 @@ function WikiForm() {
       }
 
       // removing articles
-      const response_art = await fetch(`http://127.0.0.1:13001/api/v1/articles/wiki/${wikiID}`, {
+      const response_art = await fetch(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/articles/wiki/${wikiID}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

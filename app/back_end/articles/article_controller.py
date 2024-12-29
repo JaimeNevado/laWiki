@@ -19,12 +19,18 @@ sys.path.append(os.path.abspath("../comments"))
 from comments import Comment
 from typing import List, Optional, Union
 
-# URLs for microservices
-COMMENTS_URL = "http://127.0.0.1:13002"
-COMMENTS_URL_DOCKER = "http://comments-1"
+from environs import Env
 
-WIKI_URL = "http://127.0.0.1:13000"
-WIKI_URL_DOCKER = "http://wikis-1"
+env = Env()
+env.read_env()
+
+# URLs for microservices
+COMMENTS_URL = env("COMMENT_URL")
+WIKI_URL = env("WIKI_URL")
+ORIGINS = env.list("ORIGINS_URL")
+print("Wiki URL: ", WIKI_URL)
+print("Comments URL: ", COMMENTS_URL)
+print("Allowed Origins: ", ORIGINS)
 
 image_uploader = ImageUploader()
 # Database connection
@@ -39,15 +45,9 @@ auth = Authentication()
 router = FastAPI()
 
 # CORS configuration
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:3001",
-    "http://127.0.0.1:3001",
-]
 router.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -225,7 +225,7 @@ async def get_wiki(article_id: str):
         raise HTTPException(status_code=404, detail="Wiki not found for this article")
 
     async with AsyncClient() as client:
-        response = await client.get(f"{WIKI_URL_DOCKER}{path}wikis/{wiki_id}")
+        response = await client.get(f"{WIKI_URL}{path}wikis/{wiki_id}")
         response.raise_for_status()
         return response.json()
 

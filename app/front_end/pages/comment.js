@@ -10,7 +10,7 @@ export default function Comments() {
 
   useEffect(() => {
     // Cargar todos los comentarios desde el backend
-    fetch("http://127.0.0.1:13002/api/v1/comments")
+    fetch(`${process.env.NEXT_PUBLIC_COMMENTS_API_URL}/api/v1/comments`)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`Error fetching comments: ${response.status}`);

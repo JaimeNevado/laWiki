@@ -19,7 +19,7 @@ const Notifications = () => {
     if (token) {
       const fetchNotifications = async () => {
         try {
-          const response = await axios.get('http://127.0.0.1:13003/api/v1/notifications', {
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_NOTIFICATIONS_API_URL}/api/v1/notifications`, {
             headers: {
               "Authorization": `Bearer ${token}`,
             }
@@ -38,7 +38,7 @@ const Notifications = () => {
 
   const markAsRead = async (id) => {
     try {
-      await axios.put(`http://127.0.0.1:13003/api/v1/notifications/${id}/read`, {}, {
+      await axios.put(`${process.env.NEXT_PUBLIC_NOTIFICATIONS_API_URL}/api/v1/notifications/${id}/read`, {}, {
         headers: {
           "Authorization": `Bearer ${token}`,
         }
@@ -53,7 +53,7 @@ const Notifications = () => {
   };
 
   const deleteNotification = (id) => {
-    axios.delete(`http://127.0.0.1:13003/api/v1/notifications/${id}`, {
+    axios.delete(`${process.env.NEXT_PUBLIC_NOTIFICATIONS_API_URL}/api/v1/notifications/${id}`, {
       headers: {
         "Authorization": `Bearer ${token}`,
       }

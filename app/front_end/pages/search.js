@@ -17,7 +17,7 @@ function Search() {
             myDiv.style.backgroundImage = null ;
         }
         if (query) {
-            fetch(`http://127.0.0.1:13001/api/v1/articles/preview?${query}`)
+            fetch(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/articles/preview?${query}`)
                 .then((res) => res.json())
                 .then((data) => setArticleList(data))
                 .catch((err) => console.error(err));
