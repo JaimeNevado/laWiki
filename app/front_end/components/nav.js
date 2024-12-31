@@ -70,7 +70,7 @@ function Nav({ onSearch}) {
               <Link className="nav-link fs-5 me-1" href="/profile">My Profile</Link>
             </li> }
             <li className="nav-item">
-              <Link className="nav-link fs-5 me-1" href="/comment">Comment</Link>
+              <Link className="nav-link fs-5 me-1" href="/comment">My comments</Link>
             </li>
           </ul>
           <form className="d-flex" role="search" onSubmit={handleSubmit}>
