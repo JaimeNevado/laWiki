@@ -9,8 +9,8 @@ function useWikiForm(initialState) {
   const [formData, setFormData] = useState(initialState);
 
   useEffect(() => {
-    setFormData(initialState); // Update only if the actual initialState changes
-  }, [initialState]); // Dependency ensures this runs only when initialState changes
+    setFormData(initialState); 
+  }, [initialState]); 
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -265,7 +265,7 @@ function WikiForm() {
             </div>
             {canEdit && (
               <div className={`${styles.formelement} ${styles.submitbutton}`}>
-                <button type="submit" className="my-4 btn btn-primary">
+                <button type="submit" className="my-4 btn btn-dark">
                   Save Wiki
                 </button>
               </div>

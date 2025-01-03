@@ -11,20 +11,16 @@ export default function HomePage() {
   const [user, setUser] = useState(null);
   const [language, setLanguage] = useState("en"); // Idioma por defecto
   const [translatedContent, setTranslatedContent] = useState({}); // Traducción de contenido
-  const router = useRouter();
 
   useEffect(() => {
     const userFromLocalStorage = JSON.parse(localStorage.getItem("user"));
-    if (!userFromLocalStorage) {
-      router.push("/login"); // Redirige al login si no hay usuario
-    } else {
-      setUser(userFromLocalStorage);
+    setUser(userFromLocalStorage || null); // Permite que el usuario sea null
+    if (userFromLocalStorage) {
       refreshNotifications();
     }
-  }, [router]);
+  }, []);
 
   useEffect(() => {
-    refreshNotifications();
     // Personalización del fondo
     const myDiv = document.getElementById("main_wrapper");
     if (myDiv) {
@@ -99,21 +95,23 @@ export default function HomePage() {
         <h1>{translatedContent.title || "Welcome to Wiki!"}</h1>
       </div>
       <div className="profile">
-        {user && (
+        {user ? (
           <>
             <img src={user.picture} alt={user.name} />
             <h3>{user.name}</h3>
           </>
+        ) : (
+          <p className="text-muted">You are not logged in.</p>
         )}
       </div>
 
       <div className="container mt-5">
         <div className="text-end me-2 mb-4">
           <LinkButton
-            btn_type={"btn-primary"}
+            btn_type={"btn btn-secondary"}
             button_text={translatedContent.createWiki || "Create Wiki"}
             state="enabled"
-            link="/wiki/wiki_form"
+            link={user ? "/wiki/wiki_form" : "/login"} // Redirige al login si no hay usuario
           />
         </div>
 
@@ -129,7 +127,7 @@ export default function HomePage() {
                 <div className="card-body text-center">
                   <h5 className="card-title">{wiki.name}</h5>
                   <LinkButton
-                    btn_type={"btn-primary"}
+                    btn_type={"btn btn-dark"}
                     button_text={translatedContent.viewWiki || "View Wiki"}
                     state="enabled"
                     link={`/wiki/${wiki._id}`}
