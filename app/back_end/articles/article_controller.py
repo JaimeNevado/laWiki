@@ -164,8 +164,10 @@ async def post_article(article: Article, user_info: dict = Depends(auth.verify_t
 async def update_article(
     id: str, article: Article, user_info: dict = Depends(auth.verify_token)
 ):
+    article_dict = article.dict()
+    article_dict["date"] = datetime.now(timezone.utc)
     updated = collection.find_one_and_update(
-        {"_id": ObjectId(id)}, {"$set": article.to_dict()}
+        {"_id": ObjectId(id)}, {"$set": article_dict}
     )
     if not updated:
         raise HTTPException(status_code=404, detail="Article not found")
