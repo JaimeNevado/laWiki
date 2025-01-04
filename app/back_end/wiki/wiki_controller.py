@@ -54,9 +54,7 @@ api = FastAPI()
 
 
 class WikiEntry(BaseModel):
-    title: str
     content: str
-    language: str
 
 
 api.add_middleware(
@@ -75,7 +73,6 @@ path_v2 = "/api/v2/"
 async def translate_entry(entry: WikiEntry, target_language: str = Query(...)):
     translated_content = translate_text(entry.content, target_language)
     return {
-        "title": entry.title,
         "content": translated_content,
         "language": target_language,
     }
