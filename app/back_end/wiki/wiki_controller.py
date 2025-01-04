@@ -69,7 +69,7 @@ path = "/api/v1/"
 path_v2 = "/api/v2/"
 
 
-@api.post("/translate/")
+@api.post(path + "translate/")
 async def translate_entry(entry: WikiEntry, target_language: str = Query(...)):
     translated_content = translate_text(entry.content, target_language)
     return {

@@ -47,19 +47,20 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    // Traduce contenido al cambiar el idioma
     const fetchTranslations = async () => {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_WIKI_API_URL}/translate/`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v1/translate/?target_language=${language}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          content: "Welcome to Wiki!",
-          language: "en",
+          content: "Welcome to Wiki!",  // Aquí puedes cambiar el texto que desees traducir
         }),
-        params: {
-          target_language: language,
-        },
       });
+
+      if (!response.ok) {
+        console.error("Error al traducir el texto");
+        return;
+      }
+
       const result = await response.json();
       setTranslatedContent(result);
     };
@@ -92,7 +93,7 @@ export default function HomePage() {
       </nav>
 
       <div className="container text-center mt-4">
-        <h1>{translatedContent.title || "Welcome to Wiki!"}</h1>
+        <h1>{translatedContent.content || "Welcome to Wiki!"}</h1>
       </div>
       <div className="profile">
         {user ? (
@@ -107,14 +108,14 @@ export default function HomePage() {
 
       <div className="container mt-5">
         <div className="text-end me-2 mb-4">
-        {user ? (
+          {user ? (
             <LinkButton
               btn_type={"btn btn-secondary"}
               button_text={translatedContent.createWiki || "Create Wiki"}
               state="enabled"
               link="/wiki/wiki_form"
             />
-        ) : ""}
+          ) : ""}
         </div>
 
         <div className="row">
