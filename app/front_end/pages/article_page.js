@@ -17,16 +17,16 @@ export default function ArticlesListPage() {
   const [selectedRating, setSelectedRating] = useState(null);
   const [error, setError] = useState(null);
   const [notification, setNotification] = useState(null); // Estado para las notificaciones
-  const [storedUser, setStoredUser] = useState(null);
+  const [user, setStoredUser] = useState(null);
   const [canEdit, setCanEdit] = useState(false);
-
+  
   useEffect(() => {
     setStoredUser(JSON.parse(localStorage.getItem("user")));
-    if (storedUser?.name) {
+    if (user?.name) {
       setNewComment((prev) => ({
         ...prev,
-        author: storedUser.name,
-        email: storedUser.email,
+        author: user.name,
+        email: user.email,
       }));
     }
   }, []);
@@ -50,17 +50,17 @@ export default function ArticlesListPage() {
   }, [id]);
 
   useEffect(() => {
-    setCanEdit(storedUser && article && storedUser.name === article.author);
-    console.log("author: ", article?.author, "storedUser: ", storedUser?.name);
-  }, [storedUser, article]);
+    setCanEdit(user && article && user.name === article.author);
+    console.log("author: ", article?.author, "user: ", user?.name);
+  }, [user, article]);
 
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
 
-    const storedUser = JSON.parse(localStorage.getItem("user")); // Obtener datos del usuario del localStorage
-    const author = storedUser?.name;  // Si no hay nombre, asigna un nombre por defecto
-    const authorEmail = storedUser?.email;  // Si no hay email, asigna un string vacío
+    const user = JSON.parse(localStorage.getItem("user")); // Obtener datos del usuario del localStorage
+    const author = user?.name;  // Si no hay nombre, asigna un nombre por defecto
+    const authorEmail = user?.email;  // Si no hay email, asigna un string vacío
 
     try {
       const commentResponse = await fetch(`${process.env.NEXT_PUBLIC_COMMENTS_API_URL}/api/v1/comments`, {
@@ -272,7 +272,8 @@ export default function ArticlesListPage() {
             </div>
           </div>
 
-          <form className={styles.commentForm} onSubmit={handleCommentSubmit} style={{ marginBottom: "40px" }}>
+          {user?(
+            <form className={styles.commentForm} onSubmit={handleCommentSubmit} style={{ marginBottom: "40px" }}>
             <textarea
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
@@ -293,9 +294,9 @@ export default function ArticlesListPage() {
               ))}
             </select>
             <button type="submit" className={styles.button}>Submit Comment</button>
-          </form>
+          </form>) : ""}
 
-          {!!storedUser && (
+          {!!user && (
             <div style={{ marginBottom: "40px" }}>
               <h2>Versions</h2>
               <div className={styles.versionsSection}>

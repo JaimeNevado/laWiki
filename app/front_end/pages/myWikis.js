@@ -1,13 +1,24 @@
 import LinkButton from '../components/buttons/button_with_link';
 import { useEffect, useState } from "react";
 import WikiList from "../components/wikis";
-
+import router from 'next/router';
 export default function HomePage() {
   const [wikis, setWikis] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [author, setAuthor] = useState(''); // Estado para el nombre del autor
+  const [user, setUser] = useState(null);
 
+  useEffect(() => {
+    const userFromLocalStorage = JSON.parse(localStorage.getItem("user"));
+    setUser(userFromLocalStorage || null); // Permite que el usuario sea null
+    if (userFromLocalStorage) {
+      refreshNotifications();
+    }
+    if(!user){
+      router.push("/login");
+    }
+  }, []);
   const fetchWikis = (author = '') => {
     setLoading(true); // Inicia la carga
     let url = `${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v1/wikis`;

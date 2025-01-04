@@ -6,6 +6,7 @@ export default function ArticleDetailsPage() {
   const { id } = router.query;
   const [article, setArticle] = useState(null);
   const [error, setError] = useState(null);
+
 // hello
   useEffect(() => {
     if (id) {

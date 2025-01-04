@@ -107,12 +107,14 @@ export default function HomePage() {
 
       <div className="container mt-5">
         <div className="text-end me-2 mb-4">
-          <LinkButton
-            btn_type={"btn btn-secondary"}
-            button_text={translatedContent.createWiki || "Create Wiki"}
-            state="enabled"
-            link={user ? "/wiki/wiki_form" : "/login"} // Redirige al login si no hay usuario
-          />
+        {user ? (
+            <LinkButton
+              btn_type={"btn btn-secondary"}
+              button_text={translatedContent.createWiki || "Create Wiki"}
+              state="enabled"
+              link="/wiki/wiki_form"
+            />
+        ) : ""}
         </div>
 
         <div className="row">

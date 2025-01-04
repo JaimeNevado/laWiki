@@ -5,13 +5,24 @@ import "bootstrap/dist/css/bootstrap.min.css";
 export default function ArticleForm({ requestType, articleId }) {
   const router = useRouter();
   const { wikiID } = router.query;
-  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const userFromLocalStorage = JSON.parse(localStorage.getItem("user"));
+    setUser(userFromLocalStorage || null); // Permite que el usuario sea null
+    if (userFromLocalStorage) {
+      refreshNotifications();
+    }
+    if(!user){
+      router.push("/login");
+    }
+  }, []);
   const [formData, setFormData] = useState({
     name: "",
     text: "",
     short_text: "",
     attachedFiles: "",
-    author: storedUser?.name,
+    author: user?.name,
     googleMaps: "",
     date: new Date().toISOString(),
     wikiID: wikiID || "",
@@ -22,6 +33,7 @@ export default function ArticleForm({ requestType, articleId }) {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
 
+ 
   useEffect(() => {
     if (requestType === "PUT" && articleId) {
       const fetchArticle = async () => {

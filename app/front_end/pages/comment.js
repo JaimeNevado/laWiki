@@ -35,7 +35,7 @@ export default function Comments() {
         });
     } else {
       setLoading(false);
-      setError("You must log in to see your comments.");
+      router.push("/login"); // Redirigir a la página de inicio de sesión
     }
   }, []);
   

@@ -4,7 +4,7 @@ import ArticleForm from '../components/article_form';
 export default function EditArticle() {
   const router = useRouter();
   const { article_id } = router.query;
-
+  
   return <ArticleForm requestType="PUT" articleId={article_id} />;
 }
 

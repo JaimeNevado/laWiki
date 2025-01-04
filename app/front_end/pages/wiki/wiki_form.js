@@ -4,10 +4,21 @@ import { useEffect } from "react";
 import { useMemo } from "react";
 import Image from "next/image";
 import styles from "../../css/WikiForm.module.css";
-
+import router from "next/router";
 function useWikiForm(initialState) {
   const [formData, setFormData] = useState(initialState);
+  const [user, setUser] = useState(null);
 
+  useEffect(() => {
+    const userFromLocalStorage = JSON.parse(localStorage.getItem("user"));
+    setUser(userFromLocalStorage || null); // Permite que el usuario sea null
+    if (userFromLocalStorage) {
+      refreshNotifications();
+    }
+    if(!user){
+      router.push("/login");
+    }
+  }, []);
   useEffect(() => {
     setFormData(initialState); 
   }, [initialState]); 
