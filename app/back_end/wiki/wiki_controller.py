@@ -68,14 +68,22 @@ api.add_middleware(
 path = "/api/v1/"
 path_v2 = "/api/v2/"
 
+class TranslationRequest(BaseModel):
+    content: dict  # Un diccionario con textos a traducir
 
 @api.post(path + "translate/")
-async def translate_entry(entry: WikiEntry, target_language: str = Query(...)):
-    translated_content = translate_text(entry.content, target_language)
-    return {
-        "content": translated_content,
-        "language": target_language,
-    }
+async def translate_entry(entry: TranslationRequest, target_language: str = Query(...)):
+    try:
+        translated_content = {}
+        for key, value in entry.content.items():
+            translated_content[key] = translate_text(value, target_language)
+        
+        return {
+            "content": translated_content,
+            "language": target_language,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # sirve tanto para wikis como para wiki

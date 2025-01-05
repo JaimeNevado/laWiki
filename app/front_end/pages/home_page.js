@@ -53,7 +53,12 @@ export default function HomePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          content: "Welcome to Wiki!",  // Aquí puedes cambiar el texto que desees traducir
+          content: {
+            "welcomeMessage": "Welcome to Wiki!",
+            "createWiki": "Create Wiki",
+            "viewWiki": "View Wiki",
+            "notLoggedIn": "You are not logged in."
+          },  // Aquí puedes cambiar el texto que desees traducir
         }),
       });
 
@@ -63,7 +68,9 @@ export default function HomePage() {
       }
 
       const result = await response.json();
-      setTranslatedContent(result);
+      console.log("Traducción recibida:", result.content); // Verifica que el contenido sea correcto
+
+      setTranslatedContent(result.content);
     };
 
     fetchTranslations();
@@ -94,7 +101,7 @@ export default function HomePage() {
       </nav>
 
       <div className="container text-center mt-4">
-        <h1>{translatedContent.content || "Welcome to Wiki!"}</h1>
+        <h1>{translatedContent?.welcomeMessage || "Welcome to Wiki!"}</h1>
       </div>
       <div className="profile">
         {user ? (
@@ -103,7 +110,7 @@ export default function HomePage() {
             <h3>{user.name}</h3>
           </>
         ) : (
-          <p className="text-muted">You are not logged in.</p>
+          <p className="text-muted">{translatedContent?.notLoggedIn || "You are not logged in."}</p>
         )}
       </div>
 
@@ -112,7 +119,7 @@ export default function HomePage() {
           {user ? (
             <LinkButton
               btn_type={"btn btn-secondary"}
-              button_text={translatedContent.createWiki || "Create Wiki"}
+              button_text={translatedContent?.createWiki || "Create Wiki"}
               state="enabled"
               link="/wiki/wiki_form"
             />
@@ -132,7 +139,7 @@ export default function HomePage() {
                   <h5 className="card-title">{wiki.name}</h5>
                   <LinkButton
                     btn_type={"btn btn-dark"}
-                    button_text={translatedContent.viewWiki || "View Wiki"}
+                    button_text={translatedContent?.viewWiki || "View Wiki"}
                     state="enabled"
                     link={`/wiki/${wiki._id}`}
                   />
