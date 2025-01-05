@@ -15,8 +15,9 @@ export default function HomePage() {
   useEffect(() => {
     const userFromLocalStorage = JSON.parse(localStorage.getItem("user"));
     setUser(userFromLocalStorage || null); // Permite que el usuario sea null
-    if (userFromLocalStorage) {
-      refreshNotifications();
+    const userEmail = localStorage.getItem("email");
+    if (userEmail) {
+      refreshNotifications(userEmail);
     }
   }, []);
 

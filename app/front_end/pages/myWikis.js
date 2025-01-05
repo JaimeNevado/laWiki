@@ -2,6 +2,9 @@ import LinkButton from '../components/buttons/button_with_link';
 import { useEffect, useState } from "react";
 import WikiList from "../components/wikis";
 import router from 'next/router';
+import { refreshNotifications } from "../components/notifications/notifications_bell";
+
+
 export default function HomePage() {
   const [wikis, setWikis] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -12,10 +15,11 @@ export default function HomePage() {
   useEffect(() => {
     const userFromLocalStorage = JSON.parse(localStorage.getItem("user"));
     setUser(userFromLocalStorage || null); // Permite que el usuario sea null
-    if (userFromLocalStorage) {
-      refreshNotifications();
+    const userEmail = localStorage.getItem("email");
+    if (userEmail) {
+      refreshNotifications(userEmail);
     }
-    if(!user){
+    if(!userEmail){
       router.push("/login");
     }
   }, []);

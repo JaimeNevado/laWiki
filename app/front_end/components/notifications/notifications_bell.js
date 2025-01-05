@@ -2,9 +2,9 @@ import { useNotifications } from './useNotifications';
 
 let refreshNotifications = () => {}; // Global refresh function
 
-function NotificationBell() {
-    const { count, loading, refresh } = useNotifications();
-    
+function NotificationBell({user_id}) {
+    const { count, loading, refresh } = useNotifications(user_id);
+    // console.log("From NotificationBell -> user_id: ", user_id, " count: ", count);
     // Store refresh function in global variable
     refreshNotifications = refresh;
 

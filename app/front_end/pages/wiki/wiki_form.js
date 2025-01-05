@@ -5,23 +5,27 @@ import { useMemo } from "react";
 import Image from "next/image";
 import styles from "../../css/WikiForm.module.css";
 import router from "next/router";
+import { refreshNotifications } from "../../components/notifications/notifications_bell.js";
+
+
 function useWikiForm(initialState) {
   const [formData, setFormData] = useState(initialState);
-  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const userFromLocalStorage = JSON.parse(localStorage.getItem("user"));
-    setUser(userFromLocalStorage || null); // Permite que el usuario sea null
-    if (userFromLocalStorage) {
-      refreshNotifications();
+    let email = localStorage.getItem("email");
+
+    if (email) {
+      // console.log("from wikiForm -> useWikiForm from if user: ", email);
+      refreshNotifications(email);
     }
-    if(!user){
+    if(!email){
       router.push("/login");
     }
   }, []);
+
   useEffect(() => {
     setFormData(initialState); 
-  }, [initialState]); 
+  }, []); 
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -100,7 +104,7 @@ function WikiForm() {
     }
     setStoredUser(JSON.parse(localStorage.getItem("user")));
 
-  }, [wikiID, storedUser]);
+  }, [wikiID]);
 
 
   const initData = useMemo(() => {

@@ -23,6 +23,7 @@ const LoginPage = () => {
         setUser(userData);
         localStorage.setItem("token", credentialResponse.credential);
         localStorage.setItem("user", JSON.stringify(userData));
+        localStorage.setItem("email", userData.email);
         window.dispatchEvent(new Event('tokenUpdated'));
         router.push("/");
       } catch (error) {

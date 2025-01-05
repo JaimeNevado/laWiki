@@ -6,6 +6,7 @@ import ArticleVersion from "../components/articles/version";
 import styles from "../css/ArticlePage.module.css";
 import fetchData from "../components/utils/fetchData";
 import Link from "next/link";
+import { use } from "react";
 
 export default function ArticlesListPage() {
   const router = useRouter();
@@ -32,7 +33,10 @@ export default function ArticlesListPage() {
   }, []);
 
   useEffect(() => {
-    refreshNotifications();
+    let userEmail = localStorage.getItem("email");
+    if (userEmail) {
+      refreshNotifications(userEmail);
+    }
     if (id) {
       fetchData(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/articles/${id}`, (data) => {
         setArticle(data);

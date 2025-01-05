@@ -68,7 +68,7 @@ const Notifications = () => {
     } catch (error) {
       console.error('There was an error marking the notification as read!', error);
     }
-    refreshNotifications();
+    refreshNotifications(email);
   };
 
   const deleteNotification = (id) => {
@@ -83,7 +83,7 @@ const Notifications = () => {
       .catch(error => {
         console.error('There was an error deleting the notification!', error);
       });
-    refreshNotifications();
+    refreshNotifications(email);
   };
 
   return (

@@ -11,7 +11,10 @@ function WikiPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        refreshNotifications();
+        let userEmail = localStorage.getItem("email");
+        if (userEmail) {
+            refreshNotifications(userEmail);
+        }
         if (wikiID) {
             setLoading(true);
             fetch(`${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v1/wikis/${wikiID}`)

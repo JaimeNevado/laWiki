@@ -6,10 +6,12 @@ import NotificationBell from './notifications/notifications_bell';
 function Nav({ onSearch }) {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [email, setEmail] = useState(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const storedToken = localStorage.getItem("token");
+      setEmail(localStorage.getItem("email"));
       setToken(storedToken);
       setLoading(false);
 
@@ -32,6 +34,7 @@ function Nav({ onSearch }) {
         window.removeEventListener('tokenUpdated', handleTokenUpdated);
       };
     }
+    
   }, []);
 
   const handleSubmit = (e) => {
@@ -45,7 +48,6 @@ function Nav({ onSearch }) {
   if (loading) {
     return <div>Loading...</div>; // Show loading state while waiting for the token
   }
-
   return (
     <nav style={{ width: "100%" }} className="navbar navbar-expand-lg bg-body-subtle">
       <div className="container-fluid">
@@ -80,7 +82,7 @@ function Nav({ onSearch }) {
           {token ? (
             <div className="ms-3 position-relative">
               <Link className="nav-link" href="/notification">
-                <NotificationBell />
+                <NotificationBell user_id={email} />
               </Link>
             </div>
           ) : (
