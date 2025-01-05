@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { refreshNotifications } from "./notifications/notifications_bell";
 
 export default function ArticleForm({ requestType, articleId }) {
   const router = useRouter();
@@ -10,10 +11,12 @@ export default function ArticleForm({ requestType, articleId }) {
   useEffect(() => {
     const userFromLocalStorage = JSON.parse(localStorage.getItem("user"));
     setUser(userFromLocalStorage || null); // Permite que el usuario sea null
-    if (userFromLocalStorage) {
-      refreshNotifications();
+    const userEmail = localStorage.getItem("email");
+
+    if (userEmail) {
+      refreshNotifications(userEmail);
     }
-    if(!user){
+    if(!userEmail){
       router.push("/login");
     }
   }, []);
