@@ -3,7 +3,7 @@ import Link from 'next/link';
 import SearchPanel from "../components/search_panel";
 import NotificationBell from './notifications/notifications_bell';
 
-function Nav({ onSearch}) {
+function Nav({ onSearch }) {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -38,12 +38,12 @@ function Nav({ onSearch}) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const searchQuery = formData.get('search');
-    const simpleQuery = {"name": searchQuery};
+    const simpleQuery = { "name": searchQuery };
     onSearch(simpleQuery);
   }
-  
+
   if (loading) {
-    return <div>Loading...</div>;  // Show loading state while waiting for the token
+    return <div>Loading...</div>; // Show loading state while waiting for the token
   }
 
   return (
@@ -57,18 +57,15 @@ function Nav({ onSearch}) {
             <li className="nav-item">
               <Link className="nav-link active fs-5 me-1" aria-current="page" href="/">Home</Link>
             </li>
-            {/* <li className="nav-item">
-              <Link className="nav-link" href="/NewArticleForm">My Articles</Link>
-            </li> */}
             <li className="nav-item">
               <Link className="nav-link fs-5 me-1" href="/articles">Article</Link>
             </li>
             <li className="nav-item">
               <Link className="nav-link fs-5 me-1" href="/myWikis">My Wikis</Link>
             </li>
-            { <li className="nav-item">
+            <li className="nav-item">
               <Link className="nav-link fs-5 me-1" href="/profile">My Profile</Link>
-            </li> }
+            </li>
             <li className="nav-item">
               <Link className="nav-link fs-5 me-1" href="/comment">My comments</Link>
             </li>
@@ -80,10 +77,16 @@ function Nav({ onSearch}) {
           <div className='ms-2'>
             <SearchPanel onSearch={onSearch} />
           </div>
-          {token && (
+          {token ? (
             <div className="ms-3 position-relative">
               <Link className="nav-link" href="/notification">
                 <NotificationBell />
+              </Link>
+            </div>
+          ) : (
+            <div className="ms-3">
+              <Link href="/login">
+                <button className="btn btn-outline-dark">Login</button>
               </Link>
             </div>
           )}
@@ -92,6 +95,5 @@ function Nav({ onSearch}) {
     </nav>
   );
 }
-
 
 export default Nav;

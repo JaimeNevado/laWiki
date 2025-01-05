@@ -4,13 +4,24 @@ import { useEffect } from "react";
 import { useMemo } from "react";
 import Image from "next/image";
 import styles from "../../css/WikiForm.module.css";
-
+import router from "next/router";
 function useWikiForm(initialState) {
   const [formData, setFormData] = useState(initialState);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    setFormData(initialState); // Update only if the actual initialState changes
-  }, [initialState]); // Dependency ensures this runs only when initialState changes
+    const userFromLocalStorage = JSON.parse(localStorage.getItem("user"));
+    setUser(userFromLocalStorage || null); // Permite que el usuario sea null
+    if (userFromLocalStorage) {
+      refreshNotifications();
+    }
+    if(!user){
+      router.push("/login");
+    }
+  }, []);
+  useEffect(() => {
+    setFormData(initialState); 
+  }, [initialState]); 
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -265,7 +276,7 @@ function WikiForm() {
             </div>
             {canEdit && (
               <div className={`${styles.formelement} ${styles.submitbutton}`}>
-                <button type="submit" className="my-4 btn btn-primary">
+                <button type="submit" className="my-4 btn btn-dark">
                   Save Wiki
                 </button>
               </div>

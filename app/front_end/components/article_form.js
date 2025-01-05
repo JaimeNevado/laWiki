@@ -1,130 +1,246 @@
-import { useState, useEffect } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-export default async function NewArticleForm(article_id) {
-    const [formData, setFormData] = useState({ name: '', text: '', googleMaps: '' });
-    const [success, setSuccess] = useState(false);
+export default function ArticleForm({ requestType, articleId }) {
+  const router = useRouter();
+  const { wikiID } = router.query;
+  const [user, setUser] = useState(null);
 
-    const url = `${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/articles/{article_id}`;
-    let currentArticle = null;
-    currentArticle = await fetch(url, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json"
-        },
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Error en la petición: ${response.status}`);
-            }
-            return response.json(); // Convertimos la respuesta a JSON
-        })
-        .then(data => {
-            console.log("Artículo recibido:", data); // Aquí obtienes el artículo en JSON
-        })
-        .catch(error => {
-            console.error("Error al obtener el artículo:", error.message);
-        });
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-    };
+  useEffect(() => {
+    const userFromLocalStorage = JSON.parse(localStorage.getItem("user"));
+    setUser(userFromLocalStorage || null); // Permite que el usuario sea null
+    if (userFromLocalStorage) {
+      refreshNotifications();
+    }
+    if(!user){
+      router.push("/login");
+    }
+  }, []);
+  const [formData, setFormData] = useState({
+    name: "",
+    text: "",
+    short_text: "",
+    attachedFiles: "",
+    author: user?.name,
+    googleMaps: "",
+    date: new Date().toISOString(),
+    wikiID: wikiID || "",
+    images: [],
+    versions: [],
+  });
+  const [images, setImages] = useState([]);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(null);
 
-    useEffect(() => {
-        if (currentArticle) {
-            setFormData({
-                googleMaps: currentArticle.googleMaps,
-                text: currentArticle.text,
-                name: currentArticle.name,
-            });
-        }
-    }, [currentArticle]);
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const articuloEditado = { ...currentArticle, ...formData }
-        const articuloEditadoVersiones = actualizarVersion(articuloEditado);
-
-        fetch(url, {
-            method: "PUT",
+ 
+  useEffect(() => {
+    if (requestType === "PUT" && articleId) {
+      const fetchArticle = async () => {
+        try {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/articles/${articleId}`, {
+            method: "GET",
             headers: {
-                "Content-Type": "application/json", // Indicamos que enviamos JSON
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify(articuloEditadoVersiones) //Esto es lo que se actualizará 
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Error en la petición: ${response.status}`);
-                }
-                return response.json(); // Parseamos la respuesta como JSON
-            })
-            .then(result => {
-                console.log("Éxito:", result); // Mostramos el resultado en consola
-            })
-            .catch(error => {
-                console.error("Error al realizar la petición PUT:", error.message);
-            });
+          });
+          if (!response.ok) {
+            throw new Error(`Error fetching article: ${response.status}`);
+          }
+          const data = await response.json();
+          setFormData({
+            name: data.name,
+            text: data.text,
+            short_text: data.short_text,
+            attachedFiles: data.attachedFiles,
+            author: data.author,
+            googleMaps: data.googleMaps,
+            date: new Date().toISOString(),
+            wikiID: data.wikiID,
+            images: data.images,
+            versions: data.versions,
+          });
+        } catch (error) {
+          console.error("Error fetching article:", error.message);
+          setError(error.message);
+        }
+      };
+      fetchArticle();
+    }
+  }, [requestType, articleId]);
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-    };
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    setImages(files);
+  };
 
-    function actualizarVersion(currentArticle) {
-        const versionAMeter = {
-            version: versions.length > 0 ? versions[versions.length - 1].version + 1 : 1, // Suma 1 a la última versión
-            shortText: currentArticle.shortText,
-            text: currentArticle.text,
-            date: "",
-        };
-        const nuevoArticulo = { ...currentArticle, versions: [...currentArticle.versions, versionAMeter] };
-        currentArticle = nuevoArticulo;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        return currentArticle;
+    let imageUrls = formData.images;
+
+    if (images.length > 0) {
+      // Crear un FormData para las imágenes
+      const imagesFormData = new FormData();
+      images.forEach((image, index) => {
+        imagesFormData.append(`files`, image);
+      });
+
+      try {
+        // Subir las imágenes y obtener las URLs
+        const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/upload_images`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: imagesFormData,
+        });
+        if (!uploadResponse.ok) {
+          throw new Error(`Failed to upload images: ${uploadResponse.statusText}`);
+        }
+
+        const uploadResult = await uploadResponse.json();
+        imageUrls = [...imageUrls, ...uploadResult.urls];
+      } catch (error) {
+        console.error("Error uploading images:", error);
+        setError(error.message);
+        return;
+      }
     }
 
-    return (
-        <div className="container mt-5">
-            <h2>Create a New Article</h2>
-            {success && <div className="alert alert-success">Article created successfully!</div>}
-            <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                    <label htmlFor="name" className="form-label">Title</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        id="name"
-                        name="name"
-                        value={currentArticle.name}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="text" className="form-label">Description</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        id="text"
-                        name="text"
-                        value={currentArticle.text}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="google_maps" className="form-label">Content</label>
-                    <textarea
-                        className="form-control"
-                        id="google_maps"
-                        name="google_maps"
-                        rows="5"
-                        value={currentArticle.google_maps}
-                        onChange={handleChange}
-                        required
-                    ></textarea>
-                </div>
-                <button type="submit" className="btn btn-primary">Edit Article</button>
-            </form>
+    // Crear los datos del artículo con las URLs de las imágenes
+    const articleData = {
+      ...formData,
+      images: imageUrls,
+      versions: [
+        ...formData.versions,
+        {
+          version: formData.versions.length + 1,
+          short_text: formData.short_text,
+          text: formData.text,
+          date: new Date().toISOString(),
+        },
+      ],
+    };
+
+    console.log("Article data to send:", articleData);
+    try {
+      // Enviar los datos del artículo al servidor
+      const articleResponse = await fetch(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/articles${requestType === "PUT" ? `/${articleId}` : ""}`, {
+        method: requestType,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(articleData),
+      });
+
+      if (!articleResponse.ok) {
+        throw new Error(`Failed to submit article: ${articleResponse.statusText}`);
+      }
+
+      const articleResult = await articleResponse.json();
+      setSuccess(true);
+      router.push(`/article_page?id=${articleId? articleId: articleResult.inserted_id}`);
+    } catch (error) {
+      console.error("Error submitting article:", error);
+      setError(error.message);
+    }
+  };
+
+  return (
+    <div className="container mt-5">
+      <h2>{requestType === "POST" ? "Create a New Article" : "Edit Article"}</h2>
+      {success && <div className="alert alert-success">Article {requestType === "POST" ? "created" : "updated"} successfully!</div>}
+      {error && <div className="alert alert-danger">{error}</div>}
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="name">Name</label>
+          <input
+            type="text"
+            className="form-control"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
         </div>
-    );
+        <div className="form-group">
+          <label htmlFor="author">Author</label>
+          <input
+            type="text"
+            className="form-control"
+            id="author"
+            name="author"
+            value={formData.author}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="text">Text</label>
+          <textarea
+            className="form-control"
+            id="text"
+            name="text"
+            rows="5"
+            value={formData.text}
+            onChange={handleChange}
+            required
+          ></textarea>
+        </div>
+        <div className="form-group">
+          <label htmlFor="short_text">Short Description (Optional)</label>
+          <textarea
+            className="form-control"
+            id="short_text"
+            name="short_text"
+            rows="2"
+            value={formData.short_text}
+            onChange={handleChange}
+          ></textarea>
+        </div>
+        <div className="form-group">
+          <label htmlFor="attachedFiles">Attached Files</label>
+          <input
+            type="text"
+            className="form-control"
+            id="attachedFiles"
+            name="attachedFiles"
+            value={formData.attachedFiles}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="images">Images</label>
+          <input
+            type="file"
+            className="form-control"
+            id="images"
+            name="images"
+            multiple
+            onChange={handleFileChange}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="googleMaps">Google Maps Location (Optional)</label>
+          <input
+            type="text"
+            className="form-control"
+            id="googleMaps"
+            name="googleMaps"
+            value={formData.googleMaps}
+            onChange={handleChange}
+          />
+        </div>
+        <button type="submit" className="btn btn-primary">Submit</button>
+      </form>
+    </div>
+  );
 }

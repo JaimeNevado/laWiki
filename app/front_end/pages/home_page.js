@@ -11,20 +11,16 @@ export default function HomePage() {
   const [user, setUser] = useState(null);
   const [language, setLanguage] = useState("en"); // Idioma por defecto
   const [translatedContent, setTranslatedContent] = useState({}); // Traducción de contenido
-  const router = useRouter();
 
   useEffect(() => {
     const userFromLocalStorage = JSON.parse(localStorage.getItem("user"));
-    if (!userFromLocalStorage) {
-      router.push("/login"); // Redirige al login si no hay usuario
-    } else {
-      setUser(userFromLocalStorage);
+    setUser(userFromLocalStorage || null); // Permite que el usuario sea null
+    if (userFromLocalStorage) {
       refreshNotifications();
     }
-  }, [router]);
+  }, []);
 
   useEffect(() => {
-    refreshNotifications();
     // Personalización del fondo
     const myDiv = document.getElementById("main_wrapper");
     if (myDiv) {
@@ -51,19 +47,20 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    // Traduce contenido al cambiar el idioma
     const fetchTranslations = async () => {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_WIKI_API_URL}/translate/`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v1/translate/?target_language=${language}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          content: "Welcome to Wiki!",
-          language: "en",
+          content: "Welcome to Wiki!",  // Aquí puedes cambiar el texto que desees traducir
         }),
-        params: {
-          target_language: language,
-        },
       });
+
+      if (!response.ok) {
+        console.error("Error al traducir el texto");
+        return;
+      }
+
       const result = await response.json();
       setTranslatedContent(result);
     };
@@ -96,25 +93,29 @@ export default function HomePage() {
       </nav>
 
       <div className="container text-center mt-4">
-        <h1>{translatedContent.title || "Welcome to Wiki!"}</h1>
+        <h1>{translatedContent.content || "Welcome to Wiki!"}</h1>
       </div>
       <div className="profile">
-        {user && (
+        {user ? (
           <>
             <img src={user.picture} alt={user.name} />
             <h3>{user.name}</h3>
           </>
+        ) : (
+          <p className="text-muted">You are not logged in.</p>
         )}
       </div>
 
       <div className="container mt-5">
         <div className="text-end me-2 mb-4">
-          <LinkButton
-            btn_type={"btn-primary"}
-            button_text={translatedContent.createWiki || "Create Wiki"}
-            state="enabled"
-            link="/wiki/wiki_form"
-          />
+          {user ? (
+            <LinkButton
+              btn_type={"btn btn-secondary"}
+              button_text={translatedContent.createWiki || "Create Wiki"}
+              state="enabled"
+              link="/wiki/wiki_form"
+            />
+          ) : ""}
         </div>
 
         <div className="row">
@@ -129,7 +130,7 @@ export default function HomePage() {
                 <div className="card-body text-center">
                   <h5 className="card-title">{wiki.name}</h5>
                   <LinkButton
-                    btn_type={"btn-primary"}
+                    btn_type={"btn btn-dark"}
                     button_text={translatedContent.viewWiki || "View Wiki"}
                     state="enabled"
                     link={`/wiki/${wiki._id}`}

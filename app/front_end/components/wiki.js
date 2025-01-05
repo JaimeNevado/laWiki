@@ -10,7 +10,7 @@ function WikiSkeleton({ wiki }) {
   const router = useRouter();
   const [storedUser, setStoredUser] = useState(null);
   const [canEdit, setCanEdit] = useState(false);
-
+ 
   useEffect(() => {
     setStoredUser(JSON.parse(localStorage.getItem("user")));
     setCanEdit(storedUser && storedUser.name === wiki.author);
@@ -70,6 +70,12 @@ function WikiSkeleton({ wiki }) {
 }
 
 const Wiki = ({ wiki }) => {
+   const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const userFromLocalStorage = JSON.parse(localStorage.getItem("user"));
+    setUser(userFromLocalStorage || null); // Permite que el usuario sea null
+  }, []);
   const router = useRouter();
   let { id } = router.query;
   if (!wiki) {
@@ -110,7 +116,13 @@ const Wiki = ({ wiki }) => {
           Some articles to read:
         </div>
         <div className='text-center my-2'>
-          <LinkButton btn_type={"btn-primary"} button_text="Write New Article" state="enabled" link={`/NewArticleForm?wikiID=${wiki._id}`} />
+          {user ? (
+            <LinkButton
+             btn_type={"btn-primary"} 
+             button_text="Write New Article" 
+             state="enabled" 
+             link={`/NewArticleForm?wikiID=${wiki._id}`} />
+          ) : ""}
         </div>
         <div className="card-group d-flex justify-content-evenly">
           {articles.length > 0 ? (
