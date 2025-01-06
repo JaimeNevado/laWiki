@@ -6,7 +6,8 @@ const LoginPage = () => {
   const [user, setUser] = useState(null);
   const router = useRouter();
 
-  const clientID = "77417357586-4foh6oip5s2d43mse15ni2e03agjbq21.apps.googleusercontent.com";
+  const clientID = "72708585850-75939q01vfna5b2tgqdiqr53qc13iupk.apps.googleusercontent.com";
+  // "77417357586-4foh6oip5s2d43mse15ni2e03agjbq21.apps.googleusercontent.com";
 
   const onSuccess = async (credentialResponse) => {
     if (credentialResponse && credentialResponse.credential) {

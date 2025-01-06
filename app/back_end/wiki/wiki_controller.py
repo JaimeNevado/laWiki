@@ -28,14 +28,12 @@ from translate import translate_text
 
 sys.path.append(os.path.abspath("../articles"))
 from articles import Article
-
 from environs import Env
 
 env = Env()
 env.read_env()
 ARTICLE_URL = env("ARTICLE_URL")
 ORIGINS = env.list("ORIGINS_URL")
-
 print("Article URL: ", ARTICLE_URL)
 print("Allowed Origins: ", ORIGINS)
 
@@ -68,16 +66,18 @@ api.add_middleware(
 path = "/api/v1/"
 path_v2 = "/api/v2/"
 
+
 class TranslationRequest(BaseModel):
     content: dict  # Un diccionario con textos a traducir
 
-@api.post(path + "translate/")
+
+@api.post(path + "translate")
 async def translate_entry(entry: TranslationRequest, target_language: str = Query(...)):
     try:
         translated_content = {}
         for key, value in entry.content.items():
             translated_content[key] = translate_text(value, target_language)
-        
+
         return {
             "content": translated_content,
             "language": target_language,

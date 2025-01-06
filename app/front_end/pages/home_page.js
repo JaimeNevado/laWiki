@@ -49,7 +49,7 @@ export default function HomePage() {
 
   useEffect(() => {
     const fetchTranslations = async () => {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v1/translate/?target_language=${language}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v1/translate?target_language=${language}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
