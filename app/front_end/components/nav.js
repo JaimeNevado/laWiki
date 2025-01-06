@@ -34,7 +34,7 @@ function Nav({ onSearch }) {
         window.removeEventListener('tokenUpdated', handleTokenUpdated);
       };
     }
-    
+
   }, []);
 
   const handleSubmit = (e) => {

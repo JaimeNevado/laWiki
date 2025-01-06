@@ -1,4 +1,4 @@
-from fastapi import Depends, FastAPI, HTTPException, File, UploadFile
+from fastapi import Depends, FastAPI, HTTPException, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Optional, Union
@@ -20,6 +20,9 @@ from comments import Comment
 from typing import List, Optional, Union
 
 from environs import Env
+
+from pydantic import BaseModel
+from translate import translate_text
 
 env = Env()
 env.read_env()
@@ -66,6 +69,28 @@ path2 = "/api/v2/"
 #     images: Optional[List[str]] = Field(default=[], description="List of image URLs")
 #     wikiID: str = Field(..., description="Wiki ID associated with the article")
 #     short_text: Optional[str] = Field(default=None, max_length=500, description="Short summary of the article")
+
+
+
+class TranslationRequest(BaseModel):
+    content: dict  # Un diccionario con textos a traducir
+
+@router.post(path + "translate/")
+async def translate_entry(entry: TranslationRequest, target_language: str = Query(...)):
+    try:
+        translated_content = {}
+        for key, value in entry.content.items():
+            translated_content[key] = translate_text(value, target_language)
+        
+        print(translated_content)
+        return {
+            "content": translated_content,
+            "language": target_language,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 
 
 # GET all articles

@@ -85,21 +85,6 @@ export default function HomePage() {
 
   return (
     <>
-      <nav className="navbar">
-        <div className="container">
-          <h1>Wiki App</h1>
-          <select
-            value={language}
-            onChange={handleLanguageChange}
-            className="form-select"
-          >
-            <option value="en">English</option>
-            <option value="es">Español</option>
-            <option value="fr">Français</option>
-          </select>
-        </div>
-      </nav>
-
       <div className="container text-center mt-4">
         <h1>{translatedContent?.welcomeMessage || "Welcome to Wiki!"}</h1>
       </div>

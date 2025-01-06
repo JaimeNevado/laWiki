@@ -20,7 +20,9 @@ export default function ArticlesListPage() {
   const [notification, setNotification] = useState(null); // Estado para las notificaciones
   const [user, setStoredUser] = useState(null);
   const [canEdit, setCanEdit] = useState(false);
-  
+  const [language, setLanguage] = useState("en");
+
+
   useEffect(() => {
     setStoredUser(JSON.parse(localStorage.getItem("user")));
     if (user?.name) {
@@ -188,13 +190,60 @@ export default function ArticlesListPage() {
     }
   };
 
+  const handleLanguageChange = async (e) => {
+    const selectedLanguage = e.target.value;
+    setLanguage(selectedLanguage);
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/translate/?target_language=${selectedLanguage}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: {
+            title: article.name,
+            content: "Hoy es un día de prueba!!",
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text(); // Lee el cuerpo de la respuesta
+        console.error("Error en la respuesta del servidor:", errorText);
+        throw new Error(`Error del servidor: ${response.status}`);
+      }
+
+      const translatedArticle = await response.json();
+      console.log(translatedArticle);  // Para verificar la estructura de la respuesta
+
+      alert(`Artículo traducido: ${translatedArticle.content.title}`);
+    } catch (error) {
+      console.error("Error translating article:", error);
+      alert(`Error traduciendo el artículo: ${error.message}`);
+    }
+  };
+
 
   if (error) return <p className="text-danger text-center">{error}</p>;
 
   return (
+
     <div id="main_wrapper" className={`${styles.container} mt-1`}>
       {article ? (
         <>
+          <div>
+            <label htmlFor="language-selector">Traducir a: </label>
+            <select
+              id="language-selector"
+              value={language}
+              onChange={handleLanguageChange}
+            >
+              <option value="en">Inglés</option>
+              <option value="es">Español</option>
+              <option value="fr">Francés</option>
+            </select>
+          </div>
           <h1 className={styles.title}>{wikiName}</h1>
           <div style={{ marginBottom: "40px" }}>
             <h2 className={styles.subtitle}>{article.name}</h2>
@@ -276,29 +325,29 @@ export default function ArticlesListPage() {
             </div>
           </div>
 
-          {user?(
+          {user ? (
             <form className={styles.commentForm} onSubmit={handleCommentSubmit} style={{ marginBottom: "40px" }}>
-            <textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              rows="4"
-              className={styles.commentInput}
-              placeholder="Write your comment..."
-              style={{ marginBottom: "20px" }}
-            />
-            <select
-              value={selectedRating || ""}
-              onChange={(e) => setSelectedRating(Number(e.target.value))}
-              className={styles.ratingDropdown}
-              style={{ marginBottom: "20px" }}
-            >
-              <option value="" disabled>Select Rating</option>
-              {[1, 2, 3, 4, 5].map((num) => (
-                <option key={num} value={num}>{num} {"★".repeat(num)}</option>
-              ))}
-            </select>
-            <button type="submit" className={styles.button}>Submit Comment</button>
-          </form>) : ""}
+              <textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                rows="4"
+                className={styles.commentInput}
+                placeholder="Write your comment..."
+                style={{ marginBottom: "20px" }}
+              />
+              <select
+                value={selectedRating || ""}
+                onChange={(e) => setSelectedRating(Number(e.target.value))}
+                className={styles.ratingDropdown}
+                style={{ marginBottom: "20px" }}
+              >
+                <option value="" disabled>Select Rating</option>
+                {[1, 2, 3, 4, 5].map((num) => (
+                  <option key={num} value={num}>{num} {"★".repeat(num)}</option>
+                ))}
+              </select>
+              <button type="submit" className={styles.button}>Submit Comment</button>
+            </form>) : ""}
 
           {!!user && (
             <div style={{ marginBottom: "40px" }}>
