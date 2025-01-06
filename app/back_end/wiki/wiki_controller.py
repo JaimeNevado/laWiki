@@ -27,14 +27,12 @@ from pydantic import BaseModel
 
 sys.path.append(os.path.abspath("../articles"))
 from articles import Article
-
 from environs import Env
 
 env = Env()
 env.read_env()
 ARTICLE_URL = env("ARTICLE_URL")
 ORIGINS = env.list("ORIGINS_URL")
-
 print("Article URL: ", ARTICLE_URL)
 print("Allowed Origins: ", ORIGINS)
 

@@ -27,6 +27,7 @@ from translate import translate_text
 env = Env()
 env.read_env()
 
+
 # URLs for microservices
 COMMENTS_URL = env("COMMENT_URL")
 WIKI_URL = env("WIKI_URL")

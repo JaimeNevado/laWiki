@@ -18,6 +18,8 @@ from environs import Env
 env = Env()
 env.read_env()
 ORIGINS = env.list("ORIGINS_URL")
+MJ_APIKEY_PUBLIC = env("MJ_APIKEY_PUBLIC")
+MJ_APIKEY_PRIVATE = env("MJ_APIKEY_PRIVATE")
 print("Allowed Origins: ", ORIGINS)
 
 # Database connection
@@ -40,9 +42,7 @@ api.add_middleware(
 
 path = "/api/v1/"
 
-mailjet = Client(
-    auth=("10a2095833caf92998676630a3a59ea1", "229d7a05b82512777585884382b5bf1a")
-)
+mailjet = Client(auth=(MJ_APIKEY_PUBLIC, MJ_APIKEY_PRIVATE))
 
 
 # Get Notifications
