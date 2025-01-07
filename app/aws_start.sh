@@ -8,6 +8,7 @@ run_app() {
         return 1
     fi
 
+    rm -rf ./back_end/__pycache__
 
     # Front end
     nohup bash -c "cd $(pwd)/front_end/ && npm install && npm run clean && npm run build && npm run start" > front_end.log 2>&1 &
