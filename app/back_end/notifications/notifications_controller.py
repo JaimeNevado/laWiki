@@ -68,16 +68,9 @@ def get_notifications(
     return serialized_notifications
 
 
-@api.get(path + "notifications/{notification_id}")
-def get_notification(notification_id: str):
-    query = {"_id": ObjectId(notification_id)}
-    notification = collection.find_one(query)
-    serialized_notification = serialize_document(notification)
-    return serialized_notification
-
-
-@api.get(path + "notifications/get_notifications_count")
+@api.get(path + "notifications/count")
 def get_notifications_count(user_id: Optional[str] = None, read: bool = False):
+    print("starting counting notifications for user ", user_id)
     query = {}
     if user_id is not None:
         query["user_id"] = user_id
@@ -88,6 +81,14 @@ def get_notifications_count(user_id: Optional[str] = None, read: bool = False):
         query = None
     count = collection.count_documents(query)
     return {"count": count}
+
+
+@api.get(path + "notifications/{notification_id}")
+def get_notification(notification_id: str):
+    query = {"_id": ObjectId(notification_id)}
+    notification = collection.find_one(query)
+    serialized_notification = serialize_document(notification)
+    return serialized_notification
 
 
 # Add notification to the system

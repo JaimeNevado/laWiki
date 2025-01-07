@@ -32,7 +32,6 @@ clean_processes(){
 	# Optionally, clear the PIDs file after processing
 	# > "$PIDS_FILE"
 
-	echo "All processes from '$PIDS_FILE' have been processed."
 }
 
 clean_processes

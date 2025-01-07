@@ -125,7 +125,6 @@ def update(
     return {"message": "Comment was updated successfully"}
 
 
-# TODO change path to path + "comments/<something>"
 # used to show all comments that belongs to the same article
 @api.get(path + "comments/{article_id}/comments")
 def get_comments_of_given_article(article_id: str, order_type: int = 1):
