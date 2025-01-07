@@ -76,7 +76,7 @@ def get_notification(notification_id: str):
     return serialized_notification
 
 
-@api.get(path + "get_notifications_count")
+@api.get(path + "notifications/get_notifications_count")
 def get_notifications_count(user_id: Optional[str] = None, read: bool = False):
     query = {}
     if user_id is not None:

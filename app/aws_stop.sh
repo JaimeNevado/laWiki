@@ -28,6 +28,7 @@ clean_processes(){
 
 	pkill -f "next-server"
 	pkill -f "uvicorn"
+	rm -rf ./*.log
 	# Optionally, clear the PIDs file after processing
 	# > "$PIDS_FILE"
 

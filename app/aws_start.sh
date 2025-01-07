@@ -25,3 +25,5 @@ run_app() {
     nohup bash -c "source $VENV_PATH/bin/activate && cd $(pwd)/back_end/notifications/ && pip install -r requirements.txt && rm -rf __pycache__ && uvicorn notifications_controller:api --host 0.0.0.0 --port 13003" > notifications.log 2>&1 &
 
 }
+
+run_app "$@"
