@@ -195,7 +195,7 @@ export default function ArticlesListPage() {
     setLanguage(selectedLanguage);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/translate/?target_language=${selectedLanguage}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/translate?target_language=${selectedLanguage}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

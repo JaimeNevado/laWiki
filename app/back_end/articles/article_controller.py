@@ -72,17 +72,17 @@ path2 = "/api/v2/"
 #     short_text: Optional[str] = Field(default=None, max_length=500, description="Short summary of the article")
 
 
-
 class TranslationRequest(BaseModel):
     content: dict  # Un diccionario con textos a traducir
 
-@router.post(path + "translate/")
+
+@router.post(path + "translate")
 async def translate_entry(entry: TranslationRequest, target_language: str = Query(...)):
     try:
         translated_content = {}
         for key, value in entry.content.items():
             translated_content[key] = translate_text(value, target_language)
-        
+
         print(translated_content)
         return {
             "content": translated_content,
@@ -90,8 +90,6 @@ async def translate_entry(entry: TranslationRequest, target_language: str = Quer
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
 
 
 # GET all articles
