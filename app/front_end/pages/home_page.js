@@ -9,7 +9,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
-  const [language, setLanguage] = useState("en"); // Idioma por defecto
+  // const [language, setLanguage] = useState("en"); // Idioma por defecto
   const [translatedContent, setTranslatedContent] = useState({}); // Traducción de contenido
 
   useEffect(() => {
@@ -47,38 +47,38 @@ export default function HomePage() {
       });
   }, []);
 
-  useEffect(() => {
-    const fetchTranslations = async () => {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v1/translate?target_language=${language}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          content: {
-            "welcomeMessage": "Welcome to Wiki!",
-            "createWiki": "Create Wiki",
-            "viewWiki": "View Wiki",
-            "notLoggedIn": "You are not logged in."
-          },  // Aquí puedes cambiar el texto que desees traducir
-        }),
-      });
+  // useEffect(() => {
+  //   const fetchTranslations = async () => {
+  //     const response = await fetch(`${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v1/translate?target_language=${language}`, {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         content: {
+  //           "welcomeMessage": "Welcome to Wiki!",
+  //           "createWiki": "Create Wiki",
+  //           "viewWiki": "View Wiki",
+  //           "notLoggedIn": "You are not logged in."
+  //         },  // Aquí puedes cambiar el texto que desees traducir
+  //       }),
+  //     });
 
-      if (!response.ok) {
-        console.error("Error al traducir el texto");
-        return;
-      }
+  //     if (!response.ok) {
+  //       console.error("Error al traducir el texto");
+  //       return;
+  //     }
 
-      const result = await response.json();
-      console.log("Traducción recibida:", result.content); // Verifica que el contenido sea correcto
+  //     const result = await response.json();
+  //     console.log("Traducción recibida:", result.content); // Verifica que el contenido sea correcto
 
-      setTranslatedContent(result.content);
-    };
+  //     setTranslatedContent(result.content);
+  //   };
 
-    fetchTranslations();
-  }, [language]);
+  //   fetchTranslations();
+  // }, [language]);
 
-  const handleLanguageChange = (e) => {
-    setLanguage(e.target.value);
-  };
+  // const handleLanguageChange = (e) => {
+  //   setLanguage(e.target.value);
+  // };
 
   if (loading) return <div className="text-center">Loading...</div>;
   if (error) return <div className="text-center text-danger">{error}</div>;

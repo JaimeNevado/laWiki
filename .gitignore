@@ -6,8 +6,6 @@
 # .env
 
 # Custom Scripts
-**/aws_start.sh
-**/aws_stop.sh
 **/xfce_run_dev_app.sh
 **/xfce_run_prod_app.sh
 
