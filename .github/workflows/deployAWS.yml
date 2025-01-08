@@ -43,10 +43,10 @@ jobs:
             git pull "$remoterepo" main &&
             sleep 5 &&
             cd front_end &&
-            npm install &&
-            npm run clean &&
-            npm run build &&
-            npm run start &&
+            /home/ubuntu/.nvm/versions/node/v22.11.0/bin/npm install &&
+            /home/ubuntu/.nvm/versions/node/v22.11.0/bin/npm run clean &&
+            /home/ubuntu/.nvm/versions/node/v22.11.0/bin/npm run build &&
+            /home/ubuntu/.nvm/versions/node/v22.11.0/bin/npm run start &&
             source ../aws_start.sh
           EOF
         env:
