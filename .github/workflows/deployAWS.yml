@@ -38,11 +38,16 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@ec2-13-39-176-208.eu-west-3.compute.amazonaws.com << 'EOF'
             cd /home/ubuntu/laWiki/app/ &&
-            . ./aws_stop.sh &&
+            source ./aws_stop.sh &&
             export remoterepo="https://illyaro:${{ secrets.ACCESS_TOKEN }}@github.com/illyaro/laWiki.git"
             git pull "$remoterepo" main &&
             sleep 5 &&
-            . ./aws_start.sh
+            cd front_end &&
+            npm install &&
+            npm run clean &&
+            npm run build &&
+            npm run start &&
+            source ../aws_start.sh
           EOF
         env:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}

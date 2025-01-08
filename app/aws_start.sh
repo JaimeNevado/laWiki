@@ -13,7 +13,7 @@ run_app() {
     export PATH=$PATH:/home/ubuntu/.nvm/versions/node/v22.11.0/bin/npm:/usr/local/bin
     
     # Front end
-    nohup bash -c "cd $(pwd)/front_end/ && npm install && npm run clean && npm run build && npm run start" > front_end.log 2>&1 &
+    #nohup bash -c "cd $(pwd)/front_end/ && npm install && npm run clean && npm run build && npm run start" > front_end.log 2>&1 &
 
     # Wiki controller
     nohup bash -c "source $VENV_PATH/bin/activate && cd $(pwd)/back_end/wiki/ && pip install -r requirements.txt && rm -rf __pycache__ && uvicorn wiki_controller:api --host 0.0.0.0 --port 13000" > wiki.log 2>&1 &
