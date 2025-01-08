@@ -9,7 +9,9 @@ run_app() {
     fi
 
     rm -rf ./back_end/__pycache__
-
+    
+    export PATH=$PATH:/home/ubuntu/.nvm/versions/node/v22.11.0/bin/npm:/usr/local/bin
+    
     # Front end
     nohup bash -c "cd $(pwd)/front_end/ && npm install && npm run clean && npm run build && npm run start" > front_end.log 2>&1 &
 
