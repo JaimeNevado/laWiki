@@ -19,7 +19,8 @@ jobs:
           node-version: '22.11.0'
 
       - name: Install dependencies
-        run: npm install
+          working-directory: app/front_end
+          run: npm install
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
