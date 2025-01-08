@@ -37,9 +37,9 @@ jobs:
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@ec2-13-39-176-208.eu-west-3.compute.amazonaws.com << 'EOF'
-            cd /home/ubuntu/laWiki/app/
-            . ./aws_stop.sh
-            git pull origin main
-            sleep 5
+            cd /home/ubuntu/laWiki/app/ &&
+            . ./aws_stop.sh &&
+            git pull origin main &&
+            sleep 5 &&
             . ./aws_start.sh
           EOF
