@@ -194,6 +194,8 @@ export default function ArticlesListPage() {
     const selectedLanguage = e.target.value;
     setLanguage(selectedLanguage);
 
+    let translatedArticle = null; // Initialize the variable here
+
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/translate?target_language=${selectedLanguage}`, {
         method: "POST",
@@ -203,26 +205,66 @@ export default function ArticlesListPage() {
         body: JSON.stringify({
           content: {
             title: article.name,
-            content: "Hoy es un día de prueba!!",
+            content: article.text,
+            shortTextTranslated: article.short_text,
           },
         }),
       });
 
       if (!response.ok) {
-        const errorText = await response.text(); // Lee el cuerpo de la respuesta
+        const errorText = await response.text();
         console.error("Error en la respuesta del servidor:", errorText);
         throw new Error(`Error del servidor: ${response.status}`);
       }
 
-      const translatedArticle = await response.json();
-      console.log(translatedArticle);  // Para verificar la estructura de la respuesta
-
-      alert(`Artículo traducido: ${translatedArticle.content.title}`);
+      translatedArticle = await response.json();
     } catch (error) {
-      console.error("Error translating article:", error);
+      console.error("Error traduciendo el artículo:", error);
       alert(`Error traduciendo el artículo: ${error.message}`);
+      return; // Prevent further execution if translation fails
+    }
+
+    // Solo procedemos con la creación del artículo si la traducción fue exitosa
+    if (translatedArticle) {
+      try {
+        const createResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/articles`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            },
+            body: JSON.stringify({
+              name: translatedArticle.content.title,
+              text: translatedArticle.content.content,
+              short_text: translatedArticle.content.shortTextTranslated,
+              author: article.author,
+              googleMaps: article.googleMaps,
+              images: article.images,
+              wikiID: article.wikiID,
+              email: article.email,
+            }),
+          }
+        );
+
+        if (!createResponse.ok) {
+          const errorText = await createResponse.text();
+          console.error("Error en la respuesta del servidor al crear el artículo:", errorText);
+          throw new Error(`Error del servidor al crear el artículo: ${createResponse.status}`);
+        }
+
+        const createdArticle = await createResponse.json();
+        console.log("Artículo traducido creado:", createdArticle);
+
+        alert(`Artículo traducido creado exitosamente: ${createdArticle.msg}`);
+      } catch (error) {
+        console.error("Error creando el artículo:", error);
+        alert(`Error al crear el artículo: ${error.message}`);
+      }
     }
   };
+
 
 
   if (error) return <p className="text-danger text-center">{error}</p>;
@@ -233,7 +275,7 @@ export default function ArticlesListPage() {
       {article ? (
         <>
           <div>
-            <label htmlFor="language-selector">Traducir a: </label>
+            <label htmlFor="language-selector">Traducir artículo al: </label>
             <select
               id="language-selector"
               value={language}
