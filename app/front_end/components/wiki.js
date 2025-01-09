@@ -84,7 +84,7 @@ const Wiki = ({ wiki }) => {
     id = wiki._id;
   }
 
-  const articlesEndpoint = "http://127.0.0.1:13000/api/v1/wikis/" + id + "/previewArticles";
+  const articlesEndpoint = `${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v1/wikis/${id}/previewArticles`;
   const [articles, setArticles] = useState([]);
 
   useEffect(() => {
