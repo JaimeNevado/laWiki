@@ -20,6 +20,8 @@ export default function ArticleForm({ requestType, articleId }) {
       router.push("/login");
     }
   }, []);
+
+  
   const [formData, setFormData] = useState({
     name: "",
     text: "",
@@ -32,6 +34,20 @@ export default function ArticleForm({ requestType, articleId }) {
     images: [],
     versions: [],
   });
+  
+  useEffect(() => {setFormData({
+    name: "",
+    text: "",
+    short_text: "",
+    attachedFiles: "",
+    author: user?.name,
+    googleMaps: "",
+    date: new Date().toISOString(),
+    wikiID: wikiID || "",
+    images: [],
+    versions: [],
+  })}, [user, wikiID]);
+  
   const [images, setImages] = useState([]);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
@@ -184,6 +200,7 @@ export default function ArticleForm({ requestType, articleId }) {
             value={formData.author}
             onChange={handleChange}
             required
+            readOnly
           />
         </div>
         <div className="form-group">
@@ -209,7 +226,7 @@ export default function ArticleForm({ requestType, articleId }) {
             onChange={handleChange}
           ></textarea>
         </div>
-        <div className="form-group">
+        {/* <div className="form-group">
           <label htmlFor="attachedFiles">Attached Files</label>
           <input
             type="text"
@@ -219,7 +236,7 @@ export default function ArticleForm({ requestType, articleId }) {
             value={formData.attachedFiles}
             onChange={handleChange}
           />
-        </div>
+        </div> */}
         <div className="form-group">
           <label htmlFor="images">Images</label>
           <input

@@ -108,7 +108,7 @@ function WikiForm() {
 
 
   const initData = useMemo(() => {
-    // const storedUser = JSON.parse(localStorage.getItem("user"));
+    const storedUser = JSON.parse(localStorage.getItem("user"));
     return wiki
       ? {
         _id: wiki._id,
