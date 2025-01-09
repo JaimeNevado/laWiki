@@ -180,10 +180,17 @@ export default function ArticlesListPage() {
     const url = `https://nominatim.openstreetmap.org/search?q=${lugar}&format=json&addressdetails=1`;
     try {
       const response = await fetch(url);
-      if (!response.ok) throw new Error("Failed to fetch location");
-      const data = await response.json();
-      const mapUrl = `https://www.openstreetmap.org/?mlat=${data[0].lat}&mlon=${data[0].lon}#map=14/${data[0].lat}/${data[0].lon}`;
-      window.open(mapUrl, '_blank', 'noopener,noreferrer');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.length) {
+          const mapUrl = `https://www.openstreetmap.org/?mlat=${data[0].lat}&mlon=${data[0].lon}#map=14/${data[0].lat}/${data[0].lon}`;
+          window.open(mapUrl, '_blank', 'noopener,noreferrer');
+        } else {
+          alert("Location data is invalid or not available");
+        }
+      } else {
+        alert("Couldn't fetch location data, please try later");
+      }
     } catch (err) {
       console.error("Error fetching location:", err);
       setError("Error fetching location");
