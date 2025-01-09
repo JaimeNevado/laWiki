@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useMemo } from "react";
@@ -108,7 +108,7 @@ function WikiForm() {
 
 
   const initData = useMemo(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
+    // const storedUser = JSON.parse(localStorage.getItem("user"));
     return wiki
       ? {
         _id: wiki._id,
@@ -127,9 +127,19 @@ function WikiForm() {
         bg_image: null,
         logo: null,
       };
-  }, [wiki]);
+  }, [wiki, storedUser]);
 
   const { formData, handleInputChange, handleFileChange } = useWikiForm(initData);
+  
+  useEffect(() => {
+    const syntheticEvent = {
+        target: {
+            name: 'author',
+            value: storedUser?.name 
+        }
+    };
+    handleInputChange(syntheticEvent);
+  }, [storedUser]); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
