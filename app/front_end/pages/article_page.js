@@ -177,7 +177,7 @@ export default function ArticlesListPage() {
 
   const getMessage = async () => {
     const lugar = article?.googleMaps || "defaultLocation";
-    const url = `http://nominatim.openstreetmap.org/search?q=${lugar}&format=json&addressdetails=1`;
+    const url = `https://nominatim.openstreetmap.org/search?q=${lugar}&format=json&addressdetails=1`;
     try {
       const response = await fetch(url);
       if (!response.ok) throw new Error("Failed to fetch location");
