@@ -1,0 +1,12 @@
+uvicorn
+fastApi
+pydantic
+pymongo
+python-dotenv
+fastapi-cors
+environs
+pytz
+google-auth
+requests
+pydantic[email]
+mailjet-rest
