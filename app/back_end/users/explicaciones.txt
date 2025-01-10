@@ -1,0 +1,2 @@
+Para correr usuario
+uvicorn user_controller:app --reaload -port 13004

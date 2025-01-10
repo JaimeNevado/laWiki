@@ -10,7 +10,8 @@ export default function ArticleForm({ requestType, articleId }) {
 
   useEffect(() => {
     const userFromLocalStorage = JSON.parse(localStorage.getItem("user"));
-    setUser(userFromLocalStorage || null); // Permite que el usuario sea null
+    setUser(userFromLocalStorage); // Permite que el usuario sea null
+    console.log("Usuario de google:", user);
     const userEmail = localStorage.getItem("email");
 
     if (userEmail) {
@@ -27,12 +28,13 @@ export default function ArticleForm({ requestType, articleId }) {
     text: "",
     short_text: "",
     attachedFiles: "",
-    author: user?.name || "",
+    author:  "",
     googleMaps: "",
     date: new Date().toISOString(),
     wikiID: wikiID || "",
     images: [],
     versions: [],
+    email: ""
   });
   
   useEffect(() => {setFormData({
@@ -41,12 +43,15 @@ export default function ArticleForm({ requestType, articleId }) {
     short_text: "",
     attachedFiles: "",
     author: user?.name || "",
+    email: user?.email || "",
     googleMaps: "",
     date: new Date().toISOString(),
     wikiID: wikiID || "",
     images: [],
     versions: [],
-  })}, [user, wikiID]);
+  },);
+  console.log("datos del formulario: ", formData);
+}, [user, wikiID]);
   
   const [images, setImages] = useState([]);
   const [success, setSuccess] = useState(false);
@@ -67,18 +72,18 @@ export default function ArticleForm({ requestType, articleId }) {
             throw new Error(`Error fetching article: ${response.status}`);
           }
           const data = await response.json();
-          setFormData({
+          setFormData((prev)=>({
+            ...prev,
             name: data.name || "",
             text: data.text || "",
             short_text: data.short_text || "",
             attachedFiles: data.attachedFiles || "",
-            author: data.author || "",
             googleMaps: data.googleMaps || "",
             date: new Date().toISOString(),
             wikiID: data.wikiID || "",
             images: data.images || [],
             versions: data.versions || [],
-          });
+          }));
         } catch (error) {
           console.error("Error fetching article:", error.message);
           setError(error.message);
@@ -155,6 +160,8 @@ export default function ArticleForm({ requestType, articleId }) {
           short_text: formData.short_text,
           text: formData.text,
           date: new Date().toISOString(),
+          author: formData.author,
+          email: formData.email
         },
       ],
     };
