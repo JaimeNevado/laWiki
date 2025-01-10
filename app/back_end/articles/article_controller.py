@@ -130,7 +130,16 @@ async def get_articles_preview(
     if name:
         query.append({"$match": {"name": {"$regex": name, "$options": "i"}}})
     if author:
-        query.append({"$match": {"author": {"$regex": author, "$options": "i"}}})
+        query.append(
+            {
+                "$match": {
+                    "$or": [
+                        {"author": {"$regex": author, "$options": "i"}},
+                        {"versions.author": {"$regex": author, "$options": "i"}},
+                    ]
+                }
+            }
+        )
 
     if date_from and date_to:
         query.append({"$match": {"date": {"$gte": date_from, "$lte": date_to}}})
