@@ -134,6 +134,34 @@ export default function ArticlesListPage() {
 
       if (!response.ok) throw new Error("Failed to delete article");
 
+      if (!user?.email) {
+        throw new Error("User email is not available");
+      }
+
+      const notification = {
+        date: new Date().toISOString(),
+        title: "Article Deleted",
+        body: `The article "${article.name}" has been deleted.`,
+        opened: false,
+        user_id: user.email,
+      };
+
+      console.log("Notification payload:", notification); // Add logging to verify the notification payload
+
+
+      const notificationResponse = await fetch(`${process.env.NEXT_PUBLIC_NOTIFICATIONS_API_URL}/api/v1/notifications`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(notification),
+      });
+
+      if (!notificationResponse.ok) {
+        throw new Error(`Failed to send notification: ${notificationResponse.statusText}`);
+      }
+
       router.push(`/wiki/${article.wikiID}`);
     } catch (err) {
       setError("Error deleting article");

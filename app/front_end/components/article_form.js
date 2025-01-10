@@ -27,7 +27,7 @@ export default function ArticleForm({ requestType, articleId }) {
     text: "",
     short_text: "",
     attachedFiles: "",
-    author: user?.name,
+    author: user?.name || "",
     googleMaps: "",
     date: new Date().toISOString(),
     wikiID: wikiID || "",
@@ -40,7 +40,7 @@ export default function ArticleForm({ requestType, articleId }) {
     text: "",
     short_text: "",
     attachedFiles: "",
-    author: user?.name,
+    author: user?.name || "",
     googleMaps: "",
     date: new Date().toISOString(),
     wikiID: wikiID || "",
@@ -68,16 +68,16 @@ export default function ArticleForm({ requestType, articleId }) {
           }
           const data = await response.json();
           setFormData({
-            name: data.name,
-            text: data.text,
-            short_text: data.short_text,
-            attachedFiles: data.attachedFiles,
-            author: data.author,
-            googleMaps: data.googleMaps,
+            name: data.name || "",
+            text: data.text || "",
+            short_text: data.short_text || "",
+            attachedFiles: data.attachedFiles || "",
+            author: data.author || "",
+            googleMaps: data.googleMaps || "",
             date: new Date().toISOString(),
-            wikiID: data.wikiID,
-            images: data.images,
-            versions: data.versions,
+            wikiID: data.wikiID || "",
+            images: data.images || [],
+            versions: data.versions || [],
           });
         } catch (error) {
           console.error("Error fetching article:", error.message);
@@ -165,6 +165,35 @@ export default function ArticleForm({ requestType, articleId }) {
 
       const articleResult = await articleResponse.json();
       setSuccess(true);
+
+      if (!user?.email) {
+        throw new Error("User email is not available");
+      }
+
+      const notification = {
+        date: new Date().toISOString(),
+        title: requestType === "POST" ? "New Article Created" : "Article Updated",
+        body: `The article "${articleData.name}" has been ${requestType === "POST" ? "created" : "updated"}.`,
+        opened: false,
+        user_id: user.email,
+      };
+
+      console.log("Notification payload:", notification); // Add logging to verify the notification payload
+
+
+      const notificationResponse = await fetch(`${process.env.NEXT_PUBLIC_NOTIFICATIONS_API_URL}/api/v1/notifications`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(notification),
+      });
+
+      if (!notificationResponse.ok) {
+        throw new Error(`Failed to send notification: ${notificationResponse.statusText}`);
+      }
+
       router.push(`/article_page?id=${articleId? articleId: articleResult.inserted_id}`);
     } catch (error) {
       console.error("Error submitting article:", error);
