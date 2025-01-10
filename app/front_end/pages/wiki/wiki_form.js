@@ -56,7 +56,7 @@ async function submitWiki({ wikiID, payload } = {}) {
     let response;
     if (!wikiID) {
       // Create new Wiki
-      console.log("from submitWiki. id: ", wikiID, " payload: ", Array.from(payload.entries()));
+      // console.log("from submitWiki. id: ", wikiID, " payload: ", Array.from(payload.entries()));
       response = await fetch(`${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v2/wikis`, {
         method: "POST",
         headers: {
@@ -66,7 +66,7 @@ async function submitWiki({ wikiID, payload } = {}) {
       });
     } else {
       // Update existing Wiki
-      console.log("from submitWiki. id: ", wikiID, " payload: ", Array.from(payload.entries()));
+      // console.log("from submitWiki. id: ", wikiID, " payload: ", Array.from(payload.entries()));
       response = await fetch(`${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v2/wikis/${wikiID}`, {
         method: "PUT",
         headers: {
@@ -102,16 +102,14 @@ function WikiForm() {
         .catch((err) => console.error(err));
 
       setDeleteButtonVisible(true);
-      setCanEdit(storedUser && wiki && storedUser.name === wiki.author);
       // console.log("from WikiForm. wiki.author: ", wiki?.author, " storedUser.name: ", storedUser?.name, " canEdit: ", canEdit);
     } else {
       setDeleteButtonVisible(false);
       setCanEdit(true);
     }
     setStoredUser(JSON.parse(localStorage.getItem("user")));
-
+    // console.log("wikiform, id updated!");
   }, [wikiID]);
-
 
   const initData = useMemo(() => {
     // const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -125,8 +123,7 @@ function WikiForm() {
         bg_image_url: wiki.bg_image || "",
         logo: null,
         logo_url: wiki.logo || "",
-      }
-      : {
+      } : {
         name: "",
         description: "",
         author: storedUser?.name || "",
@@ -137,15 +134,40 @@ function WikiForm() {
 
   const { formData, handleInputChange, handleFileChange } = useWikiForm(initData);
 
+  // reinicializando el formulario
   useEffect(() => {
+    if (!wiki){
+      setCanEdit(true);  
+    } else {
+      setCanEdit(storedUser && storedUser.name === wiki.author);
+      const wikiData = {
+        _id: wiki._id,
+        name: wiki.name || "",
+        description: wiki.description || "",
+        author: storedUser?.name || wiki.author || "",
+        bg_image: null,
+        bg_image_url: wiki.bg_image || "",
+        logo: null,
+        logo_url: wiki.logo || "",
+      };
+
+      Object.entries(wikiData).forEach(([name, value]) => {
+        handleInputChange({
+          target: { name, value }
+        });
+      });
+    }
+
     const syntheticEvent = {
       target: {
         name: 'author',
         value: storedUser?.name
       }
-    };
+    };    
     handleInputChange(syntheticEvent);
-  }, [storedUser]);
+
+    // console.log("wikiform, storedUser or wiki updated!");
+  }, [storedUser, wiki]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

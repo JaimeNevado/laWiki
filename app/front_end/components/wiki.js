@@ -13,8 +13,11 @@ function WikiSkeleton({ wiki }) {
  
   useEffect(() => {
     setStoredUser(JSON.parse(localStorage.getItem("user")));
-    setCanEdit(storedUser && storedUser.name === wiki.author);
   },[wiki]);
+
+  useEffect(() => {
+    setCanEdit(storedUser && storedUser.name === wiki.author);
+  },[storedUser, wiki]);
 
   return (
     <div className="container pt-3 mt-1">

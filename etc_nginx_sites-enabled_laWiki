@@ -36,6 +36,11 @@ server {
                 proxy_pass http://127.0.0.1:13003/api/v1/notifications;
         }
 
+	# Users microservice
+	locations /api/v1/users {
+		proxy_pass http://127.0.0.1:13004/api/v1/users;
+	}
+	
     listen 443 ssl; # managed by Certbot
     ssl_certificate /etc/letsencrypt/live/lawiki.ecosys.eu/fullchain.pem; # managed by Certbot
     ssl_certificate_key /etc/letsencrypt/live/lawiki.ecosys.eu/privkey.pem; # managed by Certbot
