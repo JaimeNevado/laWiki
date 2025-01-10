@@ -4,6 +4,14 @@ from typing import List
 from User import User
 from database_connection import MongoDBAtlas
 from la_wiki_utils import serialize_document
+from fastapi.middleware.cors import CORSMiddleware
+from environs import Env
+
+#env 
+env = Env()
+env.read_env()
+ORIGINS = env.list("ORIGINS_URL")
+#fastApi + path
 app = FastAPI()
 path = "/api/v1/"
 # Database connection
@@ -11,7 +19,13 @@ db = MongoDBAtlas()
 db.connect()
 collection = db.get_collection("Users")
 
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # Crear un nuevo User
 @app.post(path + "users/")
 def crear_User(user: User):

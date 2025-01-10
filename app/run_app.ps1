@@ -12,3 +12,6 @@ Start-Process powershell -ArgumentList "cd .\back_end\comments; uvicorn comment_
 
 # Crear una nueva consola y ejecutar el backend - notificaciones
 Start-Process powershell -ArgumentList "cd .\back_end\notifications; uvicorn notifications_controller:api --reload --port 13003"
+
+#Crear una nueva consola y ejecutar el backend -usuarios
+Start-Process powershell -ArgumentList "cd .\back_end\users; uvicorn user_controller:app --reload --port 13004"

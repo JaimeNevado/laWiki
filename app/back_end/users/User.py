@@ -3,7 +3,7 @@ from typing import Literal #Para que solo acepte las opciones de este literal
 from database_connection import MongoDBAtlas
 
 class User(BaseModel):
-    nombre: str
+    name: str
     gmail: EmailStr
     googleID: str
     rating: float
@@ -13,7 +13,7 @@ class User(BaseModel):
         "json_schema_extra": {
             "examples": [
                 {
-                    "nombre": "usuarioPrueba",
+                    "name": "usuarioPrueba",
                     "gmail": "usuarioprueba@gmail.com",
                     "googleID": "1234",
                     "rating": 4.5,
