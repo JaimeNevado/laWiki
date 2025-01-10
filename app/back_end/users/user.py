@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr, condecimal
-from typing import Literal #Para que solo acepte las opciones de este literal
-from database_connection import MongoDBAtlas
+from typing import Literal  # Para que solo acepte las opciones de este literal
+
 
 class User(BaseModel):
     name: str
@@ -8,7 +8,7 @@ class User(BaseModel):
     googleID: str
     rating: float
     nComentarios: int
-    level: Literal['redactor', 'admin']
+    level: Literal["redactor", "admin"]
     model_config = {
         "json_schema_extra": {
             "examples": [
@@ -23,5 +23,6 @@ class User(BaseModel):
             ]
         }
     }
+
 
 # Ejemplo de uso
