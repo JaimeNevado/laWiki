@@ -18,14 +18,14 @@ function useWikiForm(initialState) {
       // console.log("from wikiForm -> useWikiForm from if user: ", email);
       refreshNotifications(email);
     }
-    if(!email){
+    if (!email) {
       router.push("/login");
     }
   }, []);
 
   useEffect(() => {
-    setFormData(initialState); 
-  }, []); 
+    setFormData(initialState);
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -35,7 +35,13 @@ function useWikiForm(initialState) {
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     const file = files[0];
-    setFormData((prev) => ({ ...prev, [name]: file }));
+    if (file.size >= 10485760) {
+      setFormData((prev) => ({ ...prev, [name]: null }));
+      alert("File size too large. Maximum size is 10MB.");
+      return;
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: file }));
+    }
   };
 
   return {
@@ -130,16 +136,16 @@ function WikiForm() {
   }, [wiki, storedUser]);
 
   const { formData, handleInputChange, handleFileChange } = useWikiForm(initData);
-  
+
   useEffect(() => {
     const syntheticEvent = {
-        target: {
-            name: 'author',
-            value: storedUser?.name 
-        }
+      target: {
+        name: 'author',
+        value: storedUser?.name
+      }
     };
     handleInputChange(syntheticEvent);
-  }, [storedUser]); 
+  }, [storedUser]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

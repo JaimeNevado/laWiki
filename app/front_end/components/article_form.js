@@ -95,7 +95,19 @@ export default function ArticleForm({ requestType, articleId }) {
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    setImages(files);
+    let trigger = false;
+    const filteredFiles = files.filter((file) => {
+      if (file.size >= 10485760) {
+        trigger = true;
+        return false;
+      }
+      return true;
+    });
+
+    if (trigger) {
+      alert("One or more files were too large. Maximum size is 10MB. Exceeding size photos will not be uploaded to the server.");
+    }
+    setImages(filteredFiles);
   };
 
   const handleSubmit = async (e) => {
@@ -112,7 +124,7 @@ export default function ArticleForm({ requestType, articleId }) {
 
       try {
         // Subir las imágenes y obtener las URLs
-        const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/upload_images`, {
+        const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/articles/upload_images`, {
           method: "POST",
           headers: {
             "Authorization": `Bearer ${localStorage.getItem("token")}`,

@@ -257,7 +257,7 @@ async def get_wiki(article_id: str):
 
 
 ####v2
-@router.post(path + "upload_images")
+@router.post(path + "articles/upload_images")
 async def upload_images(
     files: List[UploadFile] = File(...), user_info: dict = Depends(auth.verify_token)
 ):
