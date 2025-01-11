@@ -20,6 +20,7 @@ export default function ArticlesListPage() {
   const [notification, setNotification] = useState(null); // Estado para las notificaciones
   const [user, setStoredUser] = useState(null);
   const [canEdit, setCanEdit] = useState(false);
+  const [role, setRole] = useState("");
   const [language, setLanguage] = useState("en");
 
 
@@ -56,7 +57,11 @@ export default function ArticlesListPage() {
   }, [id]);
 
   useEffect(() => {
-    setCanEdit(user && article && user.name === article.author);
+    setCanEdit(user && article);// && user.name === article.author);
+    const userRole = localStorage.getItem("userDB");
+    if (userRole) {
+      setRole(JSON.parse(userRole).level);
+    }
     console.log("author: ", article?.author, "user: ", user?.name);
   }, [user, article]);
 
@@ -134,7 +139,11 @@ export default function ArticlesListPage() {
         },
       });
 
-      if (!response.ok) throw new Error("Failed to delete article");
+      if (!response.ok){
+        alert(`Failed to delete article. ${response.statusText}`);
+        router.push(`/login`);
+      } 
+      // throw new Error("Failed to delete article");
 
       if (!user?.email) {
         throw new Error("User email is not available");
@@ -338,7 +347,7 @@ export default function ArticlesListPage() {
               justifyContent: "center",
               alignItems: "center"
             }}>
-              {canEdit && (<>
+              {canEdit && (
                 <button
                   onClick={() => router.push(`/editArticleForm?article_id=${article._id}`)}
                   className={`${styles.button} ${styles.editButton}`}
@@ -353,6 +362,9 @@ export default function ArticlesListPage() {
                 >
                   Edit Article
                 </button>
+              )}
+
+              {canEdit && role === "admin" && (
                 <button
                   onClick={handleDelete}
                   className={`${styles.button} ${styles.deleteButton}`}
@@ -367,8 +379,8 @@ export default function ArticlesListPage() {
                 >
                   Delete Article
                 </button>
-              </>
               )}
+
             </div>
 
 

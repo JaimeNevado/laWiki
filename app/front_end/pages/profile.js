@@ -17,6 +17,7 @@ const UserProfile = () => {
   const [userData, setUserData] = useState(null);
   const [wikis, setWikis] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [role, setRole] = useState("");
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -32,6 +33,7 @@ const UserProfile = () => {
       try {
         const parsedUser = JSON.parse(storedUser);
         setUserData(parsedUser);
+        setRole(JSON.parse(localStorage.getItem("userDB")).level);
 
         // Fetch wikis created by the user
         const response = await fetch(`${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v1/wikis`, {
@@ -62,6 +64,8 @@ const UserProfile = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('email');
+    localStorage.removeItem('userDB');
     window.location.href = '/login';
   };
 
@@ -112,15 +116,25 @@ const UserProfile = () => {
 
           <div className="col-span-2">
             <h2 className="text-center mt-4 text-xl font-semibold text-gray-900">Your Wikis</h2>
-            <div className="text-end me-2 mb-4">
-              <LinkButton
-                btn_type={"btn-primary"}
-                button_text="Create Wiki"
-                state="enabled"
-                link="/wiki/wiki_form"
-              />
-            </div>
-
+            {role === "admin" ? (
+              <div className="text-end me-2 mb-4">
+                <LinkButton
+                  btn_type={"btn-primary"}
+                  button_text="Create Wiki"
+                  state="enabled"
+                  link="/wiki/wiki_form"
+                />
+              </div>
+            ):(
+              <div className="text-end me-2 mb-4" title="Only Editors can create new wikis">
+                <LinkButton
+                  btn_type={"btn-secondary"}
+                  button_text="Create Wiki"                  
+                  state="disabled"
+                  link="#"
+                />
+              </div>
+            )}
             {wikis.length > 0 ? (
               <div className="row">
                 {wikis.map((wiki) => (

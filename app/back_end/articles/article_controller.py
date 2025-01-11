@@ -31,9 +31,11 @@ env.read_env()
 # URLs for microservices
 COMMENTS_URL = env("COMMENT_URL")
 WIKI_URL = env("WIKI_URL")
+USERS_URL = env("USERS_URL")
 ORIGINS = env.list("ORIGINS_URL")
 print("Wiki URL: ", WIKI_URL)
 print("Comments URL: ", COMMENTS_URL)
+print("Users URL: ", USERS_URL)
 print("Allowed Origins: ", ORIGINS)
 
 image_uploader = ImageUploader()
@@ -210,6 +212,15 @@ async def update_article(
 # DELETE an article
 @router.delete(path + "articles/{id}")
 async def delete_article(id: str, user_info: dict = Depends(auth.verify_token)):
+    # controll user level
+    user_id = user_info.get("sub")
+    client = AsyncClient()
+    response = await client.get(f"{USERS_URL}{path}users/{user_id}")
+    response.raise_for_status()
+    user = response.json()
+    if user.get("level") != "admin":
+        raise HTTPException(status_code=403, detail="User is not an admin")
+
     deleted = collection.find_one_and_delete({"_id": ObjectId(id)})
     if not deleted:
         raise HTTPException(status_code=404, detail="Article not found")
