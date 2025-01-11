@@ -17,6 +17,7 @@ const UserProfile = () => {
   const [userData, setUserData] = useState(null);
   const [wikis, setWikis] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [comments, setComments] = useState([]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -58,6 +59,49 @@ const UserProfile = () => {
 
     fetchUserData();
   }, []);
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      const storedUser = localStorage.getItem("user");
+      const token = localStorage.getItem("token");
+  
+      if (!storedUser || !token) {
+        console.error("User or token not found");
+        window.location.href = "/login"; // Redirige al login si no hay usuario o token
+        return;
+      }
+  
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUserData(parsedUser);
+  
+        // Codificar el destination_id (en este caso, el correo electrónico del usuario)
+        const encodedDestinationId = encodeURIComponent(parsedUser.email); // Codificación correcta del email
+  
+        const response = await fetch(`${process.env.NEXT_PUBLIC_COMMENTS_API_URL}/api/v1/comments?destination_id=${encodedDestinationId}`, {
+          headers: { Authorization: `Bearer ${token}` }, // Añadir el token de autorización en el header
+        });
+  
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Failed to fetch comments: ${errorText}`);
+        }
+  
+        const data = await response.json();
+        console.log("Fetched comments data:", data); // Verificar la respuesta de los comentarios
+  
+        setComments(data); // Guardar los comentarios obtenidos en el estado
+      } catch (error) {
+        console.error("Error fetching comments:", error.message || error);
+        setError(error.message);
+      } finally {
+        setIsLoading(false); // Dejar de mostrar el indicador de carga
+      }
+    };
+  
+    fetchComments();
+  }, []);
+  
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -147,7 +191,42 @@ const UserProfile = () => {
             ) : (
               <p className="text-center text-gray-500">You haven't created any wikis yet! Get started now!</p>
             )}
+            
           </div>
+          <div className={styles.commentsContainer}>
+            {comments.length > 0 ? (
+              <>
+                <h2 className={styles.title}>Your Comments</h2>
+                {comments.map((comment) => (
+                  <div key={comment._id} className={styles.commentCard}>
+                    <h3 className={styles.commentTitle}>{comment.title}</h3>
+                    
+                    <p className={styles.commentDate}>
+                      <strong>Date:</strong>{" "}
+                      {comment.date ? new Date(comment.date).toLocaleString() : "No date"}
+                    </p>
+
+                    <p className={styles.commentAuthor}>
+                      <strong>Author:</strong> {comment.author_id || "Anonymous"}
+                    </p>
+
+                    <p className={styles.commentRating}>
+                      <strong>Rating:</strong> {comment.rating || "No rating"}
+                    </p>
+
+                    <p className={styles.commentBody}>
+                      {comment.content || "No content for this comment."}
+                    </p>
+                  </div>
+                ))}
+              </>
+            ) : (
+              <p className={styles.noComments}>You didn't publish any comment yet.</p>
+            )}
+          </div>
+
+
+          
         </div>
       </div>
     </ClientOnly>

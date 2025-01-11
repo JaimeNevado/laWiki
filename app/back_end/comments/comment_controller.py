@@ -46,7 +46,7 @@ api.add_middleware(
 path = "/api/v1/"
 
 
-# Get all comments of the system, allows filter comments by author or title
+# Get all comments of the system, allows filter comments by author, title, or destination_id
 @api.get(path + "comments")
 def get_comments(
     author: Union[str, None] = None,
@@ -55,6 +55,7 @@ def get_comments(
     title_order: Union[int, None] = None,
     date_order: Union[int, None] = None,
     article_id: Union[str, None] = None,
+    destination_id: Union[str, None] = None,  # Added parameter for destination filtering
 ):
 
     query = {}
@@ -64,6 +65,8 @@ def get_comments(
         query["title"] = title
     if article_id is not None:
         query["article_id"] = article_id
+    if destination_id is not None:  # Add filtering condition for destination_id
+        query["destination_id"] = destination_id
     if len(query) == 0:
         query = None
 
@@ -80,6 +83,7 @@ def get_comments(
     comments = collection.find(query).sort(sort_order)
     serialized_comments = [serialize_document(comment) for comment in comments]
     return serialized_comments
+
 
 
 # get comment by id
