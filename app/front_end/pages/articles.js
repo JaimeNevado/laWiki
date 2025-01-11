@@ -15,7 +15,7 @@ export default function ArticlesListPage() {
         return response.json();
       })
       .then((data) => {
-        setArticles(data); // Aseguramos que los datos coincidan con la estructura del backend
+        setArticles(data);
         setLoading(false);
       })
       .catch((error) => {
@@ -30,22 +30,42 @@ export default function ArticlesListPage() {
   return (
     <div className="container mt-5">
       <h2 className="text-center">All Articles</h2>
-      <div className="row">
+      <div className="row g-3"> {/* Clase g-3 agrega espacio entre filas y columnas */}
         {articles.map((article) => (
-          <div key={article._id} className="col-md-4">
-            <div className="card mb-3">
+          <div key={article._id} className="col-md-4 d-flex">
+            <div
+              className="card mb-3 d-flex flex-column"
+              style={{
+                flex: "1 1 auto",
+                display: "flex",
+                height: "100%",
+              }}
+            >
               <img
                 src={article.images?.[0] || "/placeholder.jpg"}
-                className="card-img-top"
+                className="card-img-top img-fluid"
                 alt={article.name || "Article Image"}
+                style={{
+                  height: "150px", // Ajusta la altura de la imagen
+                  objectFit: "cover",
+                }}
               />
-              <div className="card-body">
+              <div className="card-body d-flex flex-column">
                 <h5 className="card-title">{article.name}</h5>
-                <p className="card-text">
+                <p
+                  className="card-text"
+                  style={{
+                    flexGrow: 1, // Hace que el texto ocupe espacio dinámico
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
                   {article.short_text || "No description available."}
                 </p>
-                {/* Ajustar el enlace para apuntar a la página `article_page.js` */}
-                <Link href={`/article_page?id=${article._id}`} className="btn btn-primary">
+                <Link
+                  href={`/article_page?id=${article._id}`}
+                  className="btn btn-primary mt-auto"
+                >
                   Read More
                 </Link>
               </div>
