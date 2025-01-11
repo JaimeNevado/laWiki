@@ -11,11 +11,17 @@ export default function HomePage() {
   const [user, setUser] = useState(null);
   // const [language, setLanguage] = useState("en"); // Idioma por defecto
   const [translatedContent, setTranslatedContent] = useState({}); // Traducción de contenido
+  const [role, setRole] = useState("");
 
   useEffect(() => {
     const userFromLocalStorage = JSON.parse(localStorage.getItem("user"));
     setUser(userFromLocalStorage || null); // Permite que el usuario sea null
     const userEmail = localStorage.getItem("email");
+    const userRole = localStorage.getItem("userDB");
+    if (userRole){
+      setRole(JSON.parse(userRole).level);
+    }
+    console.log("Role: ", role);
     if (userEmail) {
       refreshNotifications(userEmail);
     }
@@ -101,9 +107,9 @@ export default function HomePage() {
 
       <div className="container mt-5">
         <div className="text-end me-2 mb-4">
-          {user ? (
+          {user && role === "admin" ? (
             <LinkButton
-              btn_type={"btn btn-secondary"}
+              btn_type={"btn btn-primary"}
               button_text={translatedContent?.createWiki || "Create Wiki"}
               state="enabled"
               link="/wiki/wiki_form"

@@ -13,12 +13,17 @@ function useWikiForm(initialState) {
 
   useEffect(() => {
     let email = localStorage.getItem("email");
+    const userRole = localStorage.getItem("userDB");
+    let role = "";
+    if (userRole){
+      role = JSON.parse(userRole).level;
+    } 
 
     if (email) {
       // console.log("from wikiForm -> useWikiForm from if user: ", email);
       refreshNotifications(email);
     }
-    if (!email) {
+    if (role !== "admin") {
       router.push("/login");
     }
   }, []);
@@ -214,7 +219,9 @@ function WikiForm() {
         },
       });
       if (!response.ok) {
-        throw new Error(`Failed to remove wiki: ${response.statusText}`);
+        alert(`Failed to remove wiki. ${response.statusText}`);
+        router.push(`/login`);
+        // throw new Error(`Failed to remove wiki: ${response.statusText}`);
       }
 
       // removing articles
@@ -226,10 +233,13 @@ function WikiForm() {
         },
       });
       if (!response_art.ok) {
-        throw new Error(`Failed to remove articles of the wiki wiki: ${response.statusText}`);
+        alert(`Failed to remove wiki. ${response.statusText}`);
+        router.push(`/login`);
+        // throw new Error(`Failed to remove articles of the wiki wiki: ${response.statusText}`);
+      } else {
+        alert("Wiki and related articles removed successfully!");
+        router.push(`/`);
       }
-      alert("Wiki and related articles removed successfully!");
-      router.push(`/`);
     } catch (error) {
       console.error("API submission error:", error);
       throw error;

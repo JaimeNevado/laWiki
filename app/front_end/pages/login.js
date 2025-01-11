@@ -60,7 +60,7 @@ const LoginPage = () => {
       const updateUserDB = async () => {
         try {
           console.log(userDB);
-          let response = await fetch('http://localhost:13004/api/v1/users', {
+          let response = await fetch(`${process.env.NEXT_PUBLIC_USERS_API_URL}/api/v1/users`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ const LoginPage = () => {
           });
           const responsePost = await response.json();
           console.log("POST: ", responsePost);
-          response = await fetch(`http://localhost:13004/api/v1/users/${userDB.googleID}`, {
+          response = await fetch(`${process.env.NEXT_PUBLIC_USERS_API_URL}/api/v1/users/${userDB.googleID}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',

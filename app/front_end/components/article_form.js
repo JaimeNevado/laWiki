@@ -56,7 +56,7 @@ export default function ArticleForm({ requestType, articleId }) {
   const [images, setImages] = useState([]);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
-
+  const [prevAuthorEmail, setPrevAuthorEmail] = useState("");
  
   useEffect(() => {
     if (requestType === "PUT" && articleId) {
@@ -72,6 +72,7 @@ export default function ArticleForm({ requestType, articleId }) {
             throw new Error(`Error fetching article: ${response.status}`);
           }
           const data = await response.json();
+          setPrevAuthorEmail(data.email);
           setFormData((prev)=>({
             ...prev,
             name: data.name || "",
@@ -141,7 +142,7 @@ export default function ArticleForm({ requestType, articleId }) {
         }
 
         const uploadResult = await uploadResponse.json();
-        imageUrls = [...imageUrls, ...uploadResult.urls];
+        imageUrls = [...uploadResult.urls, ...imageUrls];
       } catch (error) {
         console.error("Error uploading images:", error);
         setError(error.message);
@@ -161,7 +162,9 @@ export default function ArticleForm({ requestType, articleId }) {
           text: formData.text,
           date: new Date().toISOString(),
           author: formData.author,
-          email: formData.email
+          email: formData.email,
+          googleMaps: formData.googleMaps,
+          images: imageUrls
         },
       ],
     };
@@ -185,7 +188,7 @@ export default function ArticleForm({ requestType, articleId }) {
       const articleResult = await articleResponse.json();
       setSuccess(true);
 
-      if (!user?.email) {
+      if (!user?.email || !prevAuthorEmail) {
         throw new Error("User email is not available");
       }
 
@@ -194,7 +197,7 @@ export default function ArticleForm({ requestType, articleId }) {
         title: requestType === "POST" ? "New Article Created" : "Article Updated",
         body: `The article "${articleData.name}" has been ${requestType === "POST" ? "created" : "updated"}.`,
         opened: false,
-        user_id: user.email,
+        user_id: prevAuthorEmail,
       };
 
       console.log("Notification payload:", notification); // Add logging to verify the notification payload

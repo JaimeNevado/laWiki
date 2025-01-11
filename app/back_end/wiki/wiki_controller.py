@@ -32,6 +32,7 @@ from environs import Env
 env = Env()
 env.read_env()
 ARTICLE_URL = env("ARTICLE_URL")
+USERS_URL = env("USERS_URL")
 ORIGINS = env.list("ORIGINS_URL")
 print("Article URL: ", ARTICLE_URL)
 print("Allowed Origins: ", ORIGINS)
@@ -64,6 +65,7 @@ api.add_middleware(
 
 path = "/api/v1/"
 path_v2 = "/api/v2/"
+
 
 # sirve tanto para wikis como para wiki
 @api.get(path + "wikis")
@@ -114,7 +116,19 @@ def update(item_id: str, wiki: Wiki, user_info: dict = Depends(auth.verify_token
 
 # Removes wiki from database
 @api.delete(path + "wikis/{item_id}")
-def delete(item_id: str, user_info: dict = Depends(auth.verify_token), status_code=204):
+async def delete(
+    item_id: str, user_info: dict = Depends(auth.verify_token), status_code=204
+):
+    # controll user level
+    print("Delete wiki, user info: ", user_info)
+    user_id = user_info.get("sub")
+    client = AsyncClient()
+    response = await client.get(f"{USERS_URL}{path}users/{user_id}")
+    response.raise_for_status()
+    user = response.json()
+    if user.get("level") != "admin":
+        raise HTTPException(status_code=403, detail="User is not an admin")
+
     collection.delete_one({"_id": ObjectId(item_id)})
     return {"message": "Wiki was deleted successfully"}
 
