@@ -18,7 +18,7 @@ export default function HomePage() {
     setUser(userFromLocalStorage || null); // Permite que el usuario sea null
     const userEmail = localStorage.getItem("email");
     const userRole = localStorage.getItem("userDB");
-    if (userRole){
+    if (userRole) {
       setRole(JSON.parse(userRole).level);
     }
     console.log("Role: ", role);
@@ -101,7 +101,9 @@ export default function HomePage() {
             <h3>{user.name}</h3>
           </>
         ) : (
-          <p className="text-muted">{translatedContent?.notLoggedIn || "You are not logged in."}</p>
+          <p className="text-muted">
+            {translatedContent?.notLoggedIn || "You are not logged in."}
+          </p>
         )}
       </div>
 
@@ -114,22 +116,35 @@ export default function HomePage() {
               state="enabled"
               link="/wiki/wiki_form"
             />
-          ) : ""}
+          ) : (
+            ""
+          )}
         </div>
 
-        <div className="row">
+        <div className="row g-3"> {/* Clase g-3 para espaciado entre filas y columnas */}
           {wikis.map((wiki) => (
-            <div key={wiki._id} className="col-md-4">
-              <div className="card mb-3">
+            <div key={wiki._id} className="col-md-4 d-flex">
+              <div
+                className="card mb-3 d-flex flex-column"
+                style={{
+                  flex: "1 1 auto",
+                  display: "flex",
+                  height: "100%", // Todas las tarjetas tienen la misma altura
+                }}
+              >
                 <img
                   src={wiki.bg_image || "/placeholder.jpg"}
-                  className="card-img-top"
+                  className="card-img-top img-fluid"
                   alt={wiki.name || "Wiki Image"}
+                  style={{
+                    height: "350px", // Imagen con altura fija
+                    objectFit: "cover",
+                  }}
                 />
-                <div className="card-body text-center">
+                <div className="card-body d-flex flex-column text-center">
                   <h5 className="card-title">{wiki.name}</h5>
                   <LinkButton
-                    btn_type={"btn btn-dark"}
+                    btn_type={"btn btn-dark mt-auto"}
                     button_text={translatedContent?.viewWiki || "View Wiki"}
                     state="enabled"
                     link={`/wiki/${wiki._id}`}
