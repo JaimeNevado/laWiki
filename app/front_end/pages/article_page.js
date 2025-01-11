@@ -61,6 +61,8 @@ export default function ArticlesListPage() {
   }, [user, article]);
 
 
+
+
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
 
@@ -229,7 +231,7 @@ export default function ArticlesListPage() {
     const selectedLanguage = e.target.value;
     setLanguage(selectedLanguage);
 
-    let translatedArticle = null; // Initialize the variable here
+    let translatedArticle = null;
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/translate?target_language=${selectedLanguage}`, {
@@ -285,21 +287,25 @@ export default function ArticlesListPage() {
 
         if (!createResponse.ok) {
           const errorText = await createResponse.text();
-          console.error("Error en la respuesta del servidor al crear el artículo:", errorText);
-          throw new Error(`Error del servidor al crear el artículo: ${createResponse.status}`);
+          console.error("Server error while creating article:", errorText);
+          throw new Error(`Server error while creating article: ${createResponse.status}`);
         }
 
         const createdArticle = await createResponse.json();
-        console.log("Artículo traducido creado:", createdArticle);
+        console.log("Translated article created:", createdArticle);
 
-        alert(`Artículo traducido creado exitosamente: ${createdArticle.msg}`);
+        alert(`Translated article created: ${createdArticle.msg}`);
+
+        console.log("ID: ", createdArticle.inserted_id)
+
+        // Redirigir a la página del artículo usando el ID
+        router.push(`/article_page?id=${createdArticle.inserted_id}`); // Ajusta la ruta según tu estructura
       } catch (error) {
-        console.error("Error creando el artículo:", error);
-        alert(`Error al crear el artículo: ${error.message}`);
+        console.error("Error creating the article:", error);
+        alert(`Error creating the article: ${error.message}`);
       }
     }
   };
-
 
 
   if (error) return <p className="text-danger text-center">{error}</p>;
