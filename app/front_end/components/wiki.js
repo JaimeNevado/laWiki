@@ -135,7 +135,7 @@ const Wiki = ({ wiki }) => {
               </div>
             ))
           ) : (
-            <p>{articles.length === 0 ? "No hay artículos disponibles." : "Loading articles..."}</p>
+            <p>{articles.length === 0 ? "No articles available." : "Loading articles..."}</p>
           )}
         </div>
       </div>
