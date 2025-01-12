@@ -19,6 +19,7 @@ const UserProfile = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [comments, setComments] = useState([]);
   const [role, setRole] = useState("");
+  const [averageRating, setAverageRating] = useState(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -103,6 +104,16 @@ const UserProfile = () => {
   
     fetchComments();
   }, []);
+
+  useEffect(() => {
+    if (comments.length > 0) {
+      const totalRating = comments.reduce((acc, comment) => acc + (comment.rating || 0), 0);
+      const avgRating = totalRating / comments.length;
+      setAverageRating(avgRating.toFixed(2)); // Guardamos la media con dos decimales
+    } else {
+      setAverageRating(null);
+    }
+  }, [comments]);
   
 
   const handleLogout = () => {
@@ -141,6 +152,11 @@ const UserProfile = () => {
               </div>
               <h2 className="mt-4 text-xl font-semibold text-gray-900">{userData?.name}</h2>
               <p className="text-gray-600 text-sm">{userData?.email}</p>
+              {averageRating && (
+                <p className="text-gray-800 text-lg font-bold">
+                  Average Rating: {averageRating} ⭐
+                </p>
+              )}
             </div>
 
             <button

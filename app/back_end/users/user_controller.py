@@ -101,6 +101,15 @@ def actualizar_rating(googleID: str, nuevoRating: float):
 
     return {"message": "Rating updated successfully"}
 
+@app.get(path + "users/{googleID}")
+def obtener_usuario(googleID: str):
+    # Buscar el usuario por googleID
+    usuario = collection.find_one({"googleID": googleID}, {"_id": 0})
+    if not usuario:
+        raise HTTPException(status_code=404, detail="User not found")
+    return usuario
+
+
 
 @app.delete(path + "users/{googleID}")
 def eliminar_usario(googleID: str):
