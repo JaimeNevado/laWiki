@@ -17,18 +17,18 @@ export default function ArticleForm({ requestType, articleId }) {
     if (userEmail) {
       refreshNotifications(userEmail);
     }
-    if(!userEmail){
+    if (!userEmail) {
       router.push("/login");
     }
   }, []);
 
-  
+
   const [formData, setFormData] = useState({
     name: "",
     text: "",
     short_text: "",
     attachedFiles: "",
-    author:  "",
+    author: "",
     googleMaps: "",
     date: new Date().toISOString(),
     wikiID: wikiID || "",
@@ -36,28 +36,29 @@ export default function ArticleForm({ requestType, articleId }) {
     versions: [],
     email: ""
   });
-  
-  useEffect(() => {setFormData({
-    name: "",
-    text: "",
-    short_text: "",
-    attachedFiles: "",
-    author: user?.name || "",
-    email: user?.email || "",
-    googleMaps: "",
-    date: new Date().toISOString(),
-    wikiID: wikiID || "",
-    images: [],
-    versions: [],
-  },);
-  console.log("datos del formulario: ", formData);
-}, [user, wikiID]);
-  
+
+  useEffect(() => {
+    setFormData({
+      name: "",
+      text: "",
+      short_text: "",
+      attachedFiles: "",
+      author: user?.name || "",
+      email: user?.email || "",
+      googleMaps: "",
+      date: new Date().toISOString(),
+      wikiID: wikiID || "",
+      images: [],
+      versions: [],
+    },);
+    console.log("datos del formulario: ", formData);
+  }, [user, wikiID]);
+
   const [images, setImages] = useState([]);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
   const [prevAuthorEmail, setPrevAuthorEmail] = useState("");
- 
+
   useEffect(() => {
     if (requestType === "PUT" && articleId) {
       const fetchArticle = async () => {
@@ -73,7 +74,7 @@ export default function ArticleForm({ requestType, articleId }) {
           }
           const data = await response.json();
           setPrevAuthorEmail(data.email);
-          setFormData((prev)=>({
+          setFormData((prev) => ({
             ...prev,
             name: data.name || "",
             text: data.text || "",
@@ -188,8 +189,8 @@ export default function ArticleForm({ requestType, articleId }) {
       const articleResult = await articleResponse.json();
       setSuccess(true);
 
-      if (!user?.email || !prevAuthorEmail) {
-        throw new Error("User email is not available");
+      if (!prevAuthorEmail) {
+        setPrevAuthorEmail(articleData.email);
       }
 
       const notification = {
@@ -197,7 +198,7 @@ export default function ArticleForm({ requestType, articleId }) {
         title: requestType === "POST" ? "New Article Created" : "Article Updated",
         body: `The article "${articleData.name}" has been ${requestType === "POST" ? "created" : "updated"}.`,
         opened: false,
-        user_id: prevAuthorEmail,
+        user_id: prevAuthorEmail || articleData.email,
       };
 
       console.log("Notification payload:", notification); // Add logging to verify the notification payload
@@ -216,7 +217,7 @@ export default function ArticleForm({ requestType, articleId }) {
         throw new Error(`Failed to send notification: ${notificationResponse.statusText}`);
       }
 
-      router.push(`/article_page?id=${articleId? articleId: articleResult.inserted_id}`);
+      router.push(`/article_page?id=${articleId ? articleId : articleResult.inserted_id}`);
     } catch (error) {
       console.error("Error submitting article:", error);
       setError(error.message);
