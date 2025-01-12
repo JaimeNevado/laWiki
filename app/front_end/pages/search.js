@@ -26,7 +26,7 @@ function Search() {
     return (
         <>
             <div className="fs-3 text-center my-3">
-                Search result for "{query}":
+                Results:
             </div>
             <div className="card-group d-flex justify-content-evenly">
                 {articleList === null ? (
