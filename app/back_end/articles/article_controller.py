@@ -31,9 +31,11 @@ env.read_env()
 # URLs for microservices
 COMMENTS_URL = env("COMMENT_URL")
 WIKI_URL = env("WIKI_URL")
+USERS_URL = env("USERS_URL")
 ORIGINS = env.list("ORIGINS_URL")
 print("Wiki URL: ", WIKI_URL)
 print("Comments URL: ", COMMENTS_URL)
+print("Users URL: ", USERS_URL)
 print("Allowed Origins: ", ORIGINS)
 
 image_uploader = ImageUploader()
@@ -130,7 +132,16 @@ async def get_articles_preview(
     if name:
         query.append({"$match": {"name": {"$regex": name, "$options": "i"}}})
     if author:
-        query.append({"$match": {"author": {"$regex": author, "$options": "i"}}})
+        query.append(
+            {
+                "$match": {
+                    "$or": [
+                        {"author": {"$regex": author, "$options": "i"}},
+                        {"versions.author": {"$regex": author, "$options": "i"}},
+                    ]
+                }
+            }
+        )
 
     if date_from and date_to:
         query.append({"$match": {"date": {"$gte": date_from, "$lte": date_to}}})
@@ -201,6 +212,15 @@ async def update_article(
 # DELETE an article
 @router.delete(path + "articles/{id}")
 async def delete_article(id: str, user_info: dict = Depends(auth.verify_token)):
+    # controll user level
+    user_id = user_info.get("sub")
+    client = AsyncClient()
+    response = await client.get(f"{USERS_URL}{path}users/{user_id}")
+    response.raise_for_status()
+    user = response.json()
+    if user.get("level") != "admin":
+        raise HTTPException(status_code=403, detail="User is not an admin")
+
     deleted = collection.find_one_and_delete({"_id": ObjectId(id)})
     if not deleted:
         raise HTTPException(status_code=404, detail="Article not found")
@@ -257,7 +277,7 @@ async def get_wiki(article_id: str):
 
 
 ####v2
-@router.post(path + "upload_images")
+@router.post(path + "articles/upload_images")
 async def upload_images(
     files: List[UploadFile] = File(...), user_info: dict = Depends(auth.verify_token)
 ):

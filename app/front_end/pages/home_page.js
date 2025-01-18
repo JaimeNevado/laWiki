@@ -11,11 +11,17 @@ export default function HomePage() {
   const [user, setUser] = useState(null);
   // const [language, setLanguage] = useState("en"); // Idioma por defecto
   const [translatedContent, setTranslatedContent] = useState({}); // Traducción de contenido
+  const [role, setRole] = useState("");
 
   useEffect(() => {
     const userFromLocalStorage = JSON.parse(localStorage.getItem("user"));
     setUser(userFromLocalStorage || null); // Permite que el usuario sea null
     const userEmail = localStorage.getItem("email");
+    const userRole = localStorage.getItem("userDB");
+    if (userRole) {
+      setRole(JSON.parse(userRole).level);
+    }
+    console.log("Role: ", role);
     if (userEmail) {
       refreshNotifications(userEmail);
     }
@@ -95,35 +101,50 @@ export default function HomePage() {
             <h3>{user.name}</h3>
           </>
         ) : (
-          <p className="text-muted">{translatedContent?.notLoggedIn || "You are not logged in."}</p>
+          <p className="text-muted">
+            {translatedContent?.notLoggedIn || "You are not logged in."}
+          </p>
         )}
       </div>
 
       <div className="container mt-5">
         <div className="text-end me-2 mb-4">
-          {user ? (
+          {user && role === "admin" ? (
             <LinkButton
-              btn_type={"btn btn-secondary"}
+              btn_type={"btn btn-primary"}
               button_text={translatedContent?.createWiki || "Create Wiki"}
               state="enabled"
               link="/wiki/wiki_form"
             />
-          ) : ""}
+          ) : (
+            ""
+          )}
         </div>
 
-        <div className="row">
+        <div className="row g-3"> {/* Clase g-3 para espaciado entre filas y columnas */}
           {wikis.map((wiki) => (
-            <div key={wiki._id} className="col-md-4">
-              <div className="card mb-3">
+            <div key={wiki._id} className="col-md-4 d-flex">
+              <div
+                className="card mb-3 d-flex flex-column"
+                style={{
+                  flex: "1 1 auto",
+                  display: "flex",
+                  height: "100%", // Todas las tarjetas tienen la misma altura
+                }}
+              >
                 <img
                   src={wiki.bg_image || "/placeholder.jpg"}
-                  className="card-img-top"
+                  className="card-img-top img-fluid"
                   alt={wiki.name || "Wiki Image"}
+                  style={{
+                    height: "350px", // Imagen con altura fija
+                    objectFit: "cover",
+                  }}
                 />
-                <div className="card-body text-center">
+                <div className="card-body d-flex flex-column text-center">
                   <h5 className="card-title">{wiki.name}</h5>
                   <LinkButton
-                    btn_type={"btn btn-dark"}
+                    btn_type={"btn btn-dark mt-auto"}
                     button_text={translatedContent?.viewWiki || "View Wiki"}
                     state="enabled"
                     link={`/wiki/${wiki._id}`}

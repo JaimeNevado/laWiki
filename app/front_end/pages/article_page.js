@@ -20,6 +20,7 @@ export default function ArticlesListPage() {
   const [notification, setNotification] = useState(null); // Estado para las notificaciones
   const [user, setStoredUser] = useState(null);
   const [canEdit, setCanEdit] = useState(false);
+  const [role, setRole] = useState("");
   const [language, setLanguage] = useState("en");
 
 
@@ -56,9 +57,15 @@ export default function ArticlesListPage() {
   }, [id]);
 
   useEffect(() => {
-    setCanEdit(user && article && user.name === article.author);
+    setCanEdit(user && article);// && user.name === article.author);
+    const userRole = localStorage.getItem("userDB");
+    if (userRole) {
+      setRole(JSON.parse(userRole).level);
+    }
     console.log("author: ", article?.author, "user: ", user?.name);
   }, [user, article]);
+
+
 
 
   const handleCommentSubmit = async (e) => {
@@ -132,7 +139,39 @@ export default function ArticlesListPage() {
         },
       });
 
-      if (!response.ok) throw new Error("Failed to delete article");
+      if (!response.ok){
+        alert(`Failed to delete article. ${response.statusText}`);
+        router.push(`/login`);
+      } 
+      // throw new Error("Failed to delete article");
+
+      if (!user?.email) {
+        throw new Error("User email is not available");
+      }
+
+      const notification = {
+        date: new Date().toISOString(),
+        title: "Article Deleted",
+        body: `The article "${article.name}" has been deleted.`,
+        opened: false,
+        user_id: user.email,
+      };
+
+      console.log("Notification payload:", notification); // Add logging to verify the notification payload
+
+
+      const notificationResponse = await fetch(`${process.env.NEXT_PUBLIC_NOTIFICATIONS_API_URL}/api/v1/notifications`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(notification),
+      });
+
+      if (!notificationResponse.ok) {
+        throw new Error(`Failed to send notification: ${notificationResponse.statusText}`);
+      }
 
       router.push(`/wiki/${article.wikiID}`);
     } catch (err) {
@@ -177,13 +216,20 @@ export default function ArticlesListPage() {
 
   const getMessage = async () => {
     const lugar = article?.googleMaps || "defaultLocation";
-    const url = `http://nominatim.openstreetmap.org/search?q=${lugar}&format=json&addressdetails=1`;
+    const url = `https://nominatim.openstreetmap.org/search?q=${lugar}&format=json&addressdetails=1`;
     try {
       const response = await fetch(url);
-      if (!response.ok) throw new Error("Failed to fetch location");
-      const data = await response.json();
-      const mapUrl = `https://www.openstreetmap.org/?mlat=${data[0].lat}&mlon=${data[0].lon}#map=14/${data[0].lat}/${data[0].lon}`;
-      window.open(mapUrl, '_blank', 'noopener,noreferrer');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.length) {
+          const mapUrl = `https://www.openstreetmap.org/?mlat=${data[0].lat}&mlon=${data[0].lon}#map=14/${data[0].lat}/${data[0].lon}`;
+          window.open(mapUrl, '_blank', 'noopener,noreferrer');
+        } else {
+          alert("Location data is invalid or not available");
+        }
+      } else {
+        alert("Couldn't fetch location data, please try later");
+      }
     } catch (err) {
       console.error("Error fetching location:", err);
       setError("Error fetching location");
@@ -194,6 +240,8 @@ export default function ArticlesListPage() {
     const selectedLanguage = e.target.value;
     setLanguage(selectedLanguage);
 
+    let translatedArticle = null;
+
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/translate?target_language=${selectedLanguage}`, {
         method: "POST",
@@ -203,24 +251,68 @@ export default function ArticlesListPage() {
         body: JSON.stringify({
           content: {
             title: article.name,
-            content: "Hoy es un día de prueba!!",
+            content: article.text,
+            shortTextTranslated: article.short_text,
           },
         }),
       });
 
       if (!response.ok) {
-        const errorText = await response.text(); // Lee el cuerpo de la respuesta
+        const errorText = await response.text();
         console.error("Error en la respuesta del servidor:", errorText);
         throw new Error(`Error del servidor: ${response.status}`);
       }
 
-      const translatedArticle = await response.json();
-      console.log(translatedArticle);  // Para verificar la estructura de la respuesta
-
-      alert(`Artículo traducido: ${translatedArticle.content.title}`);
+      translatedArticle = await response.json();
     } catch (error) {
-      console.error("Error translating article:", error);
+      console.error("Error traduciendo el artículo:", error);
       alert(`Error traduciendo el artículo: ${error.message}`);
+      return; // Prevent further execution if translation fails
+    }
+
+    // Solo procedemos con la creación del artículo si la traducción fue exitosa
+    if (translatedArticle) {
+      try {
+        const createResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/articles`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            },
+            body: JSON.stringify({
+              name: translatedArticle.content.title,
+              text: translatedArticle.content.content,
+              short_text: translatedArticle.content.shortTextTranslated,
+              author: article.author,
+              googleMaps: article.googleMaps,
+              images: article.images,
+              wikiID: article.wikiID,
+              email: article.email,
+            }),
+          }
+        );
+
+        if (!createResponse.ok) {
+          const errorText = await createResponse.text();
+          console.error("Server error while creating article:", errorText);
+          throw new Error(`Server error while creating article: ${createResponse.status}`);
+        }
+
+        const createdArticle = await createResponse.json();
+        console.log("Translated article created:", createdArticle);
+
+        alert(`Translated article created: ${createdArticle.msg}`);
+
+        console.log("ID: ", createdArticle.inserted_id)
+
+        // Redirigir a la página del artículo usando el ID
+        router.push(`/article_page?id=${createdArticle.inserted_id}`); // Ajusta la ruta según tu estructura
+      } catch (error) {
+        console.error("Error creating the article:", error);
+        alert(`Error creating the article: ${error.message}`);
+      }
     }
   };
 
@@ -233,7 +325,7 @@ export default function ArticlesListPage() {
       {article ? (
         <>
           <div>
-            <label htmlFor="language-selector">Traducir a: </label>
+            <label htmlFor="language-selector">Traducir artículo al: </label>
             <select
               id="language-selector"
               value={language}
@@ -255,7 +347,7 @@ export default function ArticlesListPage() {
               justifyContent: "center",
               alignItems: "center"
             }}>
-              {canEdit && (<>
+              {canEdit && (
                 <button
                   onClick={() => router.push(`/editArticleForm?article_id=${article._id}`)}
                   className={`${styles.button} ${styles.editButton}`}
@@ -270,6 +362,9 @@ export default function ArticlesListPage() {
                 >
                   Edit Article
                 </button>
+              )}
+
+              {canEdit && role === "admin" && (
                 <button
                   onClick={handleDelete}
                   className={`${styles.button} ${styles.deleteButton}`}
@@ -284,8 +379,8 @@ export default function ArticlesListPage() {
                 >
                   Delete Article
                 </button>
-              </>
               )}
+
             </div>
 
 

@@ -19,6 +19,7 @@ jobs:
           node-version: '22.11.0'
 
       - name: Install dependencies
+        working-directory: app/front_end
         run: npm install
 
       - name: Configure AWS credentials
@@ -28,17 +29,26 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-#      - name: Add SSH key
-#        uses: webfactory/ssh-agent@v0.5.3
-#        with:
-#          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+      - name: Add SSH key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@ec2-13-39-176-208.eu-west-3.compute.amazonaws.com << 'EOF'
-            cd /home/ubuntu/laWiki/app/
-            . ./aws_stop.sh
-            git pull origin main
-            sleep 5
-            . ./aws_start.sh
+            cd /home/ubuntu/laWiki/app/ &&
+            export NVM_DIR=/home/ubuntu/.nvm &&
+            source /home/ubuntu/.nvm/nvm.sh &&
+            source ./aws_stop.sh &&
+            export remoterepo="https://illyaro:${{ secrets.ACCESS_TOKEN }}@github.com/illyaro/laWiki.git" &&
+            git pull "$remoterepo" main &&
+            sleep 5 &&
+            source ./aws_start.sh
           EOF
+        env:
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}

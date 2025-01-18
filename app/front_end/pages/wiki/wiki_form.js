@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useMemo } from "react";
@@ -13,19 +13,24 @@ function useWikiForm(initialState) {
 
   useEffect(() => {
     let email = localStorage.getItem("email");
+    const userRole = localStorage.getItem("userDB");
+    let role = "";
+    if (userRole){
+      role = JSON.parse(userRole).level;
+    } 
 
     if (email) {
       // console.log("from wikiForm -> useWikiForm from if user: ", email);
       refreshNotifications(email);
     }
-    if(!email){
+    if (role !== "admin") {
       router.push("/login");
     }
   }, []);
 
   useEffect(() => {
-    setFormData(initialState); 
-  }, []); 
+    setFormData(initialState);
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -35,7 +40,13 @@ function useWikiForm(initialState) {
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     const file = files[0];
-    setFormData((prev) => ({ ...prev, [name]: file }));
+    if (file.size >= 10485760) {
+      setFormData((prev) => ({ ...prev, [name]: null }));
+      alert("File size too large. Maximum size is 10MB.");
+      return;
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: file }));
+    }
   };
 
   return {
@@ -50,7 +61,7 @@ async function submitWiki({ wikiID, payload } = {}) {
     let response;
     if (!wikiID) {
       // Create new Wiki
-      console.log("from submitWiki. id: ", wikiID, " payload: ", Array.from(payload.entries()));
+      // console.log("from submitWiki. id: ", wikiID, " payload: ", Array.from(payload.entries()));
       response = await fetch(`${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v2/wikis`, {
         method: "POST",
         headers: {
@@ -60,7 +71,7 @@ async function submitWiki({ wikiID, payload } = {}) {
       });
     } else {
       // Update existing Wiki
-      console.log("from submitWiki. id: ", wikiID, " payload: ", Array.from(payload.entries()));
+      // console.log("from submitWiki. id: ", wikiID, " payload: ", Array.from(payload.entries()));
       response = await fetch(`${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v2/wikis/${wikiID}`, {
         method: "PUT",
         headers: {
@@ -96,16 +107,14 @@ function WikiForm() {
         .catch((err) => console.error(err));
 
       setDeleteButtonVisible(true);
-      setCanEdit(storedUser && wiki && storedUser.name === wiki.author);
       // console.log("from WikiForm. wiki.author: ", wiki?.author, " storedUser.name: ", storedUser?.name, " canEdit: ", canEdit);
     } else {
       setDeleteButtonVisible(false);
       setCanEdit(true);
     }
     setStoredUser(JSON.parse(localStorage.getItem("user")));
-
+    // console.log("wikiform, id updated!");
   }, [wikiID]);
-
 
   const initData = useMemo(() => {
     // const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -119,17 +128,51 @@ function WikiForm() {
         bg_image_url: wiki.bg_image || "",
         logo: null,
         logo_url: wiki.logo || "",
-      }
-      : {
+      } : {
         name: "",
         description: "",
         author: storedUser?.name || "",
         bg_image: null,
         logo: null,
       };
-  }, [wiki]);
+  }, [wiki, storedUser]);
 
   const { formData, handleInputChange, handleFileChange } = useWikiForm(initData);
+
+  // reinicializando el formulario
+  useEffect(() => {
+    if (!wiki){
+      setCanEdit(true);  
+    } else {
+      setCanEdit(storedUser && storedUser.name === wiki.author);
+      const wikiData = {
+        _id: wiki._id,
+        name: wiki.name || "",
+        description: wiki.description || "",
+        author: storedUser?.name || wiki.author || "",
+        bg_image: null,
+        bg_image_url: wiki.bg_image || "",
+        logo: null,
+        logo_url: wiki.logo || "",
+      };
+
+      Object.entries(wikiData).forEach(([name, value]) => {
+        handleInputChange({
+          target: { name, value }
+        });
+      });
+    }
+
+    const syntheticEvent = {
+      target: {
+        name: 'author',
+        value: storedUser?.name
+      }
+    };    
+    handleInputChange(syntheticEvent);
+
+    // console.log("wikiform, storedUser or wiki updated!");
+  }, [storedUser, wiki]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -176,7 +219,9 @@ function WikiForm() {
         },
       });
       if (!response.ok) {
-        throw new Error(`Failed to remove wiki: ${response.statusText}`);
+        alert(`Failed to remove wiki. ${response.statusText}`);
+        router.push(`/login`);
+        // throw new Error(`Failed to remove wiki: ${response.statusText}`);
       }
 
       // removing articles
@@ -188,10 +233,13 @@ function WikiForm() {
         },
       });
       if (!response_art.ok) {
-        throw new Error(`Failed to remove articles of the wiki wiki: ${response.statusText}`);
+        alert(`Failed to remove wiki. ${response.statusText}`);
+        router.push(`/login`);
+        // throw new Error(`Failed to remove articles of the wiki wiki: ${response.statusText}`);
+      } else {
+        alert("Wiki and related articles removed successfully!");
+        router.push(`/`);
       }
-      alert("Wiki and related articles removed successfully!");
-      router.push(`/`);
     } catch (error) {
       console.error("API submission error:", error);
       throw error;

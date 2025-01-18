@@ -13,8 +13,11 @@ function WikiSkeleton({ wiki }) {
  
   useEffect(() => {
     setStoredUser(JSON.parse(localStorage.getItem("user")));
-    setCanEdit(storedUser && storedUser.name === wiki.author);
   },[wiki]);
+
+  useEffect(() => {
+    setCanEdit(storedUser && storedUser.name === wiki.author);
+  },[storedUser, wiki]);
 
   return (
     <div className="container pt-3 mt-1">
@@ -84,7 +87,7 @@ const Wiki = ({ wiki }) => {
     id = wiki._id;
   }
 
-  const articlesEndpoint = "http://127.0.0.1:13000/api/v1/wikis/" + id + "/previewArticles";
+  const articlesEndpoint = `${process.env.NEXT_PUBLIC_WIKI_API_URL}/api/v1/wikis/${id}/previewArticles`;
   const [articles, setArticles] = useState([]);
 
   useEffect(() => {
@@ -132,7 +135,7 @@ const Wiki = ({ wiki }) => {
               </div>
             ))
           ) : (
-            <p>{articles.length === 0 ? "No hay artículos disponibles." : "Loading articles..."}</p>
+            <p>{articles.length === 0 ? "No articles available." : "Loading articles..."}</p>
           )}
         </div>
       </div>

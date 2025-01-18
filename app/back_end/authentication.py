@@ -31,12 +31,12 @@ class Authentication:
                 token, google_requests.Request(), self.client_id
             )
             print("decoded token: ", id_info)
-            if datetime.fromtimestamp(id_info["exp"]) < datetime.now():
-                print("Token is expired")
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Token is expired",
-                )
+            # if datetime.fromtimestamp(id_info["exp"]) < datetime.now():
+
             return id_info
         except:
-            return None
+            print("Token is expired")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token is invalid or expired",
+            )

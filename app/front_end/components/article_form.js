@@ -10,33 +10,55 @@ export default function ArticleForm({ requestType, articleId }) {
 
   useEffect(() => {
     const userFromLocalStorage = JSON.parse(localStorage.getItem("user"));
-    setUser(userFromLocalStorage || null); // Permite que el usuario sea null
+    setUser(userFromLocalStorage); // Permite que el usuario sea null
+    console.log("Usuario de google:", user);
     const userEmail = localStorage.getItem("email");
 
     if (userEmail) {
       refreshNotifications(userEmail);
     }
-    if(!userEmail){
+    if (!userEmail) {
       router.push("/login");
     }
   }, []);
+
+
   const [formData, setFormData] = useState({
     name: "",
     text: "",
     short_text: "",
     attachedFiles: "",
-    author: user?.name,
+    author: "",
     googleMaps: "",
     date: new Date().toISOString(),
     wikiID: wikiID || "",
     images: [],
     versions: [],
+    email: ""
   });
+
+  useEffect(() => {
+    setFormData({
+      name: "",
+      text: "",
+      short_text: "",
+      attachedFiles: "",
+      author: user?.name || "",
+      email: user?.email || "",
+      googleMaps: "",
+      date: new Date().toISOString(),
+      wikiID: wikiID || "",
+      images: [],
+      versions: [],
+    },);
+    console.log("datos del formulario: ", formData);
+  }, [user, wikiID]);
+
   const [images, setImages] = useState([]);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
+  const [prevAuthorEmail, setPrevAuthorEmail] = useState("");
 
- 
   useEffect(() => {
     if (requestType === "PUT" && articleId) {
       const fetchArticle = async () => {
@@ -51,18 +73,19 @@ export default function ArticleForm({ requestType, articleId }) {
             throw new Error(`Error fetching article: ${response.status}`);
           }
           const data = await response.json();
-          setFormData({
-            name: data.name,
-            text: data.text,
-            short_text: data.short_text,
-            attachedFiles: data.attachedFiles,
-            author: data.author,
-            googleMaps: data.googleMaps,
+          setPrevAuthorEmail(data.email);
+          setFormData((prev) => ({
+            ...prev,
+            name: data.name || "",
+            text: data.text || "",
+            short_text: data.short_text || "",
+            attachedFiles: data.attachedFiles || "",
+            googleMaps: data.googleMaps || "",
             date: new Date().toISOString(),
-            wikiID: data.wikiID,
-            images: data.images,
-            versions: data.versions,
-          });
+            wikiID: data.wikiID || "",
+            images: data.images || [],
+            versions: data.versions || [],
+          }));
         } catch (error) {
           console.error("Error fetching article:", error.message);
           setError(error.message);
@@ -79,7 +102,19 @@ export default function ArticleForm({ requestType, articleId }) {
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    setImages(files);
+    let trigger = false;
+    const filteredFiles = files.filter((file) => {
+      if (file.size >= 10485760) {
+        trigger = true;
+        return false;
+      }
+      return true;
+    });
+
+    if (trigger) {
+      alert("One or more files were too large. Maximum size is 10MB. Exceeding size photos will not be uploaded to the server.");
+    }
+    setImages(filteredFiles);
   };
 
   const handleSubmit = async (e) => {
@@ -96,7 +131,7 @@ export default function ArticleForm({ requestType, articleId }) {
 
       try {
         // Subir las imágenes y obtener las URLs
-        const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/upload_images`, {
+        const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_ARTICLES_API_URL}/api/v1/articles/upload_images`, {
           method: "POST",
           headers: {
             "Authorization": `Bearer ${localStorage.getItem("token")}`,
@@ -108,7 +143,7 @@ export default function ArticleForm({ requestType, articleId }) {
         }
 
         const uploadResult = await uploadResponse.json();
-        imageUrls = [...imageUrls, ...uploadResult.urls];
+        imageUrls = [...uploadResult.urls, ...imageUrls];
       } catch (error) {
         console.error("Error uploading images:", error);
         setError(error.message);
@@ -127,6 +162,10 @@ export default function ArticleForm({ requestType, articleId }) {
           short_text: formData.short_text,
           text: formData.text,
           date: new Date().toISOString(),
+          author: formData.author,
+          email: formData.email,
+          googleMaps: formData.googleMaps,
+          images: imageUrls
         },
       ],
     };
@@ -149,7 +188,36 @@ export default function ArticleForm({ requestType, articleId }) {
 
       const articleResult = await articleResponse.json();
       setSuccess(true);
-      router.push(`/article_page?id=${articleId? articleId: articleResult.inserted_id}`);
+
+      if (!prevAuthorEmail) {
+        setPrevAuthorEmail(articleData.email);
+      }
+
+      const notification = {
+        date: new Date().toISOString(),
+        title: requestType === "POST" ? "New Article Created" : "Article Updated",
+        body: `The article "${articleData.name}" has been ${requestType === "POST" ? "created" : "updated"}.`,
+        opened: false,
+        user_id: prevAuthorEmail || articleData.email,
+      };
+
+      console.log("Notification payload:", notification); // Add logging to verify the notification payload
+
+
+      const notificationResponse = await fetch(`${process.env.NEXT_PUBLIC_NOTIFICATIONS_API_URL}/api/v1/notifications`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(notification),
+      });
+
+      if (!notificationResponse.ok) {
+        throw new Error(`Failed to send notification: ${notificationResponse.statusText}`);
+      }
+
+      router.push(`/article_page?id=${articleId ? articleId : articleResult.inserted_id}`);
     } catch (error) {
       console.error("Error submitting article:", error);
       setError(error.message);
@@ -184,6 +252,7 @@ export default function ArticleForm({ requestType, articleId }) {
             value={formData.author}
             onChange={handleChange}
             required
+            readOnly
           />
         </div>
         <div className="form-group">
@@ -209,7 +278,7 @@ export default function ArticleForm({ requestType, articleId }) {
             onChange={handleChange}
           ></textarea>
         </div>
-        <div className="form-group">
+        {/* <div className="form-group">
           <label htmlFor="attachedFiles">Attached Files</label>
           <input
             type="text"
@@ -219,7 +288,7 @@ export default function ArticleForm({ requestType, articleId }) {
             value={formData.attachedFiles}
             onChange={handleChange}
           />
-        </div>
+        </div> */}
         <div className="form-group">
           <label htmlFor="images">Images</label>
           <input
